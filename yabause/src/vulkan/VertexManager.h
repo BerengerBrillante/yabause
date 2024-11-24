@@ -51,8 +51,29 @@ public:
   char * vdata;
   char * idata;
 
-  void freeBuffers(VkDevice device) {
+  VertexBlock() {
+    _vertexBuffer = 0;
+    _vertexBufferMemory = 0;
+    vbufferSize = 0;
 
+    _indexBuffer = 0;
+    _indexBufferMemory = 0;
+    ibufferSize = 0;
+
+    stagingBuffer = 0;
+    stagingBufferMemory = 0;
+
+    istagingBuffer = 0;
+    istagingBufferMemory = 0;
+
+    currentVertex = 0;
+    currentIndex = 0;
+
+    vdata = nullptr;
+    idata = nullptr;
+  }
+
+  void freeBuffers(VkDevice device) {
 
     vkDeviceWaitIdle(device);
 
