@@ -61,7 +61,9 @@ void YabauseGL::initializeGL() {
 
 void YabauseGL::resizeGL( int w, int h )
 { 
-	updateView( QSize( w, h ) ); 
+
+
+	updateView( QSize(w, h) );
 }
 
 void YabauseGL::paintGL() {
@@ -74,6 +76,11 @@ void YabauseGL::paintGL() {
 
 void YabauseGL::updateView( const QSize& s )
 {
+	qreal pixelRatio = this->devicePixelRatio();
+	const QSize size = s.isValid() ? s : this->size();
+	int logicalWidth = size.width() * pixelRatio;
+	int logicalHeight = size.height() * pixelRatio;
+
 	if (VIDCore && VIDCore->id == VIDCORE_OGL) {
 		VolatileSettings* vs = QtYabause::volatileSettings();
 		VideoSetSetting(VDP_SETTING_ROTATE_SCREEN, vs->value("Video/RotateScreen", false).toBool());
@@ -87,10 +94,10 @@ void YabauseGL::updateView( const QSize& s )
 			full = 0;
 		}
 
-		const QSize size = s.isValid() ? s : this->size();
-		viewport_width_ = size.width();
-		viewport_height_ = size.height();
-		glViewport( 0, 0, size.width(), size.height() );
+		
+		viewport_width_ = logicalWidth;
+		viewport_height_ = logicalHeight;
+		glViewport( 0, 0, logicalWidth, logicalHeight);
   
     VIDCore->Resize(viewport_origin_x_, viewport_origin_y_, viewport_width_, viewport_height_, 1, aspectRatio);
   }
