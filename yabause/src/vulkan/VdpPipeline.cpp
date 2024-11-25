@@ -95,7 +95,6 @@ VkShaderModule ShaderManager::compileShader(uint32_t id, const string & code, in
       // ファイルの内容を読み込む
       data.resize(file_size / sizeof(uint32_t));
       file.read(reinterpret_cast<char*>(data.data()), file_size);
-
       file.close();
 
     }else{    

@@ -227,12 +227,12 @@ void YabauseThread::deInitEmulation()
   VolatileSettings* vs = QtYabause::volatileSettings();
   int vidcoretype = vs->value("Video/VideoCore", mYabauseConf.vidcoretype).toInt();
 
-//#ifdef HAVE_VULKAN		
-//  if (vidcoretype == VIDCORE_VULKAN) {
-//   vkQueueWaitIdle(vulkanRenderer->GetVulkanQueue());
-//    vkDeviceWaitIdle(vulkanRenderer->GetVulkanDevice());
-//  }
-//#endif	
+#ifdef HAVE_VULKAN		
+  if (vidcoretype == VIDCORE_VULKAN) {
+   vkQueueWaitIdle(_vulkanRenderer->GetVulkanQueue());
+    vkDeviceWaitIdle(_vulkanRenderer->GetVulkanDevice());
+  }
+#endif	
 
 	YabauseDeInit();
 
@@ -241,6 +241,18 @@ void YabauseThread::deInitEmulation()
 
 bool YabauseThread::pauseEmulation( bool pause, bool reset, std::function<void()> preInitcallback )
 {
+
+	VolatileSettings* vs = QtYabause::volatileSettings();
+	int vidcoretype = vs->value("Video/VideoCore", mYabauseConf.vidcoretype).toInt();
+
+#ifdef HAVE_VULKAN	
+	if (vidcoretype == VIDCORE_VULKAN) {
+		if (pause == true && (_vulkanRenderer == nullptr || _vulkanRenderer->GetVulkanDevice() == VK_NULL_HANDLE || _vulkanRenderer->getWindow() == nullptr) ) {
+			return false;
+		}
+	}
+#endif
+
 	if ( mPause == pause && !reset ) {
 		return true;
 	}
@@ -275,7 +287,7 @@ bool YabauseThread::pauseEmulation( bool pause, bool reset, std::function<void()
 		mTimerId = startTimer( 0 );
 	}
 	
-	VolatileSettings * vs = QtYabause::volatileSettings();
+	
 
 	if (vs->value("autostart").toBool())
 	{

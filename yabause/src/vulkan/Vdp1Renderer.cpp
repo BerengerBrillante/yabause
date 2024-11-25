@@ -2213,7 +2213,7 @@ void Vdp1Renderer::genClearPipeline() {
 
   std::vector<uint32_t> fshaderData;
   std::vector<char> buffer;
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
   std::size_t hash_value = std::hash<std::string>()(get_shader_header() + fragmentShaderName);
   // Serach from file
   string mempath = YuiGetShaderCachePath();
@@ -2230,18 +2230,12 @@ void Vdp1Renderer::genClearPipeline() {
     file.seekg(0, std::ios::beg);
 
     // ファイルの内容を読み込む
-    buffer.resize(file_size);
-    file.read(buffer.data(), file_size);
-
-    for (int i = 0; i < file_size; i += 4) {
-      uint32_t value = static_cast<uint32_t>(buffer[i + 0]) | (static_cast<uint32_t>(buffer[i + 1]) << 8) |
-                       (static_cast<uint32_t>(buffer[i + 2]) << 16) | (static_cast<uint32_t>(buffer[i + 3]) << 24);
-      fshaderData.push_back(value);
-    }
+    fshaderData.resize(file_size / sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(fshaderData.data()), file_size);
     file.close();
 
   } else {
-#endif
+//#endif
     result = compiler.CompileGlslToSpv(get_shader_header() + fragmentShaderName, shaderc_fragment_shader,
                                        "clear fragment", options);
 
@@ -2252,7 +2246,7 @@ void Vdp1Renderer::genClearPipeline() {
     }
 
     fshaderData = {result.cbegin(), result.cend()};
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
     std::ofstream file(file_path, std::ios::binary);
     if (!file) {
       std::cerr << "Error: Failed to open file." << std::endl;
@@ -2260,12 +2254,12 @@ void Vdp1Renderer::genClearPipeline() {
     }
 
     // データを書き込む
-    file.write((const char *)fshaderData.data(), fshaderData.size() * sizeof(uint32_t));
+    file.write(reinterpret_cast<char*>(fshaderData.data()), fshaderData.size() * sizeof(uint32_t));
 
     // ファイルを閉じる
     file.close();
   }
-#endif
+//#endif
 
   VkShaderModuleCreateInfo fcreateInfo = {};
   fcreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
