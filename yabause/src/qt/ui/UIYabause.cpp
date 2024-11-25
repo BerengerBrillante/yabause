@@ -377,6 +377,9 @@ void UIYabause::initWinSparkle()
 	// provide the key using Windows resource.
 	win_sparkle_set_dsa_pub_pem(reinterpret_cast<const char*>(QResource(":/pem/dsa_pub.pem").data()));
 
+	win_sparkle_set_automatic_check_for_updates(1);
+	win_sparkle_set_update_check_interval(3600*8);
+
 	// Initialize the updater and possibly show some UI
 	win_sparkle_init();
 }
