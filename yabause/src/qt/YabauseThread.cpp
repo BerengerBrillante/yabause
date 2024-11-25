@@ -214,6 +214,7 @@ void YabauseThread::initEmulation()
     //glfwSetFramebufferSizeCallback(w->getWindowHandle(), framebufferResizeCallback);
     //glfwSetKeyCallback(w->getWindowHandle(), key_callback);
     //_monitor = glfwGetPrimaryMonitor();
+		VIDVulkan::getInstance()->setRenderer(_vulkanRenderer);
   }
 #endif	
 	mInit = YabauseInit( &mYabauseConf );
@@ -258,7 +259,7 @@ bool YabauseThread::pauseEmulation( bool pause, bool reset, std::function<void()
 	
 	if ( mInit < 0 )
 	{
-		emit error( QtYabause::translate( "Can't initialize Yabause" ), false );
+		emit error( QtYabause::translate( "Can't initialize emulator!" ), false );
 		return false;
 	}
 	

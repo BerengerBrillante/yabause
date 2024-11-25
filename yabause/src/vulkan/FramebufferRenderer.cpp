@@ -1153,7 +1153,7 @@ VkPipeline FramebufferRenderer::compileShader(const char * code, const char * na
 
   std::size_t hash_value = std::hash<std::string>()(target);
 
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
   // Serach from file
   string mempath = YuiGetShaderCachePath();
   std::string hashval = std::to_string(hash_value);
@@ -1175,7 +1175,7 @@ VkPipeline FramebufferRenderer::compileShader(const char * code, const char * na
     file.close();
 
   }else{
-#endif
+//#endif
     Compiler compiler;
     CompileOptions options;
     options.SetOptimizationLevel(shaderc_optimization_level_performance);
@@ -1193,7 +1193,7 @@ VkPipeline FramebufferRenderer::compileShader(const char * code, const char * na
       throw std::runtime_error("failed to create shader module!");
     }
     data = { result.cbegin(), result.cend() };
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
     std::ofstream file(file_path, std::ios::binary);
     if (!file) {
         std::cerr << "Error: Failed to open file." << std::endl;
@@ -1206,7 +1206,7 @@ VkPipeline FramebufferRenderer::compileShader(const char * code, const char * na
     // ファイルを閉じる
     file.close();
   }
-#endif
+//#endif
 
   VkShaderModuleCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

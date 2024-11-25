@@ -150,6 +150,7 @@ protected:
   void *state_buffer = nullptr;
   size_t state_size = 0;
   QString default_title;
+	QString lastErrorMessage;
 	bool isAltPressed;
 
   

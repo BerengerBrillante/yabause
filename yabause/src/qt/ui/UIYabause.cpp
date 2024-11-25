@@ -614,6 +614,8 @@ void UIYabause::appendLog( const char* s )
 		return;
 	}
 
+	lastErrorMessage = s;
+
 	teLog->moveCursor( QTextCursor::End );
 	teLog->append( s );
 
@@ -636,7 +638,7 @@ void UIYabause::errorReceived( const QString& error, bool internal )
 		appendLog( error.toLocal8Bit().constData() );
 	}
 	else {
-		CommonDialogs::information( error );
+		CommonDialogs::information( error + "\n" + lastErrorMessage );
 	}
 }
 
