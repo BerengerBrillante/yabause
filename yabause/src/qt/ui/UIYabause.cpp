@@ -54,6 +54,7 @@
 #include <QWindow>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QResource>
 
 #include <firebase/app.h>
 
@@ -62,6 +63,8 @@
 #include "vulkan/VIDVulkanCInterface.h"
 #endif
 #include "QYabVulkanWidget.h"
+
+#include "winsparkle.h"
 
 extern "C" {
 extern VideoInterface_struct *VIDCoreList[];
@@ -174,6 +177,9 @@ UIYabause::UIYabause( QWidget* parent )
 	connect( mouseCursorTimer, SIGNAL( timeout() ), this, SLOT( cursorRestore() ));
 	connect( mYabauseThread, SIGNAL( toggleEmulateMouse( bool ) ), this, SLOT( toggleEmulateMouse( bool ) ) );
 
+	connect(this, SIGNAL(windowWasShown()), this, SLOT(initWinSparkle()),
+		Qt::ConnectionType(Qt::QueuedConnection | Qt::UniqueConnection));
+
   //connect(this, SIGNAL(setStateFileLoaded(std::string)), this, SLOT(onStateFileLoaded(std::string)));
 
 	// Load shortcuts
@@ -238,6 +244,7 @@ UIYabause::UIYabause( QWidget* parent )
 
 UIYabause::~UIYabause()
 {
+	win_sparkle_cleanup();
 	mCanLog = false;
 }
 
@@ -307,6 +314,80 @@ void UIYabause::showEvent( QShowEvent* e )
 		//QMetaObject::invokeMethod(this, "on_aHelpAbout_triggered", Qt::QueuedConnection );
 
 	}
+
+	emit windowWasShown();
+
+}
+
+#include <cstdlib>
+#include <cwchar>
+
+std::string versionToScalar(const std::string& version) {
+	std::stringstream ss(version);
+	std::string segment;
+	std::vector<int> parts;
+
+	// バージョン文字列を "." で分割
+	while (std::getline(ss, segment, '.')) {
+		parts.push_back(std::stoi(segment));
+	}
+
+	// 各部分をスカラー値に変換
+	std::ostringstream result;
+	if (parts.size() > 0) {
+		result << std::setw(3) << std::setfill('0') << std::setw(3) << parts[0]; // Majorバージョン（1桁）
+	}
+	if (parts.size() > 1) {
+		result << std::setw(3) << std::setfill('0') << parts[1]; // Minorバージョン（3桁）
+	}
+	if (parts.size() > 2) {
+		result << std::setw(3) << std::setfill('0') << parts[2]; // Patchバージョン（3桁）
+	}
+
+	result << "000"; // 手動
+
+	return result.str();
+}
+
+// char* を wchar_t* に変換する関数
+std::wstring charToWString(const char* str) {
+	size_t len = std::strlen(str);
+	std::wstring wstr(len, L'\0');
+	std::mbstowcs(&wstr[0], str, len);
+	return wstr;
+}
+
+void UIYabause::initWinSparkle()
+{
+	std::string scalar = versionToScalar(VERSION);
+	std::wstring wScalarVersion = charToWString(scalar.c_str());
+	win_sparkle_set_app_build_version(wScalarVersion.c_str());
+
+	// Setup updates feed. This must be done before win_sparkle_init(), but
+	// could be also, often more conveniently, done using a VERSIONINFO Windows
+	// resource. See the "psdk" example and its .rc file for an example of that
+	// (these calls wouldn't be needed then).
+	win_sparkle_set_appcast_url("https://www.uoyabause.org/appcast.xml");
+	std::wstring wVersion = charToWString(VERSION);
+	win_sparkle_set_app_details(L"devMiyax", L"YabaSanshiro", wVersion.c_str());
+
+	// Set DSA public key used to verify update's signature.
+	// This is na example how to provide it from external source (i.e. from Qt
+	// resource). See the "psdk" example and its .rc file for an example how to
+	// provide the key using Windows resource.
+	win_sparkle_set_dsa_pub_pem(reinterpret_cast<const char*>(QResource(":/pem/dsa_pub.pem").data()));
+
+	// Initialize the updater and possibly show some UI
+	win_sparkle_init();
+}
+
+void UIYabause::checkForUpdates()
+{
+	win_sparkle_check_update_with_ui();
+}
+
+void UIYabause::on_actionCheck_for_updates_triggered() {
+	win_sparkle_check_update_with_ui();
 }
 
 void UIYabause::closeEvent( QCloseEvent* e )

@@ -247,6 +247,7 @@
     <addaction name="aHelpReport"/>
     <addaction name="aHelpCompatibilityList"/>
     <addaction name="aHelpAbout"/>
+    <addaction name="actionCheck_for_updates"/>
    </widget>
    <widget class="QMenu" name="mTools">
     <property name="title">
@@ -1092,6 +1093,11 @@
    </property>
    <property name="text">
     <string>iOS</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_updates">
+   <property name="text">
+    <string>Check for updates</string>
    </property>
   </action>
  </widget>
