@@ -162,6 +162,39 @@ VdpPipeline::VdpPipeline(
   logwinsp = 0;
   winmode = -1;
 
+  vectexBlock = 0;
+  vertexOffset = 0;
+  vertexSize = 0;
+  indexOffset = 0;
+  indexSize = 0;
+
+  vaid = 0;
+  uClipMode = 0;
+  ux1, uy1, ux2, uy2 = 0;
+  blendmode = 0;
+  preblendmode = 0;
+  bwin0, logwin0, bwin1, logwin1, bwinsp, logwinsp, winmode = 0;
+  vertexp = 0;
+  texcoordp = 0;
+  mtxModelView = 0;
+  mtxTexture = 0;
+  color_offset = 0;
+  tex0 = 0;
+  tex1 = 0;
+  color_offset_val[0] = 0;
+  color_offset_val[1] = 0;
+  color_offset_val[2] = 0;
+  color_offset_val[3] = 0;
+
+
+  tessControll = "";
+  vertexShaderName = "";
+  fragShaderName = "";
+  tessControll = "";
+  tessEvaluation = "";
+  geometry = "";
+  fragFuncCheckWindow = "";
+
   ubuffer.resize(MAX_DS_SIZE);
   memset(_descriptorSet, 0, sizeof(VkDescriptorSet) * MAX_DS_SIZE);
 
@@ -304,6 +337,7 @@ VdpPipeline::VdpPipeline(
   this->vulkan = vulkan;
   this->tm = tm;
   this->vm = vm;
+
 
 }
 

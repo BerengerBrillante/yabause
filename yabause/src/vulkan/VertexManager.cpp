@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 VertexManager::VertexManager(VIDVulkan * vulkan) {
   this->vulkan = vulkan;
+  baseVertexBlockSize = 0;
+  baseIndexBlockSize = 0;
 }
 
 VertexManager::~VertexManager() {
@@ -104,7 +106,9 @@ void VertexManager::genBlock(VertexBlock & block, unsigned int vertexSize, unsig
 #endif
 
   vkMapMemory(device, block.stagingBufferMemory, 0, block.vbufferSize, 0, (void**)&block.vdata);
+  memset(block.vdata, 0, block.vbufferSize);
   vkMapMemory(device, block.istagingBufferMemory, 0, block.ibufferSize, 0, (void**)&block.idata);
+  memset(block.idata, 0, block.ibufferSize);
 
 
 }

@@ -39,6 +39,7 @@ using shaderc::SpvCompilationResult;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
+#include "vulkan/vulkan.hpp"
 
 #include <math.h>
 #define EPSILON (1e-10)
@@ -95,6 +96,123 @@ Vdp1Renderer::Vdp1Renderer(int width, int height, VIDVulkan *vulkan) {
 
 Vdp1Renderer::~Vdp1Renderer() {
 
+  auto d = vulkan->getDevice();
+  vk::Device device(d);
+
+  // Offscreen pass resources cleanup
+  for (int i = 0; i < FRAMEBUFFER_COUNT; i++) {
+    if (offscreenPass.color[i].image) device.destroyImage(offscreenPass.color[i].image);
+    if (offscreenPass.color[i].mem) device.freeMemory(offscreenPass.color[i].mem);
+    if (offscreenPass.color[i].view) device.destroyImageView(offscreenPass.color[i].view);
+    if (offscreenPass.color[i]._render_complete_semaphore) {
+      device.destroySemaphore(offscreenPass.color[i]._render_complete_semaphore);
+    }
+    // Destroy any remaining fences in the queue
+    while (!offscreenPass.color[i].renderFences.empty()) {
+      device.destroyFence(offscreenPass.color[i].renderFences.front());
+      offscreenPass.color[i].renderFences.pop();
+    }
+  }
+
+  // Destroy depth resources
+  if (offscreenPass.depth.image) device.destroyImage(offscreenPass.depth.image);
+  if (offscreenPass.depth.mem) device.freeMemory(offscreenPass.depth.mem);
+  if (offscreenPass.depth.view) device.destroyImageView(offscreenPass.depth.view);
+
+  // Destroy framebuffers and other offscreen resources
+  for (int i = 0; i < 2; i++) {
+    if (offscreenPass.frameBuffer[i]) {
+      device.destroyFramebuffer(offscreenPass.frameBuffer[i]);
+    }
+  }
+  if (offscreenPass.renderPass) device.destroyRenderPass(offscreenPass.renderPass);
+  if (offscreenPass.sampler) device.destroySampler(offscreenPass.sampler);
+
+  // Destroy command pool and buffers
+  if (_command_pool) {
+    if (!_command_buffers.empty()) {
+      std::vector<vk::CommandBuffer> vkCommandBuffers;
+      vkCommandBuffers.reserve(_command_buffers.size());
+      for (const auto& cmd : _command_buffers) {
+        vkCommandBuffers.push_back(static_cast<vk::CommandBuffer>(cmd));
+      }
+      device.freeCommandBuffers(_command_pool, vkCommandBuffers);
+    }
+    device.destroyCommandPool(_command_pool);
+  }
+
+  // Destroy uniform buffers
+  if (_uniformBuffer) {
+    device.destroyBuffer(_uniformBuffer);
+    device.freeMemory(_uniformBufferMemory);
+  }
+
+  if (_clearUniformBuffer) {
+    device.destroyBuffer(_clearUniformBuffer);
+    device.freeMemory(_clearUniformBufferMemory);
+  }
+
+  // Destroy vertex and index buffers
+  if (_vertexBuffer) {
+    device.destroyBuffer(_vertexBuffer);
+    device.freeMemory(_vertexBufferMemory);
+  }
+  if (_indexBuffer) {
+    device.destroyBuffer(_indexBuffer);
+    device.freeMemory(_indexBufferMemory);
+  }
+
+  // Destroy descriptor resources
+  if (_descriptorPool) {
+    device.destroyDescriptorPool(_descriptorPool);
+  }
+  if (_descriptorSetLayout) {
+    device.destroyDescriptorSetLayout(_descriptorSetLayout);
+  }
+
+  // Destroy shader modules
+  if (_vertShaderModule) device.destroyShaderModule(_vertShaderModule);
+  if (_fragShaderModule) device.destroyShaderModule(_fragShaderModule);
+
+  // Destroy pipeline resources
+  if (_pipelineLayout) device.destroyPipelineLayout(_pipelineLayout);
+  if (_graphicsPipeline) device.destroyPipeline(_graphicsPipeline);
+
+  // Cleanup pipelines vector
+  for (auto pipeline : piplelines) {
+    delete pipeline;
+  }
+  piplelines.clear();
+
+  // Destroy framebuffer read/write resources
+  if (dstDeviceImage) {
+    device.destroyImage(dstDeviceImage);
+    device.freeMemory(dstDeviceImageMemory);
+  }
+  if (dstImage) {
+    device.destroyImage(dstImage);
+    device.freeMemory(dstImageMemory);
+  }
+  if (writeDeviceImage) {
+    device.destroyImage(writeDeviceImage);
+    device.freeMemory(writeDeviceImageMemory);
+  }
+  if (writeImage) {
+    device.destroyImage(writeImage);
+    device.freeMemory(writeImageMemory);
+  }
+
+  // Free CPU buffers
+  if (cpuWriteBuffer) {
+    delete[] cpuWriteBuffer;
+    cpuWriteBuffer = nullptr;
+  }
+
+  // Delete managers
+  delete tm;
+  delete vm;
+  delete pipleLineFactory;
+/*
   delete pipleLineFactory;
   VkDevice device = vulkan->getDevice();
   vkDestroySampler(device, offscreenPass.sampler, nullptr);
@@ -130,6 +248,11 @@ Vdp1Renderer::~Vdp1Renderer() {
     delete vm;
     vm = nullptr;
   }
+*/
+}
+
+void Vdp1Renderer::setPolygonMode(POLYGONMODE p) {
+  proygonMode = p;
 }
 
 void Vdp1Renderer::setUp() {
@@ -765,6 +888,8 @@ void Vdp1Renderer::drawEnd(void) {
 
   piplelines.push_back(currentPipeLine);
   for (int i = 0; i < piplelines.size(); i++) {
+
+
     piplelines[i]->moveToVertexBuffer(piplelines[i]->vertices, piplelines[i]->indices);
     piplelines[i]->setUBO(&ubo, sizeof(vdp1Ubo));
     piplelines[i]->setSampler(VdpPipeline::bindIdTexture, tm->geTextureImageView(), tm->getTextureSampler());
@@ -1016,6 +1141,12 @@ void Vdp1Renderer::drawEnd(void) {
                            VK_INDEX_TYPE_UINT16);
 
       vkCmdDrawIndexed(cb, piplelines[i]->indexSize, 1, 0, 0, 0);
+      //printf("draw %d\n", piplelines[i]->indexOffset, piplelines[i]->indexSize);
+
+      //std::ostringstream stream;
+      //stream << "piplelines[" << i << "]->indexOffset = " << piplelines[i]->indexOffset << " piplelines[" << i << "]->indexSize = " << piplelines[i]->indexSize << std::endl;
+      //std::string debugMessage = stream.str();
+      //OutputDebugStringA(debugMessage.c_str());
 
       if (piplelines[i]->prgid != PG_VDP1_SYSTEM_CLIP && piplelines[i]->prgid != PG_VDP1_USER_CLIP) {
         this->cpuFramebufferWriteCount[0] = 0;
@@ -3764,6 +3895,7 @@ int Vdp1Renderer::genPolygon(YglSprite *input, CharTexture *output, float *color
   } else {
     program = currentPipeLine;
   }
+
 
   Vertex tmp[4];
   tmp[0].pos[0] = input->vertices[0];
