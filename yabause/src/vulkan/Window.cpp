@@ -28,7 +28,10 @@ along with YabaSanshiro; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#if defined (_WINDOWS)
 #define VK_USE_PLATFORM_WIN32_KHR 1
+#endif
+
 #include "Window.h"
 #include "Renderer.h"
 #include "Shared.h"
