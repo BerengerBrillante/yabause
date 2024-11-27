@@ -39,7 +39,6 @@ using shaderc::SpvCompilationResult;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
-#include "vulkan/vulkan.hpp"
 
 #include <math.h>
 #define EPSILON (1e-10)
@@ -95,88 +94,81 @@ Vdp1Renderer::Vdp1Renderer(int width, int height, VIDVulkan *vulkan) {
 }
 
 Vdp1Renderer::~Vdp1Renderer() {
-
-  auto d = vulkan->getDevice();
-  vk::Device device(d);
+  VkDevice device = vulkan->getDevice();  
 
   // Offscreen pass resources cleanup
   for (int i = 0; i < FRAMEBUFFER_COUNT; i++) {
-    if (offscreenPass.color[i].image) device.destroyImage(offscreenPass.color[i].image);
-    if (offscreenPass.color[i].mem) device.freeMemory(offscreenPass.color[i].mem);
-    if (offscreenPass.color[i].view) device.destroyImageView(offscreenPass.color[i].view);
+    if (offscreenPass.color[i].image) vkDestroyImage(device, offscreenPass.color[i].image, nullptr);
+    if (offscreenPass.color[i].mem) vkFreeMemory(device, offscreenPass.color[i].mem, nullptr);
+    if (offscreenPass.color[i].view) vkDestroyImageView(device, offscreenPass.color[i].view, nullptr);
     if (offscreenPass.color[i]._render_complete_semaphore) {
-      device.destroySemaphore(offscreenPass.color[i]._render_complete_semaphore);
+      vkDestroySemaphore(device, offscreenPass.color[i]._render_complete_semaphore, nullptr);
     }
     // Destroy any remaining fences in the queue
     while (!offscreenPass.color[i].renderFences.empty()) {
-      device.destroyFence(offscreenPass.color[i].renderFences.front());
+      vkDestroyFence(device, offscreenPass.color[i].renderFences.front(), nullptr);
       offscreenPass.color[i].renderFences.pop();
     }
   }
 
   // Destroy depth resources
-  if (offscreenPass.depth.image) device.destroyImage(offscreenPass.depth.image);
-  if (offscreenPass.depth.mem) device.freeMemory(offscreenPass.depth.mem);
-  if (offscreenPass.depth.view) device.destroyImageView(offscreenPass.depth.view);
+  if (offscreenPass.depth.image) vkDestroyImage(device, offscreenPass.depth.image, nullptr);
+  if (offscreenPass.depth.mem) vkFreeMemory(device, offscreenPass.depth.mem, nullptr);
+  if (offscreenPass.depth.view) vkDestroyImageView(device, offscreenPass.depth.view, nullptr);
 
   // Destroy framebuffers and other offscreen resources
   for (int i = 0; i < 2; i++) {
     if (offscreenPass.frameBuffer[i]) {
-      device.destroyFramebuffer(offscreenPass.frameBuffer[i]);
+      vkDestroyFramebuffer(device, offscreenPass.frameBuffer[i], nullptr);
     }
   }
-  if (offscreenPass.renderPass) device.destroyRenderPass(offscreenPass.renderPass);
-  if (offscreenPass.sampler) device.destroySampler(offscreenPass.sampler);
+  if (offscreenPass.renderPass) vkDestroyRenderPass(device, offscreenPass.renderPass, nullptr);
+  if (offscreenPass.sampler) vkDestroySampler(device, offscreenPass.sampler, nullptr);
 
   // Destroy command pool and buffers
   if (_command_pool) {
     if (!_command_buffers.empty()) {
-      std::vector<vk::CommandBuffer> vkCommandBuffers;
-      vkCommandBuffers.reserve(_command_buffers.size());
-      for (const auto& cmd : _command_buffers) {
-        vkCommandBuffers.push_back(static_cast<vk::CommandBuffer>(cmd));
-      }
-      device.freeCommandBuffers(_command_pool, vkCommandBuffers);
+      vkFreeCommandBuffers(device, _command_pool, static_cast<uint32_t>(_command_buffers.size()), _command_buffers.data());
     }
-    device.destroyCommandPool(_command_pool);
+    vkDestroyCommandPool(device, _command_pool, nullptr);
   }
 
   // Destroy uniform buffers
   if (_uniformBuffer) {
-    device.destroyBuffer(_uniformBuffer);
-    device.freeMemory(_uniformBufferMemory);
+    vkDestroyBuffer(device, _uniformBuffer, nullptr);
+    vkFreeMemory(device, _uniformBufferMemory, nullptr);
   }
 
   if (_clearUniformBuffer) {
-    device.destroyBuffer(_clearUniformBuffer);
-    device.freeMemory(_clearUniformBufferMemory);
+    vkDestroyBuffer(device, _clearUniformBuffer, nullptr);
+    vkFreeMemory(device, _clearUniformBufferMemory, nullptr);
   }
 
   // Destroy vertex and index buffers
   if (_vertexBuffer) {
-    device.destroyBuffer(_vertexBuffer);
-    device.freeMemory(_vertexBufferMemory);
+    vkDestroyBuffer(device, _vertexBuffer, nullptr);
+    vkFreeMemory(device, _vertexBufferMemory, nullptr);
   }
   if (_indexBuffer) {
-    device.destroyBuffer(_indexBuffer);
-    device.freeMemory(_indexBufferMemory);
+    vkDestroyBuffer(device, _indexBuffer, nullptr);
+    vkFreeMemory(device, _indexBufferMemory, nullptr);
   }
 
   // Destroy descriptor resources
   if (_descriptorPool) {
-    device.destroyDescriptorPool(_descriptorPool);
+    vkDestroyDescriptorPool(device, _descriptorPool, nullptr);
   }
   if (_descriptorSetLayout) {
-    device.destroyDescriptorSetLayout(_descriptorSetLayout);
+    vkDestroyDescriptorSetLayout(device, _descriptorSetLayout, nullptr);
   }
 
   // Destroy shader modules
-  if (_vertShaderModule) device.destroyShaderModule(_vertShaderModule);
-  if (_fragShaderModule) device.destroyShaderModule(_fragShaderModule);
+  if (_vertShaderModule) vkDestroyShaderModule(device, _vertShaderModule, nullptr);
+  if (_fragShaderModule) vkDestroyShaderModule(device, _fragShaderModule, nullptr);
 
   // Destroy pipeline resources
-  if (_pipelineLayout) device.destroyPipelineLayout(_pipelineLayout);
-  if (_graphicsPipeline) device.destroyPipeline(_graphicsPipeline);
+  if (_pipelineLayout) vkDestroyPipelineLayout(device, _pipelineLayout, nullptr);
+  if (_graphicsPipeline) vkDestroyPipeline(device, _graphicsPipeline, nullptr);
 
   // Cleanup pipelines vector
   for (auto pipeline : piplelines) {
@@ -186,20 +178,20 @@ Vdp1Renderer::~Vdp1Renderer() {
 
   // Destroy framebuffer read/write resources
   if (dstDeviceImage) {
-    device.destroyImage(dstDeviceImage);
-    device.freeMemory(dstDeviceImageMemory);
+    vkDestroyImage(device, dstDeviceImage, nullptr);
+    vkFreeMemory(device, dstDeviceImageMemory, nullptr);
   }
   if (dstImage) {
-    device.destroyImage(dstImage);
-    device.freeMemory(dstImageMemory);
+    vkDestroyImage(device, dstImage, nullptr);
+    vkFreeMemory(device, dstImageMemory, nullptr);
   }
   if (writeDeviceImage) {
-    device.destroyImage(writeDeviceImage);
-    device.freeMemory(writeDeviceImageMemory);
+    vkDestroyImage(device, writeDeviceImage, nullptr);
+    vkFreeMemory(device, writeDeviceImageMemory, nullptr);
   }
   if (writeImage) {
-    device.destroyImage(writeImage);
-    device.freeMemory(writeImageMemory);
+    vkDestroyImage(device, writeImage, nullptr);
+    vkFreeMemory(device, writeImageMemory, nullptr);
   }
 
   // Free CPU buffers
@@ -212,43 +204,7 @@ Vdp1Renderer::~Vdp1Renderer() {
   delete tm;
   delete vm;
   delete pipleLineFactory;
-/*
-  delete pipleLineFactory;
-  VkDevice device = vulkan->getDevice();
-  vkDestroySampler(device, offscreenPass.sampler, nullptr);
-  for( int i=0; i<FRAMEBUFFER_COUNT; i++ ){
-    vkDestroyImage(device, offscreenPass.color[i].image, nullptr);
-    vkFreeMemory(device, offscreenPass.color[i].mem, nullptr);
-    vkDestroyImageView(device, offscreenPass.color[i].view, nullptr);
-  }
-  vkDestroyImage(device, offscreenPass.depth.image, nullptr);
-  vkFreeMemory(device, offscreenPass.depth.mem, nullptr);
-  vkDestroyImageView(device, offscreenPass.depth.view, nullptr);
-  vkDestroyFramebuffer(device, offscreenPass.frameBuffer[0], nullptr);
-  vkDestroyFramebuffer(device, offscreenPass.frameBuffer[1], nullptr);
 
-  if (dstImage != VK_NULL_HANDLE) {
-    vkDestroyImage(device, dstImage, nullptr);
-  }
-  if (dstImageMemory != VK_NULL_HANDLE) {
-    vkFreeMemory(device, dstImageMemory, nullptr);
-  }
-  if (dstDeviceImage != VK_NULL_HANDLE) {
-    vkDestroyImage(device, dstDeviceImage, nullptr);
-  }
-  if (dstDeviceImageMemory != VK_NULL_HANDLE) {
-    vkFreeMemory(device, dstDeviceImageMemory, nullptr);
-  }
-
-  if (tm) {
-    delete tm;
-    tm = nullptr;
-  }
-  if (vm) {
-    delete vm;
-    vm = nullptr;
-  }
-*/
 }
 
 void Vdp1Renderer::setPolygonMode(POLYGONMODE p) {
