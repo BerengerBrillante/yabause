@@ -129,7 +129,8 @@ void YabauseThread::resize(int w, int h) {
 	VideoSetSetting(VDP_SETTING_ROTATE_SCREEN, vs->value("Video/RotateScreen", false).toBool());
 	int aspectRatio = QtYabause::volatileSettings()->value("Video/AspectRatio", 0).toInt();
 
-  VIDCore->Resize(0, 0, w, h, 0, aspectRatio);
+	if(VIDCore)
+		VIDCore->Resize(0, 0, w, h, 0, aspectRatio);
 }
 
 #ifdef HAVE_VULKAN
