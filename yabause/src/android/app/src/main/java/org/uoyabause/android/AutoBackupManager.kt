@@ -140,36 +140,45 @@ class AutoBackupManager(
         return 0
     }
 
-    fun unzip(zipFile: File, destinationDirectory: File, setTime: Long?) : Int {
+    fun unzip(zipFile: File, destinationDirectory: File, setTime: Long?): Int {
         try {
             val buffer = ByteArray(4096)
             val zipIn = ZipInputStream(zipFile.inputStream())
             var entry = zipIn.nextEntry
+
             while (entry != null) {
                 val outputFile = File(destinationDirectory, entry.name)
+
+                if (!outputFile.canonicalPath.startsWith(destinationDirectory.canonicalPath)) {
+                    Log.e(TAG, "Entry is outside of the target dir: ${entry.name}")
+                    return -1
+                }
+
                 if (entry.isDirectory) {
                     outputFile.mkdirs()
                 } else {
                     outputFile.parentFile?.mkdirs()
-                    val fos = FileOutputStream(outputFile)
-                    var len = zipIn.read(buffer)
-                    while (len > 0) {
-                        fos.write(buffer, 0, len)
-                        len = zipIn.read(buffer)
+                    FileOutputStream(outputFile).use { fos ->
+                        var len = zipIn.read(buffer)
+                        while (len > 0) {
+                            fos.write(buffer, 0, len)
+                            len = zipIn.read(buffer)
+                        }
                     }
-                    fos.close()
                 }
+
                 // ファイルの日付情報を設定
-                if( setTime != null) {
+                if (setTime != null) {
                     Log.d(TAG, "unzip time = ${unixTimeToDateString(setTime)}")
                     outputFile.setLastModified(setTime)
                 }
+
                 entry = zipIn.nextEntry
             }
             zipIn.closeEntry()
             zipIn.close()
-        }catch( e : Exception ){
-            Log.e(TAG,"${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "${e.message}")
             return -1
         }
         return 0

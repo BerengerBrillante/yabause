@@ -525,7 +525,6 @@ class GameSelectPresenter(
 
             var zipFileName = ""
             try {
-
                 val f = File(path)
                 zipFileName = storage.getInstallDir().absolutePath + "/" + f.name
                 val fd = File(zipFileName)
@@ -539,12 +538,9 @@ class GameSelectPresenter(
                         } else {
                             copyFileO(inputStream, outputStream)
                         }
-                        inputStream.close()
-                        outputStream.close()
                     }
                 }
                 parcelFileDescriptor.close()
-
 
                 var targetFileName = ""
 
@@ -552,104 +548,91 @@ class GameSelectPresenter(
                     listener_.onUpdateDialogMessage("Extracting ${fd.name}")
                 }
 
-                if (zipFileName.lowercase(Locale.getDefault()).endsWith("zip")) {
+                val installDir = storage.getInstallDir()
 
+                if (zipFileName.lowercase(Locale.getDefault()).endsWith("zip")) {
                     ZipFile(zipFileName).use { zip ->
                         zip.entries().asSequence().forEach { entry ->
+                            val outputFile = File(installDir, entry.name)
+
+                            // パストラバーサル攻撃を防止するための検証
+                            if (!outputFile.canonicalPath.startsWith(installDir.canonicalPath)) {
+                                Log.e(TAG, "Entry is outside of the target dir: ${entry.name}")
+                                return@forEach
+                            }
+
+                            if (entry.isDirectory) {
+                                outputFile.mkdirs()
+                            } else {
+                                outputFile.parentFile?.mkdirs()
+                                zip.getInputStream(entry).use { input ->
+                                    outputFile.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
+                                }
+                            }
 
                             if (entry.name.lowercase(Locale.ROOT).endsWith("ccd") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("cue") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("mds")
                             ) {
-                                targetFileName = storage.getInstallDir().absolutePath + "/" + entry.name
-                            }
-                            zip.getInputStream(entry).use { input ->
-                                if (entry.isDirectory) {
-                                    val unzipdir =
-                                        File(storage.getInstallDir().absolutePath + "/" + entry.name)
-                                    if (!unzipdir.exists()) {
-                                        unzipdir.mkdirs()
-                                    } else {
-                                        unzipdir.delete()
-                                        unzipdir.mkdirs()
-                                    }
-                                } else {
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name).outputStream()
-                                        .use { output ->
-                                            input.copyTo(output)
-                                        }
-                                }
+                                targetFileName = outputFile.absolutePath
                             }
                         }
                     }
                 } else if (zipFileName.lowercase(Locale.getDefault()).endsWith("7z")) {
                     SevenZFile(File(zipFileName)).use { sz ->
                         sz.entries.asSequence().forEach { entry ->
+                            val outputFile = File(installDir, entry.name)
 
-                            Log.i(TAG, "Extracting ${entry.name}")
+                            // パストラバーサル攻撃を防止するための検証
+                            if (!outputFile.canonicalPath.startsWith(installDir.canonicalPath)) {
+                                Log.e(TAG, "Entry is outside of the target dir: ${entry.name}")
+                                return@forEach
+                            }
+
+                            if (entry.isDirectory) {
+                                outputFile.mkdirs()
+                            } else {
+                                outputFile.parentFile?.mkdirs()
+                                sz.getInputStream(entry).use { input ->
+                                    outputFile.outputStream().use { output ->
+                                        input.copyTo(output, bufferSize = 32 * 1024)
+                                    }
+                                }
+                            }
 
                             if (entry.name.lowercase(Locale.ROOT).endsWith("ccd") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("cue") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("mds")
                             ) {
-                                targetFileName = storage.getInstallDir().absolutePath + "/" + entry.name
-                            }
-
-                            if (entry.isDirectory) {
-                                val unzipdir =
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name)
-                                if (!unzipdir.exists()) {
-                                    unzipdir.mkdirs()
-                                } else {
-                                    unzipdir.delete()
-                                    unzipdir.mkdirs()
-                                }
-                            } else {
-                                sz.getInputStream(entry).use { input ->
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name).outputStream()
-                                        .use { output ->
-                                            Log.i(TAG, "Starting to copy ${storage.getInstallDir().absolutePath + "/" + entry.name}")
-                                            input.copyTo(output, bufferSize = 32 * 1024)
-                                            Log.i(TAG, "Finished copying ${storage.getInstallDir().absolutePath + "/" + entry.name}")
-                                        }
-                                }
+                                targetFileName = outputFile.absolutePath
                             }
                         }
                     }
                 }
 
-                if (targetFileName != "") {
+                if (targetFileName.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
                         decrementInstallCount()
                         fileSelected(File(targetFileName))
                     }
                 } else {
-
                     withContext(Dispatchers.Main) {
                         Toast.makeText(target_.requireContext(),
                             "ISO image is not found!!",
                             Toast.LENGTH_LONG).show()
-                        Log.e(TAG, "ISO image is not found!!")
                     }
+                    Log.e(TAG, "ISO image is not found!!")
                 }
             } catch (e: Exception) {
-
                 withContext(Dispatchers.Main) {
                     Toast.makeText(target_.requireContext(),
-                        "Fail to copy " + e.localizedMessage,
-                        Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "Fail to copy " + e.localizedMessage)
-                }
-            } catch (e: IOException) {
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(target_.requireContext(),
-                        "Fail to copy " + e.localizedMessage,
+                        "Fail to copy ${e.localizedMessage}",
                         Toast.LENGTH_LONG).show()
                 }
-                Log.e(TAG, "Fail to copy " + e.localizedMessage)
+                Log.e(TAG, "Fail to copy ${e.localizedMessage}")
             } finally {
-
                 val fd = File(zipFileName)
                 if (fd.isFile && fd.exists()) {
                     fd.delete()
