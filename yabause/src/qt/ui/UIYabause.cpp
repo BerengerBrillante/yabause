@@ -301,10 +301,10 @@ void UIYabause::showEvent( QShowEvent* e )
 		LogChangeOutput( DEBUG_CALLBACK, (char*)qAppendLog );
 		VolatileSettings* vs = QtYabause::volatileSettings();
 
-		if ( vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
-			menubar->hide();
-		if ( vs->value( "View/Toolbar" ).toInt() == BD_ALWAYSHIDE )
-			toolBar->hide();
+		//if ( vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
+	//		menubar->hide();
+		//if ( vs->value( "View/Toolbar" ).toInt() == BD_ALWAYSHIDE )
+	//		toolBar->hide();
 		if ( vs->value( "autostart" ).toBool() )
 			aEmulationRun->trigger();
 		aEmulationFrameSkipLimiter->setChecked( vs->value( "General/EnableFrameSkipLimiter" ).toBool() );
@@ -415,9 +415,9 @@ void UIYabause::keyPressEvent( QKeyEvent* e )
 	else
 		PerKeyDown( e->key() ); 
 
-	if (e->key() == Qt::Key_Alt) {
-		toggleMenuAndToolBar();
-	}
+	//if (e->key() == Qt::Key_Alt) {
+	//	toggleMenuAndToolBar();
+	//}
 }
 
 void UIYabause::keyReleaseEvent( QKeyEvent* e )
@@ -504,10 +504,9 @@ void UIYabause::mouseMoveEvent( QMouseEvent* e )
 		}
 		else if (vs->value( "View/Menubar" ).toInt() == BD_SHOWONFSHOVER)
 		{
-			if (e->y() < showMenuBarHeight)
-				menubar->show();
-			else
-				menubar->hide();
+//			if (e->y() < showMenuBarHeight)				menubar->show();
+//			else
+//				menubar->hide();
 		}
 
 		hideMouseTimer->start(3 * 1000);
@@ -535,11 +534,11 @@ void UIYabause::resizeEvent( QResizeEvent* event )
 void UIYabause::adjustHeight(int & height)
 {
   // Compensate for menubar and toolbar
-  VolatileSettings* vs = QtYabause::volatileSettings();
-  if (vs->value("View/Menubar").toInt() != BD_ALWAYSHIDE)
-    height += menubar->height();
-  if (vs->value("View/Toolbar").toInt() != BD_ALWAYSHIDE)
-    height += toolBar->height();
+  //VolatileSettings* vs = QtYabause::volatileSettings();
+  //if (vs->value("View/Menubar").toInt() != BD_ALWAYSHIDE)
+  //  height += menubar->height();
+  //if (vs->value("View/Toolbar").toInt() != BD_ALWAYSHIDE)
+  //  height += toolBar->height();
 }
 
 void UIYabause::resizeIntegerScaling()
@@ -791,6 +790,7 @@ int UIYabause::findBestVideoFreq( int width, int height, int bpp, int videoForma
 
 void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat )
 {
+#if 0
 	// Make sure setting is valid
 	if (f && isResolutionValid( width, height, -1, -1 ) < 0)
 		return;
@@ -824,8 +824,8 @@ void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat
 	} 
   else {
     ChangeDisplaySettings(NULL, 0);
-    toolBar->show();
-    menubar->show();
+    //toolBar->show();
+    //menubar->show();
 
     int title_height = (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER));
     int title_width = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
@@ -847,6 +847,7 @@ void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat
 		ScreenRestoreResolution();
 	}
 #endif
+#endif
 }
 
 void UIYabause::toggleMenuAndToolBar() {
@@ -854,12 +855,20 @@ void UIYabause::toggleMenuAndToolBar() {
 
 	if (isFullScreen()) {
 		if (isAltPressed) {
-			menubar->show();
-			toolBar->show();
+			//menubar->show();
+			//toolBar->show();
+			menuBar()->show();
+			for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+				toolBar->show();
+			}
 		}
 		else {
-			menubar->hide();
-			toolBar->hide();
+			//menubar->hide();
+			//toolBar->hide();
+			menuBar()->hide();
+			for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+				toolBar->hide();
+			}
 		}
 	}
 }
@@ -870,16 +879,24 @@ void UIYabause::fullscreenRequested( bool f )
 	if (!f) {
 		showNormal();
 		isAltPressed = false;
-		toolBar->show();
-		menubar->show();
+		//toolBar->show();
+		//menubar->show();
+		menuBar()->show();
+		for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+			toolBar->show();
+		}
 		restoreResolution();
-		windowHandle()->setFlags(Qt::Window);
 	}
 	else {
 		isAltPressed = false;
+	  originalGeometry = geometry();
 		saveCurrentResolution();
-		toolBar->hide();
-		menubar->hide();
+		//toolBar->hide();
+		//menubar->hide();
+		menuBar()->hide();
+		for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+			toolBar->hide();
+		}
 		VolatileSettings* vs = QtYabause::volatileSettings();
 		setResolution(vs->value("Video/FullscreenWidth", "1920").toInt(), vs->value("Video/FullscreenHeight", "1080").toInt()); 
 		showFullScreen();
@@ -987,7 +1004,7 @@ void UIYabause::on_aFileSettings_triggered()
 		aEmulationFrameSkipLimiter->setChecked( vs->value( "General/EnableFrameSkipLimiter" ).toBool() );
 		aViewFPS->setChecked( vs->value( "General/ShowFPS" ).toBool() );
 		mouseSensitivity = vs->value( "Input/GunMouseSensitivity" ).toInt();
-		
+#if 0
 		if(isFullScreen())
 		{
 			if ( vs->value( "View/Menubar" ).toInt() == BD_HIDEFS || vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
@@ -1012,7 +1029,7 @@ void UIYabause::on_aFileSettings_triggered()
 			else
 				toolBar->show();
 		}
-
+#endif
 		
 		//only reset if bios, region, cart,  back up, mpeg, sh2, m68k are changed
 		Settings *ss = (QtYabause::settings());

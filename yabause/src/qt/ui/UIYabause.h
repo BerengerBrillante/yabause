@@ -160,6 +160,8 @@ protected:
   SavedWinInfo saved_window_info_;
 #endif
 
+	QRect originalGeometry;
+
 public slots:
 	void appendLog( const char* msg );
 	void pause( bool paused );
