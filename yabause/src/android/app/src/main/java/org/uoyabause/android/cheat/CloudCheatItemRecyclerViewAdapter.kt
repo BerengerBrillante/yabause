@@ -23,17 +23,16 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.RatingBar
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import org.devmiyax.yabasanshiro.R
 
 /**
  * [RecyclerView.Adapter] that can display a [CheatItem] and makes a call to the
  * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
  */
 class CloudCheatItemRecyclerViewAdapter(
     private val mValues: List<CheatItem?>?,
@@ -57,7 +56,7 @@ class CloudCheatItemRecyclerViewAdapter(
                     if (mListener != null) {
                         val holder =
                             recyclerView.findViewHolderForAdapterPosition(focusedItem) as ViewHolder?
-                        mListener!!.onItemClick(focusedItem, holder!!.mItem, holder.mView)
+                        mListener!!.onItemClick(focusedItem, holder!!.mItem, holder.mView, false)
                     }
                 }
             }
@@ -84,7 +83,7 @@ class CloudCheatItemRecyclerViewAdapter(
     }
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int, item: CheatItem?, v: View?)
+        fun onItemClick(position: Int, item: CheatItem?, v: View?, isLikeButton: Boolean)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -98,21 +97,40 @@ class CloudCheatItemRecyclerViewAdapter(
         holder.mIdView.text = mValues?.get(position)?.description
         holder.mContentView.text = mValues?.get(position)?.cheat_code
         holder.itemView.isSelected = focusedItem == position
-        if (focusedItem == position) holder.itemView.setBackgroundColor(ContextCompat.getColor(
-            holder.itemView.context,
-            R.color.colorPrimaryDark)) else holder.itemView.setBackgroundColor(ContextCompat.getColor(
-            holder.itemView.context,
-            R.color.halfTransparent))
-        holder.mcb.isChecked = holder.mItem!!.enable
-        holder.mRate.rating = holder.mItem!!.star_count.toFloat()
-        holder.mRateScore.text = String.format("%.1f", holder.mItem!!.star_count.toFloat())
+        
+        if (focusedItem == position) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(
+                holder.itemView.context,
+                R.color.colorPrimaryDark
+            ))
+        } else {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(
+                holder.itemView.context,
+                R.color.halfTransparent
+            ))
+        }
+
+        holder.mLikeCount.text = holder.mItem?.star_count?.toString() ?: "0"
+        
+        // Set enable state
+        holder.mSwitchEnable.isChecked = holder.mItem?.enable == true
+
+        holder.mSwitchEnable.setOnCheckedChangeListener { _, _ ->
+            if (null != mListener) {
+                mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+            }
+        }
+
+        holder.mLikeButton.setOnClickListener {
+            if (null != mListener) {
+                mListener!!.onItemClick(position, holder.mItem, holder.mView, true)
+            }
+        }
+
         holder.mView.setOnClickListener {
             notifyItemChanged(focusedItem)
             focusedItem = position
             notifyItemChanged(focusedItem)
-            if (null != mListener) {
-                mListener!!.onItemClick(position, holder.mItem, holder.mView)
-            }
         }
     }
 
@@ -120,26 +138,16 @@ class CloudCheatItemRecyclerViewAdapter(
         return if (mValues == null) 0 else mValues.size
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(
-        mView) {
-        val mIdView: TextView
-        val mContentView: TextView
-        var mcb: CheckBox
+    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+        val mIdView: TextView = mView.findViewById(R.id.id)
+        val mContentView: TextView = mView.findViewById(R.id.content)
+        val mLikeButton: ImageButton = mView.findViewById(R.id.button_like)
+        val mLikeCount: TextView = mView.findViewById(R.id.text_like_count)
+        val mSwitchEnable: SwitchMaterial = mView.findViewById(R.id.switch_enable)
         var mItem: CheatItem? = null
-        var mRate: RatingBar
-        var mRateScore: TextView
+
         override fun toString(): String {
             return super.toString() + " '" + mContentView.text + "'"
-        }
-
-        init {
-            mIdView = mView.findViewById<View>(R.id.id) as TextView
-            mContentView = mView.findViewById<View>(R.id.content) as TextView
-            mcb = mView.findViewById<View>(R.id.checkBox_enable) as CheckBox
-            mcb.isEnabled = false
-            mcb.isFocusable = false
-            mRate = mView.findViewById<View>(R.id.ratingBar) as RatingBar
-            mRateScore = mView.findViewById<View>(R.id.textView_rate) as TextView
         }
     }
 }

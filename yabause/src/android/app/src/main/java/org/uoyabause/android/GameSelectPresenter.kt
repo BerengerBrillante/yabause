@@ -45,6 +45,7 @@ import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.GoogleBuilder
+import com.firebase.ui.auth.AuthUI.IdpConfig.AppleBuilder
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.Tracker
@@ -186,7 +187,10 @@ class GameSelectPresenter(
     fun signIn( launcher : ActivityResultLauncher<Intent> ) {
         val intent = AuthUI.getInstance()
             .createSignInIntentBuilder()
-            .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+            .setAvailableProviders(Arrays.asList(
+                GoogleBuilder().build(),
+                AppleBuilder().build()
+            ))
             .build()
         launcher.launch(intent)
     }
@@ -205,7 +209,10 @@ class GameSelectPresenter(
             target_.startActivity(
                     AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+                        .setAvailableProviders(Arrays.asList(
+                            GoogleBuilder().build(),
+                            AppleBuilder().build()
+                        ))
                         .build()
             )
         })
@@ -797,7 +804,11 @@ class GameSelectPresenter(
         get() {
             val auth = FirebaseAuth.getInstance()
             return if (auth.currentUser != null) {
-                auth.currentUser!!.displayName
+                if( auth.currentUser!!.displayName != null ) {
+                    auth.currentUser!!.displayName
+                }else {
+                    auth.currentUser!!.uid
+                }
             } else null
         }
     val currentUserPhoto: Uri?
@@ -854,7 +865,10 @@ class GameSelectPresenter(
                             .setTosAndPrivacyPolicyUrls(
                                 "https://www.uoyabause.org/static_pages/eula.html",
                                 "https://www.uoyabause.org/static_pages/privacy_policy")
-                            .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+                            .setAvailableProviders(Arrays.asList(
+                                GoogleBuilder().build(),
+                                AppleBuilder().build()
+                            ))
                             .build())
                 }
                 .setNegativeButton(target_.resources.getString(R.string.decline)) { dialog, _ ->

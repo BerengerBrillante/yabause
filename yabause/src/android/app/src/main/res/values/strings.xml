@@ -221,10 +221,12 @@
     <string name="order_number_used">This order number has been used.</string>
     <string name="new_version_available">New Yaba Sanshiro is available</string>
 
-    <string name="sign_in_cancelled">Sign in is calcelled</string>
+    <string name="sign_in_cancelled">Sign in is cancelled</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="unknown_sign_in_response">Unknown sign in response</string>
+    <string name="apple_sign_in_error">Apple Sign In Error</string>
+    <string name="apple_sign_in_cancelled">Apple Sign In was cancelled</string>
     <string name="are_you_sure_to_delete">Are you sure to delete</string>
     <string name="share">Share</string>
     <string name="unsahre">UnShare</string>
@@ -256,7 +258,7 @@
     <string name="copy_to_external">Copy to external</string>
     <string name="copy_to_internal">Copy to internal</string>
     <string name="activate">Activate</string>
-    <string name="rate">Rate</string>
+    <string name="rate">Like</string>
 
     <string name="str_rotate_screen">90 degree rotation</string>
     <string name="title_activity_game_select_phone">GameSelectActivityPhone</string>
@@ -424,4 +426,3 @@
     <string name="notification_permission_title">Request for Notification Permission</string>
     <string name="notification_permission_message">By allowing notifications, you will receive news from the developer.</string>
 </resources>
-	

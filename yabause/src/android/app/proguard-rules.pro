@@ -23,7 +23,10 @@
       *;
  }
 
- -keepclassmembers class org.uoyabause.android.cheat.CheatItem {
+-keepclassmembers class org.uoyabause.android.cheat.CheatItem {
        *;
   }
 
+# Android Gradle plugin generated rules
+-dontwarn android.media.LoudnessCodecController$OnLoudnessCodecUpdateListener
+-dontwarn android.media.LoudnessCodecController

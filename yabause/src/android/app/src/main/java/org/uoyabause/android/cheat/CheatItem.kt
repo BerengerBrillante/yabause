@@ -27,7 +27,7 @@ data class CheatItem(
     var gameid: String = "",
     var description: String = "",
     var cheat_code: String = "",
-    var star_count: Double = 0.0
+    var star_count: Int = 0
 ) {
     var enable: Boolean = false
     var sharedKey = ""
