@@ -27,6 +27,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.devmiyax.yabasanshiro.R
 
@@ -39,44 +40,6 @@ class CloudCheatItemRecyclerViewAdapter(
     private var mListener: OnItemClickListener?
 ) : RecyclerView.Adapter<CloudCheatItemRecyclerViewAdapter.ViewHolder>() {
     private var focusedItem = 0
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-
-        // Handle key up and key down and attempt to move selection
-        recyclerView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-            val lm = recyclerView.layoutManager
-
-            // Return false if scrolled to the bounds and allow focus to move off the list
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                    return@OnKeyListener tryMoveSelection(lm, 1)
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    return@OnKeyListener tryMoveSelection(lm, -1)
-                } else if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
-                    if (mListener != null) {
-                        val holder =
-                            recyclerView.findViewHolderForAdapterPosition(focusedItem) as ViewHolder?
-                        mListener!!.onItemClick(focusedItem, holder!!.mItem, holder.mView, false)
-                    }
-                }
-            }
-            false
-        })
-    }
-
-    private fun tryMoveSelection(lm: RecyclerView.LayoutManager?, direction: Int): Boolean {
-        val tryFocusItem = focusedItem + direction
-
-        // If still within valid bounds, move the selection, notify to redraw, and scroll
-        if (tryFocusItem >= 0 && tryFocusItem < itemCount) {
-            notifyItemChanged(focusedItem)
-            focusedItem = tryFocusItem
-            notifyItemChanged(focusedItem)
-            lm!!.scrollToPosition(focusedItem)
-            return true
-        }
-        return false
-    }
 
     fun setOnItemClickListener(listener: OnItemClickListener?) {
         mListener = listener
@@ -115,9 +78,11 @@ class CloudCheatItemRecyclerViewAdapter(
         // Set enable state
         holder.mSwitchEnable.isChecked = holder.mItem?.enable == true
 
-        holder.mSwitchEnable.setOnCheckedChangeListener { _, _ ->
+        holder.mSwitchEnable.setOnCheckedChangeListener { _ , isChecked ->
             if (null != mListener) {
-                mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+                if( isChecked != holder.mItem?.enable ) {
+                    mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+                }
             }
         }
 
@@ -128,9 +93,30 @@ class CloudCheatItemRecyclerViewAdapter(
         }
 
         holder.mView.setOnClickListener {
-            notifyItemChanged(focusedItem)
             focusedItem = position
-            notifyItemChanged(focusedItem)
+            
+            // ダイアログを作成して表示
+            val context = holder.mView.context
+            val enableText = if (holder.mSwitchEnable.isChecked == true) "無効化する" else "有効化する"
+            val options = arrayOf("評価する/しない", enableText)
+            
+            androidx.appcompat.app.AlertDialog.Builder(context)
+                .setTitle(holder.mItem?.description)
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> { // 評価する/しない
+                            if (null != mListener) {
+                                mListener!!.onItemClick(position, holder.mItem, holder.mView, true)
+                            }
+                        }
+                        1 -> { // 有効化する/しない
+                            if (null != mListener) {
+                                mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+                            }
+                        }
+                    }
+                }
+                .show()
         }
     }
 
@@ -143,7 +129,7 @@ class CloudCheatItemRecyclerViewAdapter(
         val mContentView: TextView = mView.findViewById(R.id.content)
         val mLikeButton: ImageButton = mView.findViewById(R.id.button_like)
         val mLikeCount: TextView = mView.findViewById(R.id.text_like_count)
-        val mSwitchEnable: SwitchMaterial = mView.findViewById(R.id.switch_enable)
+        val mSwitchEnable: MaterialSwitch = mView.findViewById(R.id.switch_enable)
         var mItem: CheatItem? = null
 
         override fun toString(): String {

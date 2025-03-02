@@ -45,7 +45,7 @@
 
     <ImageButton
         android:id="@+id/got_to_store_button"
-        style="@style/Widget.AppCompat.ImageButton"
+        style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="312dp"
         android:layout_height="312dp"
         android:layout_alignParentBottom="true"

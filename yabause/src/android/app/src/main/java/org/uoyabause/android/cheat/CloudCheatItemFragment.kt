@@ -147,7 +147,9 @@ class CloudCheatItemFragment
                     adapter_ =
                         CloudCheatItemRecyclerViewAdapter(_items, this@CloudCheatItemFragment)
                     listview_!!.adapter = adapter_
-                    adapter_!!.notifyDataSetChanged()
+                    listview_!!.post {
+                        adapter_!!.notifyDataSetChanged()
+                    }
                 } else {
                     Log.e(TAG, "Bad Data " + dataSnapshot.key)
                 }
@@ -180,7 +182,11 @@ class CloudCheatItemFragment
                 frag.RemoveActiveCheat(item.cheat_code)
             }
         }
-        adapter_?.notifyDataSetChanged()
+        
+        // Switchからの呼び出しの場合はUIを更新しない（無限ループを防ぐため）
+        listview_?.post {
+            adapter_?.notifyDataSetChanged()
+        }
     }
 
     private fun toggleLike(item: CheatItem) {
@@ -203,7 +209,9 @@ class CloudCheatItemFragment
                         return Transaction.success(mutableData)
                     }
                     override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
-                        adapter_?.notifyDataSetChanged()
+                        listview_?.post {
+                            adapter_?.notifyDataSetChanged()
+                        }
                     }
                 })
             } else {
@@ -216,7 +224,9 @@ class CloudCheatItemFragment
                         return Transaction.success(mutableData)
                     }
                     override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
-                        adapter_?.notifyDataSetChanged()
+                        listview_?.post {
+                            adapter_?.notifyDataSetChanged()
+                        }
                     }
                 })
             }
