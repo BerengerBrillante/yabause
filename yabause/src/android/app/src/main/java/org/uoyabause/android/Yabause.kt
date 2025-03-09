@@ -186,6 +186,7 @@ class Yabause : AppCompatActivity(),
     fun dismissDialog() {
         progressBar.visibility = View.GONE
         waitingResult = false
+/*
         when (_report_status) {
             REPORT_STATE_INIT -> Snackbar.make(
                 drawerLayout,
@@ -213,6 +214,7 @@ class Yabause : AppCompatActivity(),
                 Snackbar.LENGTH_SHORT
             ).show()
         }
+ */
         toggleMenu()
     }
 
@@ -1527,6 +1529,8 @@ class Yabause : AppCompatActivity(),
 
     val scope = CoroutineScope(Dispatchers.Default)
     fun doReportCurrentGame(rating: Int, message: String?, screenshot: Boolean) {
+        dismissDialog()
+/*
         val current_report = ReportContents()
         current_report._rating = rating
         current_report._message = message
@@ -1588,6 +1592,7 @@ class Yabause : AppCompatActivity(),
             dismissDialog()
             return
         }
+ */
     }
 
     fun cancelReportCurrentGame() {

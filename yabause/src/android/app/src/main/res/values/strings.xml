@@ -123,6 +123,10 @@
     <string name="refresh_db">Refresh Game List</string>
     <string name="select_bk_image">Select Background Image</string>
 
+    <string name="report_sent_success">Thank you for your report!</string>
+    <string name="report_sent_failed">Failed to send report</string>
+
+
     <!-- Error messages -->
     <string name="video_error_media_load_timeout">Media loading timed out</string>
     <string name="video_error_server_inaccessible">Media server was not reachable</string>
@@ -231,15 +235,23 @@
     <string name="share">Share</string>
     <string name="unsahre">UnShare</string>
     <string name="send">Send</string>
-    <string name="issue_report">ISSUE REPORT:</string>
+    <string name="issue_report">REVIEW:</string>
     <string name="status_report">STATUS REPORT:</string>
     <string name="send_warning">Send current screenshot and state  (Upload size is about 2MByte)</string>
-    <string name="report_message_1">This game does not boot.</string>
-    <string name="report_message_2">This game boots to title screen, but game is not playable.</string>
-    <string name="report_message_3">This game is playable, but there are many graphics and sound glitches.</string>
-    <string name="report_message_4">This game is playable, but there are a few graphics and sound glitches.</string>
-    <string name="report_message_5">This game runs almost perfectly.</string>
-    <string name="report_message_6">This game runs perfectly and is confirmed to reach the ending.</string>
+
+    <string name="report_message_1">Won\'t Boot</string>
+    <string name="report_message_2">Intro/Menu</string>
+    <string name="report_message_3">Playable</string>
+    <string name="report_message_4">Great</string>
+    <string name="report_message_5">Perfect</string>
+
+    <string name="game_report_message_1">Awful</string>
+    <string name="game_report_message_2">Bad</string>
+    <string name="game_report_message_3">Average</string>
+    <string name="game_report_message_4">Good</string>
+    <string name="game_report_message_5">Excellent</string>
+
+
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="sign_out">Sign out</string>

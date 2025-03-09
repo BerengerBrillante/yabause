@@ -18,90 +18,211 @@
 */
 package org.uoyabause.android
 
-import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.RatingBar.OnRatingBarChangeListener
 import android.widget.TextView
-import androidx.fragment.app.DialogFragment
+import android.widget.Toast
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import org.devmiyax.yabasanshiro.R
 
-class ReportDialog : DialogFragment(), DialogInterface.OnClickListener, OnRatingBarChangeListener {
-    var _GameStatusRating: RatingBar? = null
+class ReportDialog : BottomSheetDialogFragment() {
+    var _emulationRating: RatingBar? = null
+    var _gameRating: RatingBar? = null
     var _rateText: TextView? = null
+    var _gameRateText: TextView? = null
     var _edt: EditText? = null
     var _chk: CheckBox? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // setStyle(DialogFragment.STYLE_NORMAL, R.style.FullScreenDialogStyle);
-    }
+    private var sendButton: ImageButton? = null
 
-    override fun onStart() {
-        super.onStart()
-        val dialog = dialog
-        if (dialog != null) {
-            // int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            // int height = ViewGroup.LayoutParams.MATCH_PARENT;
-            // dialog.getWindow().setLayout(width, height);
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.report, container, false)
+
+        _gameRating = view.findViewById(R.id.game_ratingBar)
+        _gameRating?.apply {
+            numStars = 5
+            rating = 3.0f
+            stepSize = 1.0f
+            onRatingBarChangeListener = OnRatingBarChangeListener { _, rating, _ ->
+                val iRate = rating.toInt()
+                when (iRate) {
+                    1 -> _gameRateText?.setText(R.string.game_report_message_1)
+                    2 -> _gameRateText?.setText(R.string.game_report_message_2)
+                    3 -> _gameRateText?.setText(R.string.game_report_message_3)
+                    4 -> _gameRateText?.setText(R.string.game_report_message_4)
+                    5 -> _gameRateText?.setText(R.string.game_report_message_5)
+                    else -> {}
+                }
+            }
         }
+
+
+        _emulationRating = view.findViewById(R.id.emulation_ratingBar)
+        _emulationRating?.apply {
+            numStars = 5
+            rating = 3.0f
+            stepSize = 1.0f
+            onRatingBarChangeListener = OnRatingBarChangeListener { _, rating, _ ->
+                val iRate = rating.toInt()
+                when (iRate) {
+                    1 -> _rateText?.setText(R.string.report_message_1)
+                    2 -> _rateText?.setText(R.string.report_message_2)
+                    3 -> _rateText?.setText(R.string.report_message_3)
+                    4 -> _rateText?.setText(R.string.report_message_4)
+                    5 -> _rateText?.setText(R.string.report_message_5)
+                    else -> {}
+                }
+            }
+        }
+        
+        _edt = view.findViewById(R.id.report_message)
+        //_chk = view.findViewById(R.id.report_Screenshot)
+        _rateText = view.findViewById(R.id.emulation_rateString)
+        _rateText?.setText(R.string.report_message_3)
+        _gameRateText = view.findViewById(R.id.game_rateString)
+        _gameRateText?.setText(R.string.game_report_message_3)
+
+        sendButton = view.findViewById(R.id.send_button)
+        
+        //onRatingChanged(_emulationRating!!, 3.0f, false)
+        
+        sendButton?.setOnClickListener {
+            handleSendClick()
+        }
+
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        
+        return view
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        // Use the Builder class for convenient dialog construction
-        val builder = AlertDialog.Builder(requireActivity())
-        val inflater =
-            requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val content = inflater.inflate(R.layout.report, null)
-        _GameStatusRating =
-            content.findViewById<View>(R.id.report_ratingBar) as RatingBar
-        _GameStatusRating!!.numStars = 5
-        _GameStatusRating!!.rating = 3.0f
-        _GameStatusRating!!.stepSize = 1.0f
-        _GameStatusRating!!.onRatingBarChangeListener = this
-        _edt = content.findViewById<View>(R.id.report_message) as EditText
-        _chk = content.findViewById<View>(R.id.report_Screenshot) as CheckBox
-        _rateText = content.findViewById<View>(R.id.report_rateString) as TextView
-        onRatingChanged(_GameStatusRating!!, 3.0f, false)
-        builder.setView(content)
-        builder.setPositiveButton(R.string.send, this)
-            .setNegativeButton(R.string.cancel, this)
-        return builder.create()
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog.setOnShowListener { dialogInterface ->
+            val bottomSheetDialog = dialogInterface as BottomSheetDialog
+            val bottomSheet = bottomSheetDialog.findViewById<View>(
+                com.google.android.material.R.id.design_bottom_sheet
+            )
+            bottomSheet?.let {
+                val behavior = BottomSheetBehavior.from(it)
+                behavior.skipCollapsed = true
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+        return dialog
     }
 
-    override fun onClick(dialog: DialogInterface, which: Int) {
-        if (which == -1) {
-            val activity = activity as Yabause?
-            val rating = _GameStatusRating!!.rating.toInt()
-            val message = _edt!!.text.toString()
-            activity!!.doReportCurrentGame(rating, message, _chk!!.isChecked)
-        } else if (which == -2) {
-            val activity = activity as Yabause?
-            activity!!.cancelReportCurrentGame()
-        } else {
+    private fun handleSendClick() {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            return
         }
+        val activity = activity as Yabause?
+        val emulationRating = _emulationRating!!.rating.toInt()
+        val gameRating = _gameRating!!.rating.toInt()
+        val message = _edt!!.text.toString()
+        
+        // Get production number from YabauseRunnable
+        val productionNumber = YabauseRunnable.getCurrentGameCode()
+        
+        // Initialize Firestore
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser!!
+        val userId = currentUser.uid
+        
+        // Create rating document data
+        val ratingData = hashMapOf(
+            "rating" to gameRating,
+            "emulation_rating" to emulationRating,
+            "comment" to message,
+            "uid" to userId,
+            "display_name" to currentUser.displayName,
+            "photo_url" to currentUser.photoUrl.toString(),
+            "platform" to "android",
+            "version" to YabauseApplication.getVersionName(activity!!),
+            "timestamp" to FieldValue.serverTimestamp(),
+            "isVisible" to true
+        )
+        
+        // 1. Search in games collection by production_number
+        db.collection("games")
+            .whereEqualTo("product_number", productionNumber)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    // Game not found, create a new game document first
+                    val gameData = hashMapOf(
+                        "product_number" to productionNumber,
+                        "created_at" to FieldValue.serverTimestamp()
+                    )
+                    
+                    db.collection("games")
+                        .add(gameData)
+                        .addOnSuccessListener { gameDocRef ->
+                            // 3. Add rating to the ratings subcollection with userId as document ID
+                            gameDocRef.collection("ratings")
+                                .document(userId)
+                                .set(ratingData)
+                                .addOnSuccessListener {
+                                    // Report submitted successfully
+                                    Toast.makeText(activity, R.string.report_sent_success, Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    // Handle error
+                                    Toast.makeText(activity, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
+                                    Log.e("ReportDialog", "Error adding rating document", e)
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            // Handle error
+                            Toast.makeText(activity, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
+                            Log.e("ReportDialog", "Error creating game document", e)
+                        }
+                } else {
+                    // Game exists, add rating to its ratings subcollection with userId as document ID
+                    val gameDoc = documents.documents[0]
+                    gameDoc.reference.collection("ratings")
+                        .document(userId)
+                        .set(ratingData)
+                        .addOnSuccessListener {
+                            // Report submitted successfully
+                            Toast.makeText(activity, R.string.report_sent_success, Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            // Handle error
+                            Toast.makeText(activity, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
+                            Log.e("ReportDialog", "Error adding rating document", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                // Handle error
+                Toast.makeText(context, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
+                Log.e("ReportDialog", "Error querying games collection", e)
+            }
+        activity?.doReportCurrentGame(
+            rating = 1,
+            message = "sss",
+            screenshot = false
+        )
+        dismiss()
     }
 
-    override fun onRatingChanged(
-        ratingBar: RatingBar,
-        rating: Float,
-        fromUser: Boolean
-    ) {
-        val iRate = rating.toInt()
-        when (iRate) {
-            0 -> _rateText!!.setText(R.string.report_message_1)
-            1 -> _rateText!!.setText(R.string.report_message_2)
-            2 -> _rateText!!.setText(R.string.report_message_3)
-            3 -> _rateText!!.setText(R.string.report_message_4)
-            4 -> _rateText!!.setText(R.string.report_message_5)
-            5 -> _rateText!!.setText(R.string.report_message_6)
-            else -> {}
-        }
-    }
 }

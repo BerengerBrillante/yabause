@@ -285,6 +285,7 @@ dependencies {
     implementation "androidx.preference:preference-ktx:1.2.1"
 
     implementation "io.noties.markwon:core:4.1.0"
+    implementation 'com.google.firebase:firebase-firestore-ktx:25.1.2'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-inline:2.27.0'
