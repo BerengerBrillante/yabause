@@ -62,8 +62,11 @@ class ReportDialog : BottomSheetDialogFragment() {
             numStars = 5
             rating = 3.0f
             stepSize = 1.0f
-            onRatingBarChangeListener = OnRatingBarChangeListener { _, rating, _ ->
+            onRatingBarChangeListener = OnRatingBarChangeListener { ratingBar, rating, _ ->
                 val iRate = rating.toInt()
+                if (rating == 0f) {
+                    ratingBar.rating = 1f
+                }
                 when (iRate) {
                     1 -> _gameRateText?.setText(R.string.game_report_message_1)
                     2 -> _gameRateText?.setText(R.string.game_report_message_2)
@@ -81,8 +84,11 @@ class ReportDialog : BottomSheetDialogFragment() {
             numStars = 5
             rating = 3.0f
             stepSize = 1.0f
-            onRatingBarChangeListener = OnRatingBarChangeListener { _, rating, _ ->
+            onRatingBarChangeListener = OnRatingBarChangeListener { ratingBar, rating, _ ->
                 val iRate = rating.toInt()
+                if (rating == 0f) {
+                    ratingBar.rating = 1f
+                }
                 when (iRate) {
                     1 -> _rateText?.setText(R.string.report_message_1)
                     2 -> _rateText?.setText(R.string.report_message_2)

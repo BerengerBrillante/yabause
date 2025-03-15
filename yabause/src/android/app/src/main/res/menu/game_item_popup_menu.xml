@@ -4,4 +4,12 @@
     android:id="@+id/delete"
     android:title="@string/delete"
   />
+  <item
+      android:id="@+id/restore_defaults"
+      android:title="@string/restore_defaults"
+  />
+  <item
+      android:id="@+id/report"
+      android:title="@string/menu_report"
+  />
 </menu>

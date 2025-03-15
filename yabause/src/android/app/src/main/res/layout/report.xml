@@ -51,7 +51,7 @@
 
             <TextView
                 android:id="@+id/emulation_status"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="EMULATION:"
                 android:textStyle="bold"
@@ -96,7 +96,7 @@
 
             <TextView
                 android:id="@+id/textView5"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="GAME:"
                 android:textStyle="bold"

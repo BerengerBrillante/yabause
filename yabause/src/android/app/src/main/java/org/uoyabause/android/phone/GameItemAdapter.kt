@@ -243,6 +243,17 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
         // popup.setOnMenuItemClickListener(MyMenuItemClickListener(position))
         popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener {
             when (it.itemId) {
+                R.id.restore_defaults -> {
+                    var game_info = dataSet?.get(position)!!
+                    val gamePreference = view.context.getHarmonySharedPreferences(game_info.product_number)
+                    gamePreference.edit().clear().apply()
+                }
+                R.id.report -> {
+                    val game_info = dataSet?.get(position)!!
+                    val reportDialog = org.uoyabause.android.ReportDialog()
+                    val fragmentManager = (view.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
+                    reportDialog.show(fragmentManager, "ReportDialog")
+                }
                 R.id.delete -> {
 /*
                     val prefs = view.context.getSharedPreferences("private", Context.MODE_PRIVATE)
