@@ -17,7 +17,7 @@
     <string name="input_device_title">入力デバイス1</string>
     <string name="input_device">選択</string>
     <string name="input_device_setting">キーマップの編集</string>
-    <string name="onscrenn_pad_setting">オンスクリーンパッドのテスト</string>    
+    <string name="onscrenn_pad_setting">オンスクリーンパッドのテスト</string>
     <string name="bios">Bios</string>
     <string name="cartridge">カートリッジ</string>
     <string name="video_core">描画エンジン</string>      
@@ -159,12 +159,17 @@
     <string name="send_warning">現在のスクリーンショットと状態を送信する\n(送信サイズは約2MByteになります)</string>
     <string name="status_report">状況報告:</string>
     <string name="issue_report">問題報告:</string>
-    <string name="report_message_1">ゲームが起動しない</string>
-    <string name="report_message_2">タイトル画面に到達したがゲームができない</string>
-    <string name="report_message_3">ゲームはできるが、画像と音の問題がたくさんある</string>
-    <string name="report_message_4">ゲームはできるが、画像と音の問題が少しある</string>
-    <string name="report_message_5">ほぼ完ぺきに動作する</string>
-    <string name="report_message_6">完ぺきに動作してエンディングに到達した</string>
+    <string name="report_message_1">起動しない</string>
+    <string name="report_message_2">イントロ/メニュー</string>
+    <string name="report_message_3">プレイ可能</string>
+    <string name="report_message_4">良好</string>
+    <string name="report_message_5">完璧</string>
+
+    <string name="game_report_message_1">最悪</string>
+    <string name="game_report_message_2">悪い</string>
+    <string name="game_report_message_3">普通</string>
+    <string name="game_report_message_4">良い</string>
+    <string name="game_report_message_5">優秀</string>
     <string name="siginin_message">
         サインインすることで、セーブデータとステートデータをクラウドに保存して、異なるデバイスでも共有できるようになります。\n
         しかし,これらの機能は実験的なので期待通り動作しなかったり、事前の予告なしに仕様変更されたり、終了したりすることがあります。
@@ -307,6 +312,7 @@
     <string name="restore_defaults">
         初期設定に戻す
     </string>
+    <string name="menu_detail">詳細</string>
     <string name="last_play_game">最後にプレイしたゲーム：</string>
     <string name="device">デバイス:</string>
     <string name="auto_backup_memory_sync">自動バックアップ同期</string>
@@ -342,4 +348,7 @@
     <string name="fail_to_initialize_emulator">エミュレータの初期化に失敗しました</string>
     <string name="notification_permission_title">通知許可のリクエスト</string>
     <string name="notification_permission_message">通知を許可すると開発者からのニュースを受け取ることができます</string>
+    <string name="report_notice">
+        &lt;h2&gt;レビューを投稿！&lt;/h2&gt; &lt;br&gt; 注意：あなたのレビュー内容、ユーザー名、プロフィールアイコンは公開されます。投稿する前に&lt;a href="https://www.yabasanshiro.com/privacy"&gt;プライバシーポリシー&lt;/a&gt;をご確認ください。
+    </string>
 </resources>

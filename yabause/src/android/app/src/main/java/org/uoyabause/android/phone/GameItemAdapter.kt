@@ -243,6 +243,41 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
         // popup.setOnMenuItemClickListener(MyMenuItemClickListener(position))
         popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener {
             when (it.itemId) {
+                R.id.detail -> {
+                    val game_info = dataSet?.get(position)!!
+                    // Firestoreからproduct_numberを使用してゲームのドキュメントIDを検索
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    db.collection("games")
+                        .whereEqualTo("product_number", game_info.product_number)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            if (!documents.isEmpty) {
+                                // ゲームが見つかった場合、そのドキュメントIDを使用してウェブページを開く
+                                val gameDoc = documents.documents[0]
+                                val gameId = gameDoc.id
+                                val url = "https://www.yabasanshiro.com/games/${gameId}"
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                                intent.data = android.net.Uri.parse(url)
+                                view.context.startActivity(intent)
+                            } else {
+                                // ゲームが見つからない場合はエラーメッセージを表示
+                                android.widget.Toast.makeText(
+                                    view.context,
+                                    "Game not found in database",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            // エラーが発生した場合はエラーメッセージを表示
+                            android.widget.Toast.makeText(
+                                view.context,
+                                "Error: ${e.message}",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                            android.util.Log.e("GameItemAdapter", "Error querying games collection", e)
+                        }
+                }
                 R.id.restore_defaults -> {
                     var game_info = dataSet?.get(position)!!
                     val gamePreference = view.context.getHarmonySharedPreferences(game_info.product_number)
@@ -250,7 +285,7 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
                 }
                 R.id.report -> {
                     val game_info = dataSet?.get(position)!!
-                    val reportDialog = org.uoyabause.android.ReportDialog()
+                    val reportDialog = org.uoyabause.android.ReportDialog( view.context, game_info.product_number )
                     val fragmentManager = (view.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
                     reportDialog.show(fragmentManager, "ReportDialog")
                 }

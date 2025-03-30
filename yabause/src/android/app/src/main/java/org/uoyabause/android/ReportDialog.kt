@@ -18,9 +18,13 @@
 */
 package org.uoyabause.android
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +37,7 @@ import android.widget.RatingBar
 import android.widget.RatingBar.OnRatingBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.ui.semantics.text
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -41,7 +46,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import org.devmiyax.yabasanshiro.R
 
-class ReportDialog : BottomSheetDialogFragment() {
+class ReportDialog(private val activity: Context, val productionNumber: String) : BottomSheetDialogFragment() {
     var _emulationRating: RatingBar? = null
     var _gameRating: RatingBar? = null
     var _rateText: TextView? = null
@@ -50,12 +55,30 @@ class ReportDialog : BottomSheetDialogFragment() {
     var _chk: CheckBox? = null
     private var sendButton: ImageButton? = null
 
+    interface OnReportFinishedListener {
+        fun onFinishReport(rating: Int, message: String?, screenshot: Boolean)
+    }
+
+    private var onReportFinishedListener: OnReportFinishedListener? = null
+
+    fun setOnReportFinishedListener(listener: (rating: Int, message: String?, screenshot: Boolean) -> Unit) {
+        this.onReportFinishedListener = object : OnReportFinishedListener {
+            override fun onFinishReport(rating: Int, message: String?, screenshot: Boolean) {
+                listener(rating, message, screenshot)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.report, container, false)
+
+        val reviewNoticeTextView = view.findViewById<TextView>(R.id.review_notice)
+        reviewNoticeTextView.text = Html.fromHtml(getString(R.string.report_notice), Html.FROM_HTML_MODE_LEGACY)
+        reviewNoticeTextView.movementMethod = LinkMovementMethod.getInstance()
 
         _gameRating = view.findViewById(R.id.game_ratingBar)
         _gameRating?.apply {
@@ -140,13 +163,13 @@ class ReportDialog : BottomSheetDialogFragment() {
         if (FirebaseAuth.getInstance().currentUser == null) {
             return
         }
-        val activity = activity as Yabause?
+
         val emulationRating = _emulationRating!!.rating.toInt()
         val gameRating = _gameRating!!.rating.toInt()
         val message = _edt!!.text.toString()
         
         // Get production number from YabauseRunnable
-        val productionNumber = YabauseRunnable.getCurrentGameCode()
+        //val productionNumber = YabauseRunnable.getCurrentGameCode()
         
         // Initialize Firestore
         val db = FirebaseFirestore.getInstance()
@@ -162,7 +185,8 @@ class ReportDialog : BottomSheetDialogFragment() {
             "display_name" to currentUser.displayName,
             "photo_url" to currentUser.photoUrl.toString(),
             "platform" to "android",
-            "version" to YabauseApplication.getVersionName(activity!!),
+            "version" to YabauseApplication.getVersionName(),
+            "version_code" to YabauseApplication.getVersionCode(),
             "timestamp" to FieldValue.serverTimestamp(),
             "isVisible" to true
         )
@@ -220,14 +244,18 @@ class ReportDialog : BottomSheetDialogFragment() {
             }
             .addOnFailureListener { e ->
                 // Handle error
-                Toast.makeText(context, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, R.string.report_sent_failed, Toast.LENGTH_SHORT).show()
                 Log.e("ReportDialog", "Error querying games collection", e)
             }
+
+        onReportFinishedListener?.onFinishReport(gameRating, message, false)
+/*
         activity?.doReportCurrentGame(
             rating = 1,
             message = "sss",
             screenshot = false
         )
+*/
         dismiss()
     }
 

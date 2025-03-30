@@ -1396,8 +1396,16 @@ class Yabause : AppCompatActivity(),
 
     fun startReport() {
         waitingResult = true
-        val newFragment = ReportDialog()
-        newFragment.show(this.supportFragmentManager, "Report")
+        val pn = YabauseRunnable.getCurrentGameCode()
+        if( pn != null ){
+            val reportDialog = ReportDialog( this,pn )
+            reportDialog.setOnReportFinishedListener { rating, message, screenshot ->
+                doReportCurrentGame(rating, message, screenshot)
+            }
+            reportDialog.show(this.supportFragmentManager, "ReportDialog")
+        }
+
+
 
         // The device is smaller, so show the fragment fullscreen
         // android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();

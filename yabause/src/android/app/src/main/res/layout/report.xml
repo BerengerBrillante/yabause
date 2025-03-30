@@ -34,7 +34,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:text="Post your review!\n\nNote: Your review content, username, and profile icon will be publicly visible."
             android:textStyle="italic"
             app:layout_constraintTop_toTopOf="parent"/>
 

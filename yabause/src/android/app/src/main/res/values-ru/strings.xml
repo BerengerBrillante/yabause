@@ -235,7 +235,12 @@
     <string name="report_message_3">Запускается, но много графических и звуковых багов.</string>
     <string name="report_message_4">Запускается, но с искажениями графики и звука.</string>
     <string name="report_message_5">Идёт практически идеально.</string>
-    <string name="report_message_6">Идёт идеально, игру можно пройти.</string>
+
+    <string name="game_report_message_1">Ужасно</string>
+    <string name="game_report_message_2">Плохо</string>
+    <string name="game_report_message_3">Средне</string>
+    <string name="game_report_message_4">Хорошо</string>
+    <string name="game_report_message_5">Отлично</string>
     <string name="accept">Принять</string>
     <string name="decline">Отклонить</string>
     <string name="sign_out">Выйти</string>
@@ -467,5 +472,8 @@
     <string name="fail_to_initialize_emulator">Не удалось инициализировать эмулятор</string>
     <string name="notification_permission_title">Запрос на разрешение уведомлений</string>
     <string name="notification_permission_message">Разрешив уведомления, вы будете получать новости от разработчика.</string>
+    <string name="report_notice">
+        &lt;h2&gt;Опубликуйте свой отзыв!&lt;/h2&gt; &lt;br&gt; Примечание: Содержание вашего отзыва, имя пользователя и значок профиля будут общедоступны. Перед публикацией ознакомьтесь с &lt;a href="https://www.yabasanshiro.com/privacy"&gt;политикой конфиденциальности&lt;/a&gt;.
+    </string>
 </resources>
 	

@@ -73,6 +73,20 @@
     <string name="select_game_directory">selecione o diretório do jogo</string>
 
 	<string name="menu_save_screenshot">Captura de Tela</string>
+    <string name="menu_report">Relatório</string>
+
+    <string name="report_message_1">Não Inicia</string>
+    <string name="report_message_2">Intro/Menu</string>
+    <string name="report_message_3">Jogável</string>
+    <string name="report_message_4">Ótimo</string>
+    <string name="report_message_5">Perfeito</string>
+
+    <string name="game_report_message_1">Terrível</string>
+    <string name="game_report_message_2">Ruim</string>
+    <string name="game_report_message_3">Médio</string>
+    <string name="game_report_message_4">Bom</string>
+    <string name="game_report_message_5">Excelente</string>
+
     <string name="already_have_been">Se você já foi doado, por favor entre em contato com smiyaxdev@gmail.com</string>
     <string name="close">Close</string>
 

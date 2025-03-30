@@ -88,6 +88,18 @@
     <string name="menu_save_screenshot">截图</string>
     <string name="menu_report">报告</string>
 
+    <string name="report_message_1">无法启动</string>
+    <string name="report_message_2">介绍/菜单</string>
+    <string name="report_message_3">可玩</string>
+    <string name="report_message_4">很好</string>
+    <string name="report_message_5">完美</string>
+
+    <string name="game_report_message_1">糟糕</string>
+    <string name="game_report_message_2">差</string>
+    <string name="game_report_message_3">一般</string>
+    <string name="game_report_message_4">好</string>
+    <string name="game_report_message_5">优秀</string>
+
     <string name="video_filter">滤镜</string>
     <string name="choose_video_filter">选择视频滤镜</string>
 
@@ -243,4 +255,3 @@
     <string name="notification_permission_title">通知权限请求</string>
     <string name="notification_permission_message">允许通知后，您将收到开发者的消息。</string>
 </resources>
-	
