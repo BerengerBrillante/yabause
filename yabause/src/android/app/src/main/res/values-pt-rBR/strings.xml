@@ -130,7 +130,7 @@
 
         [Configurações] -> [selecione o diretório do jogo] -> [adicionar]\n\n
 
-        Mais detalhes são descritos em nosso site [https://www.uoyabause.org/static_pages/guide] (https://www.uoyabause.org/static_pages/guide). \n
+        Mais detalhes são descritos em [nosso site](https://www.yabasanshiro.com/howto#android). \n
 
         ]]>
     </string>
@@ -143,7 +143,7 @@
 
     <string name="siginin_message">
         O login permite fazer backup de dados salvos e dados de estado na nuvem e compartilhá-los entre dispositivos.\n
-        No entanto, essas funções são experimentais, por isso não funcionam como esperado, as especificações podem ser alteradas ou encerradas sem aviso prévio. Mesmo se você não fizer login, bibliotecas como o Firebase coletam as informações para melhorar seu aplicativo. Uma política de privacidade detalhada pode ser encontrada em https://www.uoyabause.org/static_pages/privacy_policy.
+        No entanto, essas funções são experimentais, por isso não funcionam como esperado, as especificações podem ser alteradas ou encerradas sem aviso prévio. Mesmo se você não fizer login, bibliotecas como o Firebase coletam as informações para melhorar seu aplicativo. Uma política de privacidade detalhada pode ser encontrada em https://www.yabasanshiro.com/privacy.
     </string>
     <string name="pro_version_available">A versão Pro está disponível!\n\n * Sem restrições para adicionar jogos\n * Salvar / carregar o estado do jogo entre os dispositivos\n * Sem anúncios\n</string>
     <string name="remaining_installation_count">Оставшееся количество установок</string>
@@ -152,8 +152,8 @@
     <string name="which_storage">Qual armazenamento?</string>
     <string name="or_place_file_to">Ou coloque o jogo no \"%1$s\" manualmente.</string>
     <string name="agreement">
-        Ao tocar no botão INICIAR, você concorda com o Contrato <a href="https://www.uoyabause.org/static_pages/eula">de EULA</a>.
-        Nota: <a href="https://www.uoyabause.org/static_pages/privacy_policy">A Política de Privacidade </a> descreve como os dados são tratados. YabaSanshiro envia dados de diagnóstico para devMiyax e serviços de terceiros para ajudar a melhorar o aplicativo.
+        Ao tocar no botão INICIAR, você concorda com o Contrato <a href="https://www.yabasanshiro.com/terms-of-use">de EULA</a>.
+        Nota: <a href="https://www.yabasanshiro.com/privacy">A Política de Privacidade </a> descreve como os dados são tratados. YabaSanshiro envia dados de diagnóstico para devMiyax e serviços de terceiros para ajudar a melhorar o aplicativo.
     </string>
 
 

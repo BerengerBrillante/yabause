@@ -426,7 +426,7 @@ class GameSelectFragmentPhone : Fragment(),
                 }
 
                 val uri =
-                    Uri.parse("https://www.uoyabause.org/static_pages/privacy_policy.html")
+                    Uri.parse("https://www.yabasanshiro.com/privacy")
                 val i = Intent(Intent.ACTION_VIEW, uri)
                 startActivity(i)
             }

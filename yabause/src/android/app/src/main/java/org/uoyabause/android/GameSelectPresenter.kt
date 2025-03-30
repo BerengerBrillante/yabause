@@ -863,8 +863,8 @@ class GameSelectPresenter(
                             .createSignInIntentBuilder()
                             .setTheme(R.style.Theme_AppCompat)
                             .setTosAndPrivacyPolicyUrls(
-                                "https://www.uoyabause.org/static_pages/eula.html",
-                                "https://www.uoyabause.org/static_pages/privacy_policy")
+                                "https://www.yabasanshiro.com/terms-of-use",
+                                "https://www.yabasanshiro.com/privacy")
                             .setAvailableProviders(Arrays.asList(
                                 GoogleBuilder().build(),
                                 AppleBuilder().build()

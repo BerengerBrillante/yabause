@@ -338,7 +338,7 @@
         [Setting] -> [Select Game Directory] -> [ADD] \n\n
 
 
-        More detail is described in our web site [https://www.uoyabause.org/static_pages/guide](https://www.uoyabause.org/static_pages/guide).\n
+        More detail is described in our [web site](https://www.yabasanshiro.com/howto#android).\n
 
         ]]>
     </string>
@@ -387,8 +387,8 @@
     <string name="which_storage">Which Storage?</string>
     <string name="or_place_file_to">Or place game into \"%1$s\" manually.</string>
     <string name="agreement">
-    By Tapping START button, you agree to <a href="https://www.uoyabause.org/static_pages/eula">the End-User License Agreement</a>.
-    Note: <a href="https://www.uoyabause.org/static_pages/privacy_policy"> The Privacy Policy </a> describes how data is handled. YabaSanshiro sends diagnostics data to devMiyax and third party services to help improve the app.
+    By Tapping START button, you agree to <a href="https://www.yabasanshiro.com/terms-of-use">the terms of use</a>.
+    Note: <a href="https://www.yabasanshiro.com/privacy"> The Privacy Policy </a> describes how data is handled. YabaSanshiro sends diagnostics data to devMiyax and third party services to help improve the app.
     </string>
 
     <string name="use_cpu_affinity">
