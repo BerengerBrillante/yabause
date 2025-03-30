@@ -20,4 +20,8 @@ yabause/src/ios/uoyabause/uoyabause/GoogleService-Info.plist
 yabause/src/ios/uoyabause/uoyabause/GoogleService-Info-main.plist
 yabause/src/ios/uoyabause/uoyabause/GoogleService-Info-lite.plist
 **/Pods/*
-
+.aider*
+.aider*/*
+bin*/*
+yabause/src/qt/firebase_cpp_sdk*/*
+**/._.DS_Store/*
