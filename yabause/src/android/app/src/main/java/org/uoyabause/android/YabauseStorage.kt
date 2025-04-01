@@ -362,7 +362,7 @@ class YabauseStorage private constructor() {
                 g.input_device = jobj.getString("input_device")
                 g.device_infomation = jobj.getString("device_infomation")
                 g.game_title = jobj.getString("game_title")
-                // g.updateState()
+
 
                 try {
                     val obj = gamesJ.getJSONObject(g.product_number)
@@ -466,7 +466,6 @@ class YabauseStorage private constructor() {
                             gameinfo.iso_file_path = uri.toString()
 
                             checkAndRemoveDupe(gameinfo)
-                            gameinfo.updateState()
                             YabauseStorage.dao.insertAll(gameinfo)
                             if (progress_emitter != null) {
                                 progress_emitter!!.onNext(gameinfo.game_title)
@@ -508,7 +507,7 @@ class YabauseStorage private constructor() {
                                         gameinfo.iso_file_path = uri.toString()
 
                                         checkAndRemoveDupe(gameinfo)
-                                        gameinfo.updateState()
+                                        //gameinfo.updateState()
                                         YabauseStorage.dao.insertAll(gameinfo)
                                         if (progress_emitter != null) {
                                             progress_emitter!!.onNext(gameinfo.game_title)
@@ -540,7 +539,7 @@ class YabauseStorage private constructor() {
                                 gameinfo.iso_file_path = uri.toString()
 
                                 checkAndRemoveDupe(gameinfo)
-                                gameinfo.updateState()
+                                //gameinfo.updateState()
                                 YabauseStorage.dao.insertAll(gameinfo)
                                 if (progress_emitter != null) {
                                     progress_emitter!!.onNext(gameinfo.game_title)
@@ -567,7 +566,7 @@ class YabauseStorage private constructor() {
                                 gameinfo.file_path = file.uri.toString()
                                 gameinfo.iso_file_path = uri.toString()
                                 checkAndRemoveDupe(gameinfo)
-                                gameinfo.updateState()
+                                //gameinfo.updateState()
                                 dao.insertAll(gameinfo)
                                 if (progress_emitter != null) {
                                     progress_emitter!!.onNext(gameinfo.game_title)
@@ -621,7 +620,7 @@ class YabauseStorage private constructor() {
                 if (gameinfo != null) {
 
                     checkAndRemoveDupe(gameinfo)
-                    gameinfo.updateState()
+                    //gameinfo.updateState()
                     dao.insertAll(gameinfo)
 
                     if (progress_emitter != null) {
@@ -643,7 +642,7 @@ class YabauseStorage private constructor() {
                         val gameinfo = GameInfo.genGameInfoFromIso(gamefile_name)
                         if (gameinfo != null) {
                             checkAndRemoveDupe(gameinfo)
-                            gameinfo.updateState()
+                            //gameinfo.updateState()
                             dao.insertAll(gameinfo)
                         }
                     }
@@ -653,8 +652,8 @@ class YabauseStorage private constructor() {
     }
 
     fun generateGameDB(level: Int) {
-        val rtn = updateAllGameStatus()
-        if (level == 0 && rtn == -1) return
+//        val rtn = updateAllGameStatus()
+//        if (level == 0 && rtn == -1) return
         if (level >= 3) {
             dao.deleteAll()
         }

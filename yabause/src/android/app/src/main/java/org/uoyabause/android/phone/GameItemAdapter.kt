@@ -18,6 +18,7 @@
 */
 package org.uoyabause.android.phone
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
@@ -45,6 +46,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.frybits.harmony.getHarmonySharedPreferences
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -154,6 +156,7 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
         fun onGameRemoved(item: GameInfo?)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
         val textViewName = holder.textViewName
         val textViewVersion = holder.textViewVersion
@@ -163,13 +166,25 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
         if (game != null) {
             textViewName.text = game.game_title
             // textViewVersion.setText(game.product_number);
-            var rate = ""
-            for (i in 0 until game.rating) rate += "★"
+            //
+            textViewVersion.text = ""
             if (game.device_infomation == "CD-1/1") {
             } else {
-                rate += " " + game.device_infomation
+                textViewVersion.text = game.device_infomation
             }
-            textViewVersion.text = rate
+            CoroutineScope(Dispatchers.IO).launch {
+                game.updateState()
+                var rate = ""
+                for (i in 0 until game.rating) rate += "★"
+                if (game.device_infomation == "CD-1/1") {
+                } else {
+                    rate += " " + game.device_infomation
+                }
+                withContext(Dispatchers.Main) {
+                    textViewVersion.text = rate
+                }
+            }
+
             if (game.image_url != null && game.image_url != "") { // try {
 
 

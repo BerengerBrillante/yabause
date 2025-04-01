@@ -45,6 +45,8 @@ class YabauseApplication : MultiDexApplication() {
         super.onCreate()
         appContext = applicationContext
 
+        GameInfo.initSigin(appContext)
+
         FirebaseApp.initializeApp(applicationContext)
 
         // Log.d(TAG,"Firebase token: " + FirebaseInstanceId.getInstance().getToken() );

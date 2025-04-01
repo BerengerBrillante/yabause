@@ -18,6 +18,7 @@
 */
 package org.uoyabause.android
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -36,6 +37,8 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Update
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.type.DateTime
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -75,6 +78,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import kotlinx.coroutines.tasks.await
 
 
 class Converters {
@@ -183,6 +187,12 @@ data class GameInfo(
         }
         */
 
+        var sigin = ""
+
+        fun initSigin( context: Context) {
+            sigin = context.getString(R.string.boxart_sigin).replace("%26", "&")
+        }
+
         fun genGameInfoFromCUE(file_path: String?): GameInfo? {
             if( file_path == null ) return null
             val file = File(file_path)
@@ -283,6 +293,7 @@ data class GameInfo(
                 tmp.device_infomation = tmp.device_infomation.trim { it <= ' ' }
                 tmp.game_title = String(header, startindex + 0x60, 0x70, charaset)
                 tmp.game_title = tmp.game_title.trim { it <= ' ' }
+                tmp.image_url = "https://d3edktb2n8l35b.cloudfront.net/BOXART/"+tmp.product_number+".PNG?" + sigin
             } catch (e: Exception) {
                 e.localizedMessage?.let { Log.e("GameInfo", it) }
                 return null
@@ -387,102 +398,99 @@ data class GameInfo(
         }
     }
 
-    fun updateState(): Int {
+    suspend fun updateState(): Int {
         val ctx = appContext
-        var status: GameStatus? = null
-        if (product_number != "") {
-            YabauseStorage.gameStatusDao.select(product_number)?.let { status = it }
-        }
-        if (status == null) {
-
-            var mFirebaseAnalytics = FirebaseAnalytics.getInstance(ctx)
-            val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, product_number)
-            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, game_title)
-            mFirebaseAnalytics.logEvent(
-                "yab_game_not_found", bundle
-            )
-
-            image_url = "https://d3edktb2n8l35b.cloudfront.net/BOXART/"+product_number+".PNG?" + ctx.getString(R.string.boxart_sigin).replace("%26","&");
-            rating = 0
-            try {
-                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                update_at = sdf.parse("2001-01-01 00:00:00")
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            // not in database upload game info
-            try {
-                Log.i(
-                    "GameInfo",
-                    product_number + "( " + game_title + " ) is not found "
-                )
-
-                // automatic update
-                if (BuildConfig.DEBUG /*&& responseCode == 500*/) {
-                    //String.format( "{game:{maker_id:\"%s\",product_number:\"%s\",version:\"%s\","release_date:\"%s\",\"device_infomation\":\"%s\","
-                    //        "area:\"%s\",game_title:\"%s\",input_device:\"%s\"}}",
-                    //        cdip->company,cdip->itemnum,cdip->version,cdip->date,cdip->cdinfo,cdip->region, cdip->gamename, cdip->peripheral);
-                    val job = JSONObject()
-                    job.put(
-                        "game", JSONObject()
-                            .put("maker_id", maker_id)
-                            .put("product_number", product_number)
-                            .put("version", version)
-                            .put("release_date", release_date)
-                            .put("device_infomation", device_infomation)
-                            .put("area", area)
-                            .put("game_title", game_title)
-                            .put("input_device", input_device)
-                    )
-                    val urlstr = "https://www.uoyabause.org/api/games/"
-                    val MIMEType = "application/json; charset=utf-8".toMediaTypeOrNull()
-                    val requestBody = RequestBody.create(MIMEType, job.toString())
-                    val request = Request.Builder().url(urlstr).post(requestBody).build()
-                    var client = OkHttpClient.Builder()
-                        .connectTimeout(10, TimeUnit.SECONDS)
-                        .writeTimeout(10, TimeUnit.SECONDS)
-                        .readTimeout(30, TimeUnit.SECONDS)
-                        .authenticator { _, response ->
-                            val credential =
-                                Credentials.basic(
-                                    appContext.getString(R.string.basic_user),
-                                    ctx.getString(R.string.basic_password)
-                                )
-                            response.request.newBuilder().header("Authorization", credential)
-                                .build()
-                        }
-                        .build()
-                    val response = client.newCall(request).execute()
-                    if (response.isSuccessful) {
-                        val rootObject = JSONObject(response.body!!.string())
-                        if (rootObject.getBoolean("result") != true) {
-                            Log.i(
-                                "GameInfo",
-                                product_number + "( " + game_title + " ) can not be added"
-                            )
-                        }
-                    } else {
-                        Log.i(
-                            "GameInfo",
-                            product_number + "( " + game_title + " ) can not be added by " + response.message
-                        )
-                    }
-                }
-            }catch( e : Exception ){
-                e.printStackTrace()
-                Log.e("GameInfo", product_number + "( " + game_title + " ) " + e.localizedMessage)
-            }
-        } else {
-            image_url = "https://d3edktb2n8l35b.cloudfront.net/BOXART/"+product_number+".PNG?" + ctx.getString(R.string.boxart_sigin).replace("%26","&");
-            rating = status!!.rating
-            update_at = status!!.update_at
-        }
-
+        
         if (product_number == "") return -1
-        return 0
+        
+        // デフォルト値を設定
+        //
+        rating = 0
+        try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            update_at = sdf.parse("2001-01-01 00:00:00")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        // Firestoreのインスタンスを取得
+        val db = Firebase.firestore
+        
+        try {
+            // Firestoreから検索（await を使用して同期的に処理）
+            val documents = db.collection("games")
+                .whereEqualTo("product_number", product_number)
+                .get()
+                .await()
+            
+            if (!documents.isEmpty) {
+                // ドキュメントが見つかった場合
+                val document = documents.documents[0]
+                
+                // update_atフィールドがあれば取得
+                document.getTimestamp("update_at")?.toDate()?.let {
+                    update_at = it
+                }
+                
+                // games/{id}/summary/ratings/averageRating から rating を取得（await を使用して同期的に処理）
+                val documentId = document.id
+                val ratingsDoc = db.collection("games").document(documentId)
+                    .collection("summary").document("ratings")
+                    .get()
+                    .await()
+                
+                ratingsDoc.getLong("averageRating")?.let {
+                    rating = it.toInt()
+                }
+            } else {
+                // ドキュメントが見つからない場合
+                var mFirebaseAnalytics = FirebaseAnalytics.getInstance(ctx)
+                val bundle = Bundle()
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, product_number)
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, game_title)
+                mFirebaseAnalytics.logEvent(
+                    "yab_game_not_found", bundle
+                )
+                
+                // 新しいゲーム情報をFirestoreに追加（デバッグモードのみ）
+                try {
+                    Log.i(
+                        "GameInfo",
+                        product_number + "( " + game_title + " ) is not found "
+                    )
 
+                    // automatic update
+                    if (BuildConfig.DEBUG) {
+                        val gameData = hashMapOf(
+                            "maker_id" to maker_id,
+                            "product_number" to product_number,
+                            "version" to version,
+                            "release_date" to release_date,
+                            "device_infomation" to device_infomation,
+                            "area" to area,
+                            "game_title" to game_title,
+                            "input_device" to input_device,
+                            "rating" to 0,
+                            "update_at" to Date()
+                        )
+                        
+                        // Firestoreに追加（await を使用して同期的に処理）
+                        val documentReference = db.collection("games")
+                            .add(gameData)
+                            .await()
+                        
+                        Log.i("GameInfo", "Game added with ID: ${documentReference.id}")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e("GameInfo", product_number + "( " + game_title + " ) " + e.localizedMessage)
+                }
+            }
+        } catch (exception: Exception) {
+            Log.e("GameInfo", "Error getting documents: ", exception)
+        }
+        
+        return 0
     }
 
 /*
