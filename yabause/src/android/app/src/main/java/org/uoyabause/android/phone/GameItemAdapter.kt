@@ -205,7 +205,10 @@ class GameItemAdapter(private val dataSet: MutableList<GameInfo?>?) :
                                     mFirebaseAnalytics.logEvent(
                                         "yab_fail_load_image", bundle
                                     )
-
+                                    val ac = holder.rootview.context as Activity
+                                    ac?.runOnUiThread {
+                                        imageView.setImageDrawable(ac.getDrawable(R.drawable.missing))
+                                    }
                                     return true
                                 }
 
