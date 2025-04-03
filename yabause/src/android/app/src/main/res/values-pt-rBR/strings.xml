@@ -196,5 +196,12 @@
     <string name="fail_to_initialize_emulator">Falha ao inicializar o emulador</string>
     <string name="notification_permission_title">Solicitação de permissão de notificação</string>
     <string name="notification_permission_message">Ao permitir notificações, você receberá notícias do desenvolvedor.</string>
-
+    <string name="search_games">Pesquisar jogos</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="sort_by_name">Ordenar por nome</string>
+    <string name="sort_by_date">Ordenar por data de lançamento</string>
+    <string name="sort_by_recently_played">Ordenar por jogados recentemente</string>
+    <string name="report_notice">
+        &lt;h2&gt;Publique sua avaliação!&lt;/h2&gt; &lt;br&gt; Nota: O conteúdo da sua avaliação, nome de usuário e ícone de perfil serão visíveis publicamente. Antes de publicar, verifique a &lt;a href="https://www.yabasanshiro.com/privacy"&gt;política de privacidade&lt;/a&gt;.
+    </string>
 </resources>

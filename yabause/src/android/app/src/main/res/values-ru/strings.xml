@@ -396,6 +396,11 @@
     <string name="fail_to_initialize_emulator">Не удалось инициализировать эмулятор</string>
     <string name="notification_permission_title">Запрос на разрешение уведомлений</string>
     <string name="notification_permission_message">Разрешив уведомления, вы будете получать новости от разработчика.</string>
+    <string name="search_games">Поиск игр</string>
+    <string name="sort_by">Сортировать по</string>
+    <string name="sort_by_name">Сортировать по имени</string>
+    <string name="sort_by_date">Сортировать по дате выпуска</string>
+    <string name="sort_by_recently_played">Сортировать по недавно сыгранным</string>
     <string name="report_notice">
         &lt;h2&gt;Опубликуйте свой отзыв!&lt;/h2&gt; &lt;br&gt; Примечание: Содержание вашего отзыва, имя пользователя и значок профиля будут общедоступны. Перед публикацией ознакомьтесь с &lt;a href="https://www.yabasanshiro.com/privacy"&gt;политикой конфиденциальности&lt;/a&gt;.
     </string>

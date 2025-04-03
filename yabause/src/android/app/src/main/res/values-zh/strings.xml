@@ -254,4 +254,12 @@
     <string name="fail_to_initialize_emulator">模拟器初始化失败</string>
     <string name="notification_permission_title">通知权限请求</string>
     <string name="notification_permission_message">允许通知后，您将收到开发者的消息。</string>
+    <string name="search_games">搜索游戏</string>
+    <string name="sort_by">排序方式</string>
+    <string name="sort_by_name">按名称排序</string>
+    <string name="sort_by_date">按发布日期排序</string>
+    <string name="sort_by_recently_played">按最近玩过排序</string>
+    <string name="report_notice">
+        &lt;h2&gt;发表您的评论！&lt;/h2&gt; &lt;br&gt; 注意：您的评论内容、用户名和个人资料图标将公开显示。发布前请查看&lt;a href="https://www.yabasanshiro.com/privacy"&gt;隐私政策&lt;/a&gt;。
+    </string>
 </resources>
