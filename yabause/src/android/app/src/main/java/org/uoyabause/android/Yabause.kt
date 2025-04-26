@@ -597,8 +597,9 @@ class Yabause : AppCompatActivity(),
         if (gameCode != null) {
             readPreferences(gameCode)
             if (gameCode == "GS-9170" || gameCode == "MK-81800") {
-                val c = SonicR()
+                val c = SonicR(gameCode)
                 c.uievent = this
+/*
                 val lmenu = navigationView.menu
                 val submenu = lmenu.addSubMenu(
                     Menu.NONE,
@@ -625,6 +626,7 @@ class Yabause : AppCompatActivity(),
                         true
                     }
                 }
+ */
                 currentGame = c
             }
         }
@@ -833,6 +835,7 @@ class Yabause : AppCompatActivity(),
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -1057,6 +1060,33 @@ class Yabause : AppCompatActivity(),
                 transaction.replace(R.id.ext_fragment, fragment, TabBackupFragment.TAG)
                 transaction.show(fragment)
                 transaction.commit()
+            }
+            R.id.menu_leaderboard -> {
+                val gameCode = YabauseRunnable.getCurrentGameCode()
+                if( gameCode != null ) {
+                    waitingResult = true
+                    val fragment = LeaderBoardFragment.newInstance(gameCode)
+
+                    fragment.closeListener = object : LeaderBoardFragment.OnLeaderboardCloseListener {
+                        override fun onLeaderboardClose() {
+                            val transaction = supportFragmentManager.beginTransaction()
+                            transaction.remove(fragment)
+                            transaction.commit()
+                            val mainv = findViewById<View>(R.id.yabause_view)
+                            mainv.isActivated = true
+                            mainv.requestFocus()
+                            waitingResult = false
+                            menu_showing = false
+                            YabauseRunnable.resume()
+                            audio?.unmute(YabauseAudio.SYSTEM)
+                        }
+                    }
+
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.ext_fragment, fragment, LeaderBoardFragment.TAG)
+                        .show(fragment)
+                        .commit()
+                }
             }
             R.id.menu_item_pad_device -> {
                 waitingResult = true
@@ -1711,6 +1741,23 @@ class Yabause : AppCompatActivity(),
                     audio?.unmute(YabauseAudio.SYSTEM)
                     return true
                 }
+
+                fg = supportFragmentManager.findFragmentByTag(LeaderBoardFragment.TAG)
+                if (fg != null) {
+                    val transaction = supportFragmentManager.beginTransaction()
+                    transaction.remove(fg)
+                    transaction.commit()
+                    val mainv = findViewById<View>(R.id.yabause_view)
+                    mainv.isActivated = true
+                    mainv.requestFocus()
+                    waitingResult = false
+                    menu_showing = false
+                    YabauseRunnable.resume()
+                    audio?.unmute(YabauseAudio.SYSTEM)
+                    return true
+                }
+
+
                 val fg2 =
                     supportFragmentManager.findFragmentByTag(PadTestFragment.TAG) as PadTestFragment?
                 if (fg2 != null) {
@@ -2253,17 +2300,18 @@ class Yabause : AppCompatActivity(),
                 Snackbar.LENGTH_LONG)
             snackbar.setAction("Check Leader board"
             ) { _: View? ->
-                var account = GoogleSignIn.getLastSignedInAccount(this)
-                if (account != null) {
-                    Games.getLeaderboardsClient(this, account)
-                        .getLeaderboardIntent(leaderBoardId)
-                        .addOnSuccessListener(OnSuccessListener<Intent?> { intent ->
-                            startActivityForResult(
-                                intent,
-                                3
-                            )
-                        })
+                YabauseRunnable.pause()
+                audio?.mute(YabauseAudio.SYSTEM)
+                val gameCode = YabauseRunnable.getCurrentGameCode()
+                if( gameCode != null ) {
+                    waitingResult = true
+                    val fragment = LeaderBoardFragment.newInstance(gameCode)
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.ext_fragment, fragment, LeaderBoardFragment.TAG)
+                        .show(fragment)
+                        .commit()
                 }
+
             }
             snackbar.show()
         }

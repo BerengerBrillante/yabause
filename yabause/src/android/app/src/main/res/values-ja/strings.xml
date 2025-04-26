@@ -42,6 +42,16 @@
     <string name="donate_30doller">3,000円</string>   	
     
     <string name="input_the_key">キーを入力してください</string>
+
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">リーダーボード</string>
+    <string name="leaderboard_position">順位</string>
+    <string name="leaderboard_name">名前</string>
+    <string name="leaderboard_time">タイム</string>
+    <string name="leaderboard_diff">差</string>
+    <string name="leaderboard_no_data">このゲームにはまだリーダーボードがありません</string>
+    <string name="leaderboard_not_supported">このゲームはまだリーダーボードに対応していません</string>
+    <string name="menu_leaderboard">リーダーボード</string>
     <string name="joystick_is_not_connected">ゲームパッドが接続されていません</string>
     <string name="this_key_has_already_been_set">このキーはすでに設定されています</string>
 	<string name="up">Up</string>

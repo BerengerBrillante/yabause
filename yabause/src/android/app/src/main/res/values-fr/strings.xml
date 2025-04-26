@@ -48,6 +48,16 @@
     <string name="donate_30doller">$30</string>
 
     <string name="input_the_key">Pressez une Touche</string>
+
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">Classement</string>
+    <string name="leaderboard_position">Pos.</string>
+    <string name="leaderboard_name">Nom</string>
+    <string name="leaderboard_time">Temps</string>
+    <string name="leaderboard_diff">Diff</string>
+    <string name="leaderboard_no_data">Ce jeu n\'a pas encore de classement</string>
+    <string name="leaderboard_not_supported">Ce jeu ne prend pas encore en charge le classement</string>
+    <string name="menu_leaderboard">Classement</string>
     <string name="joystick_is_not_connected">Le joystick n\'est pas connecté.</string>
     <string name="this_key_has_already_been_set">Cette touche a déjà été utilisée.</string>
     <string name="up">Haut</string>

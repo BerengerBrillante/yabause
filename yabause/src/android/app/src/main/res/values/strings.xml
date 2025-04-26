@@ -399,6 +399,16 @@
         Use SH2 cache
     </string>
 
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="leaderboard_position">Pos.</string>
+    <string name="leaderboard_name">Name</string>
+    <string name="leaderboard_time">Time</string>
+    <string name="leaderboard_diff">Diff</string>
+    <string name="leaderboard_no_data">This game does not have a leaderboard yet</string>
+    <string name="leaderboard_not_supported">This game does not support leaderboard yet</string>
+    <string name="menu_leaderboard">Leaderboard</string>
+
     <string name="restore_defaults">
         Restore defaults
     </string>

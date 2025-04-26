@@ -50,8 +50,18 @@
     <string name="donate_30doller">$30</string>
 
     <string name="input_the_key">Нажмите кнопку</string>
-    <string name="joystick_is_not_connected">Геймпад не подключен.</string>
-    <string name="this_key_has_already_been_set">Кнопка уже используется.</string>
+    <string name="joystick_is_not_connected">Геймпад не подключен!</string>
+
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">Таблица лидеров</string>
+    <string name="menu_leaderboard">Таблица лидеров</string>
+    <string name="leaderboard_position">Поз.</string>
+    <string name="leaderboard_name">Имя</string>
+    <string name="leaderboard_time">Время</string>
+    <string name="leaderboard_diff">Разн.</string>
+    <string name="leaderboard_no_data">У этой игры еще нет таблицы лидеров</string>
+    <string name="leaderboard_not_supported">Эта игра еще не поддерживает таблицу лидеров</string>
+    <string name="this_key_has_already_been_set">Кнопка уже используется!</string>
     <string name="up">Вверх</string>
     <string name="down">Вниз</string>
     <string name="left">Влево</string>

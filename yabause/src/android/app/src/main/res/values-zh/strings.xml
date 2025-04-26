@@ -49,6 +49,16 @@
 
     <string name="input_the_key">输入按键</string>
     <string name="joystick_is_not_connected">手柄未连接。</string>
+
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">排行榜</string>
+    <string name="leaderboard_position">排名</string>
+    <string name="leaderboard_name">名称</string>
+    <string name="leaderboard_time">时间</string>
+    <string name="leaderboard_diff">差异</string>
+    <string name="leaderboard_no_data">该游戏还没有排行榜</string>
+    <string name="leaderboard_not_supported">该游戏尚不支持排行榜</string>
+    <string name="menu_leaderboard">排行榜</string>
     <string name="this_key_has_already_been_set">此按键已设置。</string>
     <string name="up">上</string>
     <string name="down">下</string>

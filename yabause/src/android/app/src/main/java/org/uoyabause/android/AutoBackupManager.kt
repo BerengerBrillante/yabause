@@ -322,15 +322,18 @@ class AutoBackupManager(
         }
 */
         if( isOnSubscription == false ){
+            syncState = BackupSyncState.IDLE
             return
         }
 
         if( listener_.enable() == false ){
+            syncState = BackupSyncState.IDLE
             return
         }
 
         // ファイルがない場合は何もしない
         if( !localFile.exists() ){
+            syncState = BackupSyncState.IDLE
             return
         }
 
