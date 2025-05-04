@@ -89,7 +89,7 @@ M68K_struct * M68KCoreList[] = {
     NULL
 };
 
-SH2Interface_struct *SH2CoreList[] = {  
+SH2Interface_struct *SH2CoreList[] = {
     &SH2Interpreter,
     &SH2DebugInterpreter,
 #ifdef SH2_DYNAREC
@@ -121,7 +121,7 @@ SoundInterface_struct *SNDCoreList[] = {
 
 
 extern "C" {
-    
+
     const char * GetBiosPath();
     const char * GetGamePath();
     const char * GetMemoryPath();
@@ -139,7 +139,7 @@ extern "C" {
     int SetAnalogMode(int mode);
 
     char * getGameinfoFromChd( const char * path );
-    
+
 int swapAglBuffer ();
 
 int g_pad_mode = 0;
@@ -243,7 +243,9 @@ void update_pad_mode()
     }
 }
 
-    
+extern "C" void onBackupWrite(char *before, char *after, int size);
+extern "C" void BiosSetOnBackupWrite(void (*callback)(char *, char *, int));
+
 int start_emulation( int originx, int originy, int width, int height ){
 	int i;
     int res;
@@ -257,7 +259,7 @@ int start_emulation( int originx, int originy, int width, int height ){
     strcpy(s_savepath,GetStateSavePath());
     s_vidcoretype = GetVideoInterface();
     s_carttype =  GetCartridgeType();
-    
+
     //s_player2Enable = GetPlayer2Device();
 
     YUI_LOG("%s",glGetString(GL_VENDOR));
@@ -268,10 +270,10 @@ int start_emulation( int originx, int originy, int width, int height ){
 
 #if !defined(YAB_ASYNC_RENDERING)
     UseOGLOnThisThread();
-#endif    
+#endif
 
     g_EnagleFPS = GetEnableFPS();
- 
+
     glViewport(0,0,width,height);
 
     glClearColor( 0.0f, 0.0f,0.0f,1.0f);
@@ -282,7 +284,7 @@ int start_emulation( int originx, int originy, int width, int height ){
     yinit.percoretype = PERCORE_DUMMY;
     yinit.sh2coretype = SH2CORE_DEFAULT;
     yinit.vidcoretype = VIDCORE_OGL;
-    yinit.sndcoretype = SNDCORE_COREAUDIO; 
+    yinit.sndcoretype = SNDCORE_COREAUDIO;
     yinit.cdcoretype = CDCORE_ISO;
     yinit.regionid = 0;
 
@@ -292,7 +294,7 @@ int start_emulation( int originx, int originy, int width, int height ){
     printf("buppath = %s\n",yinit.buppath);
     yinit.carttype = s_carttype;
     yinit.cartpath = s_cartpath;
-    
+
     printf("bios %s¥n",s_biospath);
     LogStart();
 
@@ -314,6 +316,9 @@ int start_emulation( int originx, int originy, int width, int height ){
     yinit.use_sh2_cache = 1;
     yinit.polygon_generation_mode = PERSPECTIVE_CORRECTION;
 
+    // バックアップ書き込み時のコールバックを設定
+    BiosSetOnBackupWrite(onBackupWrite);
+
     res = YabauseInit(&yinit);
     if (res != 0) {
       YUI_LOG("Fail to YabauseInit %d", res);
@@ -329,9 +334,9 @@ int start_emulation( int originx, int originy, int width, int height ){
     OSDInit(0);
     OSDChangeCore(OSDCORE_NANOVG);
 
-    
+
     if( s_vidcoretype == VIDCORE_OGL ){
-        
+
 	   for (i = 0; VIDCoreList[i] != NULL; i++)
 	   {
 		  if (VIDCoreList[i]->id == s_vidcoretype)
@@ -344,7 +349,7 @@ int start_emulation( int originx, int originy, int width, int height ){
         //OSDChangeCore(OSDCORE_SOFT);
         //if( YuiInitProgramForSoftwareRendering() != GL_TRUE ){
         //    YUI_LOG("Fail to YuiInitProgramForSoftwareRendering");
-        //    return -1; 
+        //    return -1;
         //}
     }
 
@@ -372,7 +377,7 @@ int start_emulation( int originx, int originy, int width, int height ){
         SetOSDToggle(g_EnagleFPS);
         OSDDisplayMessages(NULL,0,0);
         swapAglBuffer();
-        
+
     }
 
 
@@ -382,7 +387,7 @@ int start_emulation( int originx, int originy, int width, int height ){
     int YuiUseOGLOnThisThread(){
         UseOGLOnThisThread();
     }
-    
+
     int emulation_step( int command ){
 
         int rtn;
@@ -398,21 +403,21 @@ int start_emulation( int originx, int originy, int width, int height ){
                 YUI_LOG("MSG_LOAD_STATE %s\n",s_savepath);
                  if( (rtn = YabLoadStateSlot(s_savepath, 1)) != 0 ){
                     YUI_LOG("StateLoad is failed %d\n",rtn);
-                }               
-                break;            
+                }
+                break;
             case MSG_RESET:
                 YUI_LOG("MSG_RESET\n");
-                YabauseReset();            
-                break;            
+                YabauseReset();
+                break;
             case MSG_OPEN_TRAY:
                 YUI_LOG("MSG_OPEN_TRAY\n");
-                Cs2ForceOpenTray();            
-                break;     
+                Cs2ForceOpenTray();
+                break;
             case MSG_CLOSE_TRAY:
                 s_cdpath = GetGamePath();
-                YUI_LOG("MSG_CLOSE_TRAY %s\n",s_cdpath);                
-                Cs2ForceCloseTray(CDCORE_ISO, s_cdpath); 
-                break;                     
+                YUI_LOG("MSG_CLOSE_TRAY %s\n",s_cdpath);
+                Cs2ForceCloseTray(CDCORE_ISO, s_cdpath);
+                break;
         }
 
         YabauseExec();
@@ -433,8 +438,8 @@ int start_emulation( int originx, int originy, int width, int height ){
         return 0;
     }
 
- 
-    
+
+
 
 
 char * getGameinfoFromChd( const char * path ){
@@ -456,8 +461,8 @@ char * getGameinfoFromChd( const char * path ){
 
   hunk_buffer = (char*)malloc(header->hunkbytes);
   chd_read(chd, 0, hunk_buffer);
-  
-  memcpy(buf,&hunk_buffer[16],len); 
+
+  memcpy(buf,&hunk_buffer[16],len);
   buf[len-1] = 0;
   //putc(buf[0], stdout);
   //putc(buf[1], stdout);
@@ -495,6 +500,13 @@ extern "C" {
   void YabauseThread_coldBoot() {
   }
 
+  // バックアップ書き込み時のコールバック
+  void onBackupWrite(char *before, char *after, int size) {
+    // Objective-Cのメソッドを呼び出す
+    extern void YSOnBackupWrite(const void *before, const void *after, int size);
+    YSOnBackupWrite(before, after, size);
+  }
+
   //void glMemoryBarrier( int a ){
 //
  //}
@@ -503,7 +515,7 @@ extern "C" {
   }
   void RBGGenerator_resize(int width, int height) {
   }
-    
+
   void RBGGenerator_update(RBGDrawInfo * rbg ){
 
   }
@@ -516,4 +528,3 @@ extern "C" {
 
 }
 
-  

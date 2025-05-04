@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 
 
@@ -18,22 +19,24 @@ class GameMainViewController: UIViewController
         case opened
         case closed
     }
-    
+
     private var menuState : MenuState = .closed
-    
+
     var selectedFile = ""
-    private var gameVC: GameViewController?
+    var productNumber: String?
+    var gameVC: GameViewController?
     let menuVC = MenuViewController()
 
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
          if let gameVC = segue.destination as? GameViewController {
              self.gameVC = gameVC
              gameVC.selectedFile = self.selectedFile
+             gameVC.productNumber = self.productNumber // 追加
              self.gameVC?.gdelegate = self
          }
      }
-    
-    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         menuVC.delegate = self
@@ -48,18 +51,18 @@ class GameMainViewController: UIViewController
         // landscapeフラグに応じて画面の向きを設定
         let ud = UserDefaults.standard
         let landscape = ud.bool(forKey: "landscape")
-        
+
         if landscape {
             return .landscape
         } else {
             return .all
         }
     }
-    
+
     override var prefersHomeIndicatorAutoHidden: Bool {
         return true
     }
-    
+
     //@available(iOS 11, *)
     override var childForHomeIndicatorAutoHidden: UIViewController? {
         return nil
@@ -67,43 +70,43 @@ class GameMainViewController: UIViewController
 }
 
 extension GameMainViewController: GameViewControllerDelegate {
-   
+
     func didTapMenuButton() {
         // Animate the menu
         // print("tap the menu")
-        
+
         if( menuState == .opened ){
             self.gameVC?.isPaused = false
         }
         toggleMenu( completion: nil )
     }
-    
+
     func toggleMenu( completion: (() -> Void)? ){
         switch menuState {
         case .closed:
-            
+
             self.gameVC?.isPaused = true
-            
+
             // open it
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
 
                 self.gameVC?.view.frame.origin.x = self.menuVC.optimalWidth
-                
+
             }completion:{ [weak self] done in
                 if done {
                     self?.menuState = .opened
                     completion?()
                 }
             }
-            
+
         case .opened:
-            
-            
+
+
             // close it
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
-                
+
                 self.gameVC?.view.frame.origin.x = 0
-                
+
             }completion:{ [weak self] done in
                 if done {
                     self?.menuState = .closed
@@ -122,7 +125,7 @@ extension GameMainViewController: MenuViewControllerDelegate {
             var doNotPause = false
             switch menuItem {
             case .exit:
-                
+
                 // アラートコントローラの作成
                 let alertController = UIAlertController(
                     title: NSLocalizedString("Exit Confirmation", comment: "Title for exit confirmation alert"),
@@ -135,7 +138,7 @@ extension GameMainViewController: MenuViewControllerDelegate {
                     title: NSLocalizedString("Yes", comment: "Confirm action to exit the application"),
                     style: .default
                 ) { action in
-                    
+
                     enterBackGround()
                     exit(0)
                 }
@@ -149,7 +152,7 @@ extension GameMainViewController: MenuViewControllerDelegate {
                     self?.gameVC?.isPaused = false
                 }
                 alertController.addAction(noAction)
-                
+
 
                 self?.present(alertController, animated: true, completion: nil)
                 doNotPause = true
@@ -199,7 +202,46 @@ extension GameMainViewController: MenuViewControllerDelegate {
                     }
                     self?.present(navController, animated: true, completion: nil)
                     doNotPause = true
-                    
+
+                }
+                break
+            case .report:
+                // ゲームコードを取得
+                let productionNumber = YSGetCurrentGameCode() ?? ""
+
+                // ReportDialogを表示
+                let reportDialog = ReportDialog(productionNumber: productionNumber)
+                reportDialog.completionHandler = { [weak self] (rating, message, screenshot) in
+                    self?.gameVC?.isPaused = false
+                }
+
+                let navController = UINavigationController(rootViewController: reportDialog)
+                navController.modalPresentationStyle = .pageSheet
+                self?.present(navController, animated: true, completion: nil)
+                doNotPause = true
+                break
+            case .leaderBoard:
+                // ログイン状態を確認
+                if let user = Auth.auth().currentUser {
+                    // ログイン済みの場合、リーダーボード画面を表示
+                    self?.gameVC?.presentLeaderBoardViewController()
+                    doNotPause = true
+                } else {
+                    // 未ログインの場合、ログイン画面を表示
+                    let loginVC = LoginViewController()
+                    let navController = UINavigationController(rootViewController: loginVC)
+                    navController.modalPresentationStyle = .pageSheet
+                    loginVC.modalPresentationStyle = .fullScreen
+                    loginVC.completionHandler = { [weak self] success in
+                        if success {
+                            // ログイン成功後にリーダーボード画面を表示
+                            self?.gameVC?.presentLeaderBoardViewController()
+                        } else {
+                            self?.gameVC?.isPaused = false
+                        }
+                    }
+                    self?.present(navController, animated: true, completion: nil)
+                    doNotPause = true
                 }
                 break
             }
@@ -209,9 +251,9 @@ extension GameMainViewController: MenuViewControllerDelegate {
             }
         }
     }
-    
+
     func didChangeAnalogMode(to: Bool){
-        
+
         toggleMenu { [weak self] in
             let plist = SettingsViewController.getSettingPlist();
             plist.setObject(to, forKey: "analog mode" as NSCopying)
@@ -220,5 +262,5 @@ extension GameMainViewController: MenuViewControllerDelegate {
             self?.gameVC?.isPaused = false
         }
     }
-    
+
 }

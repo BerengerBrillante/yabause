@@ -86,7 +86,7 @@ import GoogleSignIn
     @objc private func handleGoogleSignIn() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         let config = GIDConfiguration(clientID: clientID)
-        
+        GIDSignIn.sharedInstance.configuration = config
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [weak self] result, error in
             if let error = error {
                 print("Google Sign In Error: \(error.localizedDescription)")

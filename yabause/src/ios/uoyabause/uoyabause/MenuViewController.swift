@@ -33,7 +33,7 @@ class SwitchTableViewCell: UITableViewCell {
 
     private func setupLayout() {
         contentView.addSubview(toggleSwitch)
-        
+
         // スイッチを左端に配置
         NSLayoutConstraint.activate([
             toggleSwitch.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -46,7 +46,7 @@ class SwitchTableViewCell: UITableViewCell {
 class MenuViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     weak var delegate: MenuViewControllerDelegate?
-    
+
     // メニューの最適な幅を外部から取得できるようにするプロパティ
     private(set) var optimalWidth: CGFloat = 0
 
@@ -60,6 +60,8 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
         case loadState = "Load State"
         case controllerSetting = "Game Controller"
         case analogMode = "Analog Mode"
+        case report = "Report Game"
+        case leaderBoard = "Leader Board"
 
         var imageName: String {
             switch self {
@@ -81,6 +83,10 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
                 return "lock.square"
             case .cheat:
                 return "hammer"
+            case .report:
+                return "star.bubble"
+            case .leaderBoard:
+                return "trophy"
             }
         }
 
@@ -98,12 +104,16 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
                 return NSLocalizedString("Load State", comment: "Load a previously saved game state")
             case .analogMode:
                 return NSLocalizedString("Analog Mode", comment: "Switch to analog mode")
+            case .report:
+                return NSLocalizedString("Report Game", comment: "Title for the report dialog")
             case .controllerSetting:
                 return NSLocalizedString("Game Controller", comment: "Game controller settings")
             case .backupManager:
                 return NSLocalizedString("Backup Manager", comment: "Backup Manager settings")
             case .cheat:
                 return NSLocalizedString("Action Replay Code", comment: "Action Replay Code menu")
+            case .leaderBoard:
+                return NSLocalizedString("Leader Board", comment: "Leader Board menu")
             }
         }
     }
@@ -126,9 +136,9 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
     private func calculateOptimalWidth() -> CGFloat {
         let padding: CGFloat = 16  // セルの左右の余白
         let iconWidth: CGFloat = 30 + 16 // システムアイコンの幅
-        
+
         let defaultFontSize: CGFloat = 16
-        
+
         // 全てのメニュー項目の中で最も長いテキスト幅を計算
         let maxWidth = MenuOptions.allCases.map { option -> CGFloat in
             let text = option.localizedTitle
@@ -138,9 +148,9 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
             let size = label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
             return size.width
         }.max() ?? 0
-        
+
         let safeAreaOffset = self.view.safeAreaInsets.left
-        
+
         // アイコン幅 + テキスト幅 + パディング
         return iconWidth + maxWidth + padding + safeAreaOffset
     }
@@ -178,22 +188,22 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
             cell.imageView?.image = UIImage(systemName: option.imageName, withConfiguration: configuration)
             cell.imageView?.preferredSymbolConfiguration = configuration
             cell.imageView?.contentMode = .center
-            
+
             // セル内のレイアウト調整
             cell.imageView?.translatesAutoresizingMaskIntoConstraints = false
             cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-            
+
             if let imageView = cell.imageView, let textLabel = cell.textLabel {
                 textLabel.text = option.localizedTitle
                 textLabel.font = .systemFont(ofSize: 16)
-                
+
                 NSLayoutConstraint.activate([
                     // イメージビューの制約
                     imageView.widthAnchor.constraint(equalToConstant: 30),
                     imageView.heightAnchor.constraint(equalToConstant: 30),
                     imageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 8),
                     imageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-                    
+
                     // テキストラベルの制約
                     textLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 8),
                     textLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -8),

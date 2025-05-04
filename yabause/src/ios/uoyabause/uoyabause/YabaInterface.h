@@ -65,3 +65,4 @@ int YSPutFile( NSString* jsonstr  );
 int YSCopy( int target, int file  );
 void YSUpdateCheat(NSArray* stringArray);
 NSString* YSGetCurrentGameCode();
+void YSOnBackupWrite(const void *before, const void *after, int size);

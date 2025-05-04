@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.5)
 project (dynalib_test C CXX)
 
 set (COMMON_INCLUDES
@@ -49,7 +49,7 @@ set_target_properties( dynalib_test PROPERTIES LINK_FLAGS "/LARGEADDRESSAWARE:NO
 #--------------------------------------------------------------
 # Google Unit Test Library
 #--------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.5)
 project(gtest_builder C CXX)
 include(ExternalProject)
 

@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '13.6'
+platform :ios, '14.0'
 
 target 'YabaSnashiro' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
@@ -8,9 +8,11 @@ target 'YabaSnashiro' do
   pod 'Firebase/Auth'
   pod 'Firebase/Database'
   pod 'Firebase/Storage'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Messaging'
   pod 'GoogleSignIn'
   pod 'FirebaseCrashlytics'
-  pod 'Kingfisher', '~> 7.0' 
+  pod 'Kingfisher', '~> 7.0'
 
   # Pods for uoyabause
 
@@ -20,9 +22,11 @@ target 'YabaSnashiro' do
     pod 'Firebase/Auth'
     pod 'Firebase/Storage'
     pod 'Firebase/Database'
+    pod 'Firebase/Firestore'
+    pod 'Firebase/Messaging'
     pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
-    pod 'Kingfisher', '~> 7.0'  
+    pod 'Kingfisher', '~> 7.0'
     pod 'Google-Mobile-Ads-SDK'
     end
 
@@ -32,9 +36,11 @@ target 'YabaSnashiro' do
     pod 'Firebase/Auth'
     pod 'Firebase/Storage'
     pod 'Firebase/Database'
+    pod 'Firebase/Firestore'
+    pod 'Firebase/Messaging'
     pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
-    pod 'Kingfisher', '~> 7.0'  
+    pod 'Kingfisher', '~> 7.0'
   end
 
   target 'YabaSnashiroUITests' do
@@ -43,9 +49,25 @@ target 'YabaSnashiro' do
     pod 'Firebase/Storage'
     pod 'Firebase/Auth'
     pod 'Firebase/Database'
+    pod 'Firebase/Firestore'
+    pod 'Firebase/Messaging'
     pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
-    pod 'Kingfisher', '~> 7.0'  
+    pod 'Kingfisher', '~> 7.0'
   end
 
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == 'BoringSSL-GRPC'
+      target.source_build_phase.files.each do |file|
+        if file.settings && file.settings['COMPILER_FLAGS']
+          flags = file.settings['COMPILER_FLAGS'].split
+          flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+          file.settings['COMPILER_FLAGS'] = flags.join(' ')
+        end
+      end
+    end
+  end
 end
