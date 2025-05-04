@@ -84,6 +84,12 @@
 		D93EB1992DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93EB1972DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift */; };
 		D93EB19A2DC593ED00E3A801 /* DiscordAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93EB1962DC593ED00E3A801 /* DiscordAuthManager.swift */; };
 		D93EB19B2DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93EB1972DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift */; };
+		D95CDCE22DC644970073D89D /* SonicR.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE12DC644970073D89D /* SonicR.swift */; };
+		D95CDCE32DC644970073D89D /* BaseGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE02DC644970073D89D /* BaseGame.swift */; };
+		D95CDCE42DC644970073D89D /* SonicR.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE12DC644970073D89D /* SonicR.swift */; };
+		D95CDCE52DC644970073D89D /* BaseGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE02DC644970073D89D /* BaseGame.swift */; };
+		D95CDCEB2DC6DC500073D89D /* DiscordWebhook.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE92DC6DC500073D89D /* DiscordWebhook.swift */; };
+		D95CDCEC2DC6DC500073D89D /* DiscordWebhook.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95CDCE92DC6DC500073D89D /* DiscordWebhook.swift */; };
 		D971100E2DA467010057B574 /* ReportDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D971100D2DA467010057B574 /* ReportDialog.swift */; };
 		D971100F2DA467010057B574 /* ReportDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D971100D2DA467010057B574 /* ReportDialog.swift */; };
 		D97110112DA477AF0057B574 /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D97110102DA477AF0057B574 /* StarRatingView.swift */; };
@@ -103,10 +109,6 @@
 		D990B59E2C5F504E001E2D6C /* MetalANGLE.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; };
 		D990B59F2C5F504E001E2D6C /* MetalANGLE.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D990B5A02C5F5600001E2D6C /* Pods_YabaSnashiroUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6A3953C38AF483C1F1F5E89 /* Pods_YabaSnashiroUITests.framework */; };
-		D994B33A2DC070EB004885B7 /* SonicR.swift in Sources */ = {isa = PBXBuildFile; fileRef = D994B3392DC070EB004885B7 /* SonicR.swift */; };
-		D994B33B2DC070EB004885B7 /* SonicR.swift in Sources */ = {isa = PBXBuildFile; fileRef = D994B3392DC070EB004885B7 /* SonicR.swift */; };
-		D994B33D2DC070F5004885B7 /* BaseGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = D994B33C2DC070F5004885B7 /* BaseGame.swift */; };
-		D994B33E2DC070F5004885B7 /* BaseGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = D994B33C2DC070F5004885B7 /* BaseGame.swift */; };
 		D9C85C3F2C77660000B98290 /* MetalANGLE.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; };
 		D9C85C402C77660000B98290 /* MetalANGLE.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D9C85C4F2C77762100B98290 /* MainScreenTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EE8EDC2C5F43F100E47A22 /* MainScreenTest.swift */; };
@@ -288,6 +290,9 @@
 		D93EB1932DC588B400E3A801 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		D93EB1962DC593ED00E3A801 /* DiscordAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordAuthManager.swift; sourceTree = "<group>"; };
 		D93EB1972DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordOAuthRedirectHandler.swift; sourceTree = "<group>"; };
+		D95CDCE02DC644970073D89D /* BaseGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseGame.swift; sourceTree = "<group>"; };
+		D95CDCE12DC644970073D89D /* SonicR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicR.swift; sourceTree = "<group>"; };
+		D95CDCE92DC6DC500073D89D /* DiscordWebhook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordWebhook.swift; sourceTree = "<group>"; };
 		D971100D2DA467010057B574 /* ReportDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportDialog.swift; sourceTree = "<group>"; };
 		D97110102DA477AF0057B574 /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
 		D97B415A2C8CFC2E0070A81D /* YabaInterface.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = YabaInterface.mm; sourceTree = "<group>"; };
@@ -296,8 +301,6 @@
 		D98515962CD1F7CD00055C16 /* libzstd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzstd.a; sourceTree = "<group>"; };
 		D98F41D62C6B92C40003E4C8 /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		D98F41D92C6DA7620003E4C8 /* DraggableCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggableCircleView.swift; sourceTree = "<group>"; };
-		D994B3392DC070EB004885B7 /* SonicR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicR.swift; sourceTree = "<group>"; };
-		D994B33C2DC070F5004885B7 /* BaseGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseGame.swift; sourceTree = "<group>"; };
 		D9C85C342C77654F00B98290 /* YabaSnashiroUITests-Lite.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "YabaSnashiroUITests-Lite.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C85C422C77661500B98290 /* Pods_YabaSnashiro_Lite.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_YabaSnashiro_Lite.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C85C4A2C776B8D00B98290 /* YabaSanshiroUITests-Lite-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YabaSanshiroUITests-Lite-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -414,12 +417,12 @@
 		644232A41C6580000050611E /* uoyabause */ = {
 			isa = PBXGroup;
 			children = (
+				D95CDCEA2DC6DC500073D89D /* util */,
+				D95CDCDF2DC644650073D89D /* game */,
 				D93EB1962DC593ED00E3A801 /* DiscordAuthManager.swift */,
 				D93EB1972DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift */,
 				D93EB1932DC588B400E3A801 /* UserProfileViewController.swift */,
 				D93EB1902DC4FE6700E3A801 /* Colors.swift */,
-				D994B33C2DC070F5004885B7 /* BaseGame.swift */,
-				D994B3392DC070EB004885B7 /* SonicR.swift */,
 				D9D0831A2DBF96DE00621ECE /* LeaderBoardController.swift */,
 				D9D0831B2DBF96DE00621ECE /* LeaderBoardRepository.swift */,
 				D9D0831C2DBF96DE00621ECE /* LeaderBoardViewModel.swift */,
@@ -515,6 +518,23 @@
 				D92698462D5F91860010093B /* YabauseManager.swift */,
 			);
 			path = Cheat;
+			sourceTree = "<group>";
+		};
+		D95CDCDF2DC644650073D89D /* game */ = {
+			isa = PBXGroup;
+			children = (
+				D95CDCE02DC644970073D89D /* BaseGame.swift */,
+				D95CDCE12DC644970073D89D /* SonicR.swift */,
+			);
+			path = game;
+			sourceTree = "<group>";
+		};
+		D95CDCEA2DC6DC500073D89D /* util */ = {
+			isa = PBXGroup;
+			children = (
+				D95CDCE92DC6DC500073D89D /* DiscordWebhook.swift */,
+			);
+			path = util;
 			sourceTree = "<group>";
 		};
 		D97B415D2C8D071F0070A81D /* BackupManager */ = {
@@ -790,6 +810,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiro/Pods-YabaSnashiro-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseABTesting/FirebaseABTesting.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
@@ -802,6 +823,7 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseFirestoreInternal/FirebaseFirestoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfig/FirebaseRemoteConfig.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
@@ -825,6 +847,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseABTesting.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
@@ -837,6 +860,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseFirestoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfig.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
@@ -892,6 +916,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiroTests/Pods-YabaSnashiroTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseABTesting/FirebaseABTesting.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
@@ -904,6 +929,7 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseFirestoreInternal/FirebaseFirestoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfig/FirebaseRemoteConfig.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
@@ -927,6 +953,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseABTesting.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
@@ -939,6 +966,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseFirestoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfig.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
@@ -1062,6 +1090,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiroUITests/Pods-YabaSnashiroUITests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseABTesting/FirebaseABTesting.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
@@ -1074,6 +1103,7 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseFirestoreInternal/FirebaseFirestoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfig/FirebaseRemoteConfig.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
@@ -1097,6 +1127,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseABTesting.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
@@ -1109,6 +1140,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseFirestoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfig.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
@@ -1160,6 +1192,7 @@
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiro-Lite/Pods-YabaSnashiro-Lite-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseABTesting/FirebaseABTesting.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
@@ -1172,6 +1205,7 @@
 				"${BUILT_PRODUCTS_DIR}/FirebaseFirestoreInternal/FirebaseFirestoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfig/FirebaseRemoteConfig.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
@@ -1195,6 +1229,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseABTesting.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
@@ -1207,6 +1242,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseFirestoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfig.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
@@ -1252,20 +1288,21 @@
 				648926691D719E9500D92D58 /* FileSelectController.swift in Sources */,
 				645EA6C61D975B3D00A7A5D8 /* SettingsViewController.swift in Sources */,
 				D97B415F2C8D07E40070A81D /* BackupFileListViewController.swift in Sources */,
+				D95CDCEC2DC6DC500073D89D /* DiscordWebhook.swift in Sources */,
 				94F215402C4BF07400C213F8 /* GameViewController.swift in Sources */,
 				94F215432C4CC9BC00C213F8 /* GameMainViewController.swift in Sources */,
 				64D450091D7C0E6C004E2615 /* MainScreenController.swift in Sources */,
 				94F215392C4BCE0500C213F8 /* PadButton.swift in Sources */,
 				94CB9D8F2581C6BE00C8E3EC /* iOSCoreAudio.m in Sources */,
-				D994B33A2DC070EB004885B7 /* SonicR.swift in Sources */,
 				D971100E2DA467010057B574 /* ReportDialog.swift in Sources */,
 				94F2152F2C4BA89B00C213F8 /* KeyMapper.swift in Sources */,
 				D926983E2D5747E50010093B /* LoginViewController.swift in Sources */,
 				D93EB1982DC593ED00E3A801 /* DiscordAuthManager.swift in Sources */,
 				D93EB1992DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift in Sources */,
 				D9D083202DBF96DE00621ECE /* LeaderBoardRepository.swift in Sources */,
-				D994B33E2DC070F5004885B7 /* BaseGame.swift in Sources */,
 				D9D083212DBF96DE00621ECE /* LeaderBoardViewModel.swift in Sources */,
+				D95CDCE22DC644970073D89D /* SonicR.swift in Sources */,
+				D95CDCE32DC644970073D89D /* BaseGame.swift in Sources */,
 				D9D083222DBF96DE00621ECE /* LeaderBoardController.swift in Sources */,
 				9490862A2C439ECD0061671A /* GameInfo.swift in Sources */,
 				D92698512D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */,
@@ -1310,20 +1347,21 @@
 				941B72E82BE733D70078C190 /* FileSelectController.swift in Sources */,
 				941B72E92BE733D70078C190 /* SettingsViewController.swift in Sources */,
 				D97B41602C8D07E40070A81D /* BackupFileListViewController.swift in Sources */,
+				D95CDCEB2DC6DC500073D89D /* DiscordWebhook.swift in Sources */,
 				94F215412C4BF07400C213F8 /* GameViewController.swift in Sources */,
 				94F215442C4CC9BC00C213F8 /* GameMainViewController.swift in Sources */,
 				941B72ED2BE733D70078C190 /* MainScreenController.swift in Sources */,
 				94F2153A2C4BCE0500C213F8 /* PadButton.swift in Sources */,
 				941B72EF2BE733D70078C190 /* iOSCoreAudio.m in Sources */,
-				D994B33B2DC070EB004885B7 /* SonicR.swift in Sources */,
 				D971100F2DA467010057B574 /* ReportDialog.swift in Sources */,
 				94F215302C4BA89B00C213F8 /* KeyMapper.swift in Sources */,
 				D926983F2D5747E50010093B /* LoginViewController.swift in Sources */,
 				D93EB19A2DC593ED00E3A801 /* DiscordAuthManager.swift in Sources */,
 				D93EB19B2DC593ED00E3A801 /* DiscordOAuthRedirectHandler.swift in Sources */,
 				D9D0831D2DBF96DE00621ECE /* LeaderBoardRepository.swift in Sources */,
-				D994B33D2DC070F5004885B7 /* BaseGame.swift in Sources */,
 				D9D0831E2DBF96DE00621ECE /* LeaderBoardViewModel.swift in Sources */,
+				D95CDCE42DC644970073D89D /* SonicR.swift in Sources */,
+				D95CDCE52DC644970073D89D /* BaseGame.swift in Sources */,
 				D9D0831F2DBF96DE00621ECE /* LeaderBoardController.swift in Sources */,
 				9490862B2C439ECD0061671A /* GameInfo.swift in Sources */,
 				D92698522D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */,
@@ -1520,7 +1558,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5GFLYKZWK;
@@ -1545,7 +1583,7 @@
 					"$(PROJECT_DIR)/Debug",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.17.2;
+				MARKETING_VERSION = 1.17.5;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1584,7 +1622,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5GFLYKZWK;
@@ -1609,7 +1647,7 @@
 					"$(PROJECT_DIR)/Debug",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.17.2;
+				MARKETING_VERSION = 1.17.5;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1730,7 +1768,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5GFLYKZWK;
@@ -1764,7 +1802,7 @@
 					"$(PROJECT_DIR)/Debug",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.17.2;
+				MARKETING_VERSION = 1.17.5;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				OTHER_LDFLAGS = (
 					"-l\"c++\"",
@@ -1805,7 +1843,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5GFLYKZWK;
@@ -1839,7 +1877,7 @@
 					"$(PROJECT_DIR)/Debug",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.17.2;
+				MARKETING_VERSION = 1.17.5;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
 				OTHER_LDFLAGS = (
 					"-l\"c++\"",
@@ -1881,7 +1919,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = Y5GFLYKZWK;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1918,7 +1956,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEVELOPMENT_TEAM = Y5GFLYKZWK;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
