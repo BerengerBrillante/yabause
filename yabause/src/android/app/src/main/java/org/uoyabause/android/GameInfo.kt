@@ -27,6 +27,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
@@ -53,6 +54,7 @@ import org.devmiyax.yabasanshiro.R
 import org.json.JSONObject
 import org.json.JSONException
 import org.uoyabause.android.YabauseStorage.Companion.dao
+import org.uoyabause.android.backup.GameBackupManager.BackupGameInfo
 import org.uoyabause.android.cheat.Cheat
 import org.uoyabause.android.cheat.CheatDao
 import java.io.BufferedInputStream
@@ -142,7 +144,7 @@ interface GameInfoDao{
  */
 @Entity
 data class GameInfo(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "file_path", index = true) var file_path: String = "",
     @ColumnInfo(name = "iso_file_path", index = true) var iso_file_path: String = "",
     @ColumnInfo(name = "game_title") var game_title: String = "",
@@ -157,7 +159,10 @@ data class GameInfo(
     @ColumnInfo(name = "update_at") var update_at: Date? = Date(),
     @ColumnInfo(name = "image_url") var image_url: String? = "",
     @ColumnInfo(name = "rating") var rating: Int  = 0,
-    @ColumnInfo(name = "lastplay_date") var lastplay_date: Date? = null
+    @ColumnInfo(name = "lastplay_date") var lastplay_date: Date? = null,
+    // These fields are not stored in the database but used for display
+    @Ignore var isCloudOnly: Boolean = false,
+    @Ignore var cloudBackupInfo: BackupGameInfo? = null
 )  {
 
     companion object {
@@ -400,9 +405,9 @@ data class GameInfo(
 
     suspend fun updateState(): Int {
         val ctx = appContext
-        
+
         if (product_number == "") return -1
-        
+
         // デフォルト値を設定
         //
         rating = 0
@@ -412,33 +417,33 @@ data class GameInfo(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
+
         // Firestoreのインスタンスを取得
         val db = Firebase.firestore
-        
+
         try {
             // Firestoreから検索（await を使用して同期的に処理）
             val documents = db.collection("games")
                 .whereEqualTo("product_number", product_number)
                 .get()
                 .await()
-            
+
             if (!documents.isEmpty) {
                 // ドキュメントが見つかった場合
                 val document = documents.documents[0]
-                
+
                 // update_atフィールドがあれば取得
                 document.getTimestamp("update_at")?.toDate()?.let {
                     update_at = it
                 }
-                
+
                 // games/{id}/summary/ratings/averageRating から rating を取得（await を使用して同期的に処理）
                 val documentId = document.id
                 val ratingsDoc = db.collection("games").document(documentId)
                     .collection("summary").document("ratings")
                     .get()
                     .await()
-                
+
                 ratingsDoc.getLong("averageRating")?.let {
                     rating = it.toInt()
                 }
@@ -451,7 +456,7 @@ data class GameInfo(
                 mFirebaseAnalytics.logEvent(
                     "yab_game_not_found", bundle
                 )
-                
+
                 // 新しいゲーム情報をFirestoreに追加（デバッグモードのみ）
                 try {
                     Log.i(
@@ -473,12 +478,12 @@ data class GameInfo(
                             "rating" to 0,
                             "update_at" to Date()
                         )
-                        
+
                         // Firestoreに追加（await を使用して同期的に処理）
                         val documentReference = db.collection("games")
                             .add(gameData)
                             .await()
-                        
+
                         Log.i("GameInfo", "Game added with ID: ${documentReference.id}")
                     }
                 } catch (e: Exception) {
@@ -489,7 +494,7 @@ data class GameInfo(
         } catch (exception: Exception) {
             Log.e("GameInfo", "Error getting documents: ", exception)
         }
-        
+
         return 0
     }
 

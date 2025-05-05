@@ -306,4 +306,20 @@
     <string name="account_deleted">账户已成功删除</string>
     <string name="account_deletion_failed">删除账户失败</string>
     <string name="discord_link_not_available_on_tv">此功能在 Android TV 上不可用。请使用您的手机或平板电脑。</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">备份到云端</string>
+    <string name="remove_from_cloud">从云端删除</string>
+    <string name="restore_from_cloud">从云端恢复</string>
+    <string name="backup_success">游戏备份成功</string>
+    <string name="backup_failed">游戏备份失败</string>
+    <string name="restore_success">游戏恢复成功</string>
+    <string name="restore_failed">游戏恢复失败</string>
+    <string name="backup_limit_reached">已达到备份限制（最多1个游戏）</string>
+    <string name="legal_warning_title">法律声明</string>
+    <string name="legal_warning_message">此文件应仅用作您拥有的游戏的备份。请遵守您所在国家/地区关于游戏备份的法律。</string>
+    <string name="cloud_only_game">云端可用（点击下载）</string>
+    <string name="download_from_cloud">从云端下载</string>
+    <string name="remove_success">游戏已从云端删除</string>
+    <string name="remove_failed">从云端删除游戏失败</string>
 </resources>

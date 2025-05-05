@@ -272,6 +272,22 @@
     <string name="activate">Activate</string>
     <string name="rate">Like</string>
 
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">Backup to Cloud</string>
+    <string name="remove_from_cloud">Remove from Cloud</string>
+    <string name="restore_from_cloud">Restore from Cloud</string>
+    <string name="backup_success">Game backed up successfully</string>
+    <string name="backup_failed">Failed to backup game</string>
+    <string name="restore_success">Game restored successfully</string>
+    <string name="restore_failed">Failed to restore game</string>
+    <string name="backup_limit_reached">Backup limit reached (maximum 1 game)</string>
+    <string name="legal_warning_title">Legal Notice</string>
+    <string name="legal_warning_message">This file should only be used as a backup of a game you own. Please follow your country\'s laws regarding game backups.</string>
+    <string name="cloud_only_game">Available in cloud (tap to download)</string>
+    <string name="download_from_cloud">Download from Cloud</string>
+    <string name="remove_success">Game removed from cloud successfully</string>
+    <string name="remove_failed">Failed to remove game from cloud</string>
+
     <string name="str_rotate_screen">90 degree rotation</string>
     <string name="title_activity_game_select_phone">GameSelectActivityPhone</string>
 
@@ -484,7 +500,7 @@
     <string name="account_deleted">Account successfully deleted</string>
     <string name="account_deletion_failed">Failed to delete account</string>
     <string name="discord_link_not_available_on_tv">This feature is not available on Android TV. Please use your phone or tablet.</string>
-    
+
     <!-- Discord Webhook Settings -->
     <string name="discord_webhook_enabled">Enable Discord Webhook Notifications</string>
     <string name="discord_webhook_url">Discord Webhook URL</string>

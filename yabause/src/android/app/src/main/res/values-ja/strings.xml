@@ -394,4 +394,20 @@
     <string name="account_deleted">アカウントが正常に削除されました</string>
     <string name="account_deletion_failed">アカウントの削除に失敗しました</string>
     <string name="discord_link_not_available_on_tv">この機能はAndroid TVでは利用できません。スマートフォンまたはタブレットで操作してください。</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">クラウドにバックアップ</string>
+    <string name="remove_from_cloud">クラウドから削除</string>
+    <string name="restore_from_cloud">クラウドから復元</string>
+    <string name="backup_success">ゲームのバックアップに成功しました</string>
+    <string name="backup_failed">ゲームのバックアップに失敗しました</string>
+    <string name="restore_success">ゲームの復元に成功しました</string>
+    <string name="restore_failed">ゲームの復元に失敗しました</string>
+    <string name="backup_limit_reached">バックアップ制限に達しました（最大1ゲーム）</string>
+    <string name="legal_warning_title">法的通知</string>
+    <string name="legal_warning_message">このファイルは、所有しているゲームのバックアップとしてのみ使用してください。ゲームバックアップに関するお住まいの国の法律に従ってください。</string>
+    <string name="cloud_only_game">クラウドで利用可能（タップしてダウンロード）</string>
+    <string name="download_from_cloud">クラウドからダウンロード</string>
+    <string name="remove_success">ゲームをクラウドから削除しました</string>
+    <string name="remove_failed">ゲームのクラウドからの削除に失敗しました</string>
 </resources>

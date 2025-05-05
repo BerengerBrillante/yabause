@@ -334,4 +334,20 @@
     <string name="account_deleted">Compte supprimé avec succès</string>
     <string name="account_deletion_failed">Échec de la suppression du compte</string>
     <string name="discord_link_not_available_on_tv">Cette fonctionnalité n\'est pas disponible sur Android TV. Veuillez utiliser votre téléphone ou votre tablette.</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">Sauvegarder dans le Cloud</string>
+    <string name="remove_from_cloud">Supprimer du Cloud</string>
+    <string name="restore_from_cloud">Restaurer depuis le Cloud</string>
+    <string name="backup_success">Jeu sauvegardé avec succès</string>
+    <string name="backup_failed">Échec de la sauvegarde du jeu</string>
+    <string name="restore_success">Jeu restauré avec succès</string>
+    <string name="restore_failed">Échec de la restauration du jeu</string>
+    <string name="backup_limit_reached">Limite de sauvegarde atteinte (maximum 1 jeu)</string>
+    <string name="legal_warning_title">Avis Légal</string>
+    <string name="cloud_only_game">Disponible dans le cloud (appuyez pour télécharger)</string>
+    <string name="download_from_cloud">Télécharger depuis le Cloud</string>
+    <string name="remove_success">Jeu supprimé du cloud avec succès</string>
+    <string name="remove_failed">Échec de la suppression du jeu du cloud</string>
+    <string name="legal_warning_message">Ce fichier ne doit être utilisé que comme sauvegarde d\'un jeu que vous possédez. Veuillez respecter les lois de votre pays concernant les sauvegardes de jeux.</string>
 </resources>

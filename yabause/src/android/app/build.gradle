@@ -343,6 +343,9 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt "androidx.room:room-compiler:$room_version"
 
+    implementation 'jp.wasabeef:glide-transformations:4.3.0'
+    implementation 'jp.co.cyberagent.android:gpuimage:2.1.0'
+
 }
 
 // ADD THIS AT THE BOTTOM

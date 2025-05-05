@@ -448,5 +448,21 @@
     <string name="account_deleted">Аккаунт успешно удален</string>
     <string name="account_deletion_failed">Не удалось удалить аккаунт</string>
     <string name="discord_link_not_available_on_tv">Эта функция недоступна на Android TV. Пожалуйста, используйте свой телефон или планшет.</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">Резервное копирование в облако</string>
+    <string name="remove_from_cloud">Удалить из облака</string>
+    <string name="restore_from_cloud">Восстановить из облака</string>
+    <string name="backup_success">Игра успешно сохранена в облаке</string>
+    <string name="backup_failed">Не удалось сохранить игру в облаке</string>
+    <string name="restore_success">Игра успешно восстановлена</string>
+    <string name="restore_failed">Не удалось восстановить игру</string>
+    <string name="backup_limit_reached">Достигнут лимит резервного копирования (максимум 1 игра)</string>
+    <string name="legal_warning_title">Юридическое уведомление</string>
+    <string name="cloud_only_game">Доступно в облаке (нажмите для загрузки)</string>
+    <string name="download_from_cloud">Скачать из облака</string>
+    <string name="remove_success">Игра успешно удалена из облака</string>
+    <string name="remove_failed">Не удалось удалить игру из облака</string>
+    <string name="legal_warning_message">Этот файл должен использоваться только как резервная копия игры, которой вы владеете. Пожалуйста, соблюдайте законы вашей страны относительно резервных копий игр.</string>
 </resources>
 	

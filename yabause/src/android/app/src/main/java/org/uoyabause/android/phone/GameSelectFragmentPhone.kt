@@ -23,6 +23,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
@@ -44,6 +45,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -71,11 +73,13 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import io.noties.markwon.Markwon
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collectLatest
@@ -89,6 +93,7 @@ import org.uoyabause.android.FileDialog.FileSelectedListener
 import org.uoyabause.android.GameSelectPresenter.GameSelectPresenterListener
 import org.uoyabause.android.AutoBackupManager
 import org.uoyabause.android.YabauseStorage.Companion.dao
+import org.uoyabause.android.backup.GameBackupManager
 import org.uoyabause.android.tv.GameSelectFragment
 import java.io.File
 import java.util.*
@@ -312,10 +317,52 @@ class GameSelectFragmentPhone : Fragment(),
             fab.visibility = View.GONE
         }
 
+
+
         if( adHeight != 0 ) {
             onAdViewIsShown(adHeight)
         }
         return rootView
+    }
+
+
+
+    /**
+     * Fetches cloud-backed games that aren't downloaded locally and adds them to the game list
+     */
+    private suspend fun fetchCloudOnlyGames(): List<GameInfo> {
+        // Check if user is signed in
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            return emptyList()
+        }
+
+        try {
+            // Get backed up games
+            val gameBackupManager = org.uoyabause.android.backup.GameBackupManager(requireContext())
+            val backedUpGames = gameBackupManager.getBackedUpGames()
+
+            if (backedUpGames.isEmpty()) {
+                return emptyList()
+            }
+
+            // Get local games to filter out games that are already downloaded
+            val localGames = YabauseStorage.dao.getAll()
+            val localProductNumbers = localGames.map { it.product_number }
+
+            // Filter out games that are already downloaded
+            val cloudOnlyGames = backedUpGames.filter { backupGame ->
+                !localProductNumbers.contains(backupGame.productNumber)
+            }
+
+            // Convert to GameInfo objects
+            return cloudOnlyGames.map { backupGame ->
+                CloudGameInfo(backupGame).toGameInfo()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching cloud-only games: ${e.message}")
+            return emptyList()
+        }
     }
 
     private fun showSortMenu(view: View) {
@@ -517,9 +564,27 @@ class GameSelectFragmentPhone : Fragment(),
             try {
                 val recentList = YabauseStorage.dao.getRecentGames()
 
+                // Get cloud-only games
+                val cloudOnlyGames = fetchCloudOnlyGames()
+
                 launch(Dispatchers.Main) {
                     // 全ゲームリストを再取得
-                    allGames = YabauseStorage.dao.getAllSortedByTitle().toMutableList()
+                    val localGames = YabauseStorage.dao.getAllSortedByTitle()
+
+                    // Create a new mutable list with the correct type
+                    val combinedGames: MutableList<GameInfo?> = mutableListOf()
+
+                    // Add local games
+                    combinedGames.addAll(localGames)
+
+                    // Add cloud-only games if there are any
+                    if (cloudOnlyGames.isNotEmpty()) {
+                        combinedGames.addAll(cloudOnlyGames)
+                    }
+
+                    // Assign to allGames
+                    allGames = combinedGames
+
                     gameAdapter = GameItemAdapter(allGames)
                     gameAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
                     recyclerView.adapter = gameAdapter
@@ -979,7 +1044,12 @@ class GameSelectFragmentPhone : Fragment(),
                 Log.d(TAG, e.localizedMessage!!)
             }
 
-            if (dataCount == 0) {
+            // Get cloud-only games
+            val cloudOnlyGames = fetchCloudOnlyGames()
+            val totalGameCount = dataCount + cloudOnlyGames.size
+
+            if (totalGameCount == 0) {
+                // ゲームがない場合はウェルカムメッセージを表示
                 launch(Dispatchers.Main) {
                     val viewMessageParent =
                         rootView.findViewById<ScrollView?>(org.devmiyax.yabasanshiro.R.id.empty_message_parent)
@@ -1037,7 +1107,22 @@ class GameSelectFragmentPhone : Fragment(),
                 GlobalScope.launch(Dispatchers.IO) {
                     var recentList: List<GameInfo> = emptyList()
                     try {
-                        allGames = YabauseStorage.dao.getAllSortedByTitle().toMutableList()
+                        // Get local games
+                        val localGames = YabauseStorage.dao.getAllSortedByTitle()
+
+                        // Create a new mutable list with the correct type
+                        val combinedGames: MutableList<GameInfo?> = mutableListOf()
+
+                        // Add local games
+                        combinedGames.addAll(localGames)
+
+                        // Add cloud-only games if there are any
+                        if (cloudOnlyGames.isNotEmpty()) {
+                            combinedGames.addAll(cloudOnlyGames)
+                        }
+
+                        // Assign to allGames
+                        allGames = combinedGames
 
                         launch(Dispatchers.Main) {
                             gameAdapter = GameItemAdapter(allGames)
@@ -1068,12 +1153,68 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
     override fun onItemClick(position: Int, item: GameInfo?, v: View?) {
-        if( item != null ){
-            presenter.startGame(item,yabauseActivityLauncher)
+        if (item != null) {
+            if (item.isCloudOnly && item.cloudBackupInfo != null) {
+                // Handle cloud-only game click - download it first
+                downloadCloudGame(item.cloudBackupInfo!!)
+            } else {
+                // Normal game click - start the game
+                presenter.startGame(item, yabauseActivityLauncher)
+            }
         }
     }
 
-    @SuppressLint("DefaultLocale")
+    /**
+     * Downloads a cloud-backed game
+     */
+    private fun downloadCloudGame(backupGameInfo: org.uoyabause.android.backup.GameBackupManager.BackupGameInfo) {
+        // Show progress dialog
+        val progressDialog = ProgressDialog(requireContext())
+        progressDialog.setMessage("Downloading game...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        // Get game backup manager
+        val gameBackupManager = org.uoyabause.android.backup.GameBackupManager(requireContext())
+
+        // Launch coroutine to restore game
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val result = gameBackupManager.restoreGame(backupGameInfo)
+
+                // Dismiss progress dialog
+                progressDialog.dismiss()
+
+                // Show result
+                if (result.success) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(org.devmiyax.yabasanshiro.R.string.restore_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Refresh game list
+                    updateGameList(YabauseStorage.REFRESH_LEVEL_REBUILD)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "${getString(org.devmiyax.yabasanshiro.R.string.restore_failed)}: ${result.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                // Dismiss progress dialog
+                progressDialog.dismiss()
+
+                Toast.makeText(
+                    requireContext(),
+                    "${getString(org.devmiyax.yabasanshiro.R.string.restore_failed)}: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
     override fun onGameRemoved(item: GameInfo?) {
 
         firebaseAnalytics?.logEvent("game_select_fragment"){
