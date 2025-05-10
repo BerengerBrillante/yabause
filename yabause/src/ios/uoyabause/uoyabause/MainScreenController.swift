@@ -56,19 +56,29 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
     }
 
     private func setupAuthButton() {
+        // コンテナビューの作成（固定サイズ）
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+
         // アイコンビューの作成
-        authIconView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
-        authIconView.contentMode = .scaleAspectFit
+        authIconView = UIImageView(frame: containerView.bounds)
+        authIconView.contentMode = .scaleAspectFill
         authIconView.clipsToBounds = true
         authIconView.layer.cornerRadius = 15
+        authIconView.layer.masksToBounds = true
         authIconView.isUserInteractionEnabled = true
+        authIconView.backgroundColor = .clear
+        authIconView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        // コンテナビューにアイコンビューを追加
+        containerView.addSubview(authIconView)
 
         // タップジェスチャーの追加
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(authButtonTapped))
-        authIconView.addGestureRecognizer(tapGesture)
+        containerView.addGestureRecognizer(tapGesture)
+        containerView.isUserInteractionEnabled = true
 
         // UIBarButtonItemの作成
-        authButton = UIBarButtonItem(customView: authIconView)
+        authButton = UIBarButtonItem(customView: containerView)
         navigationItem.rightBarButtonItems = [navigationItem.rightBarButtonItem, authButton].compactMap { $0 }
 
         // 初期状態の更新
@@ -82,6 +92,11 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
     }
 
     private func updateAuthButtonState() {
+        // アイコンの丸みを確保（念のため）
+        authIconView.layer.cornerRadius = 15
+        authIconView.clipsToBounds = true
+        authIconView.layer.masksToBounds = true
+
         if let user = Auth.auth().currentUser {
             // ログイン済みの場合
             if let photoURL = user.photoURL {
@@ -89,7 +104,13 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
                 DispatchQueue.global().async {
                     if let data = try? Data(contentsOf: photoURL), let image = UIImage(data: data) {
                         DispatchQueue.main.async {
+                            // 画像を設定
                             self.authIconView.image = image
+
+                            // 画像設定後も丸みを確保（念のため）
+                            self.authIconView.layer.cornerRadius = 15
+                            self.authIconView.clipsToBounds = true
+                            self.authIconView.layer.masksToBounds = true
                         }
                     } else {
                         // 画像の読み込みに失敗した場合はデフォルト画像を設定
@@ -123,6 +144,14 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
                 fileSelectController.view.backgroundColor = .defaultBackground
             }
         }
+
+        // アイコンの丸みを確保（念のため）
+        authIconView.layer.cornerRadius = 15
+        authIconView.clipsToBounds = true
+        authIconView.layer.masksToBounds = true
+
+        // 認証状態を更新（アイコンの表示を更新）
+        updateAuthButtonState()
     }
 
     @objc private func authButtonTapped() {

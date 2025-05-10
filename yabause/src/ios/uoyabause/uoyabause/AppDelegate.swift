@@ -40,6 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // アプリ全体の外観設定
     private func setupAppearance() {
+        
+        window?.tintColor = .tint
+        
         if #available(iOS 13.0, *) {
             // iOS 13以降はシステムのダークモード設定に従う
             window?.overrideUserInterfaceStyle = .unspecified
@@ -47,9 +50,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // ナビゲーションバーの外観設定
             let navBarAppearance = UINavigationBarAppearance()
             navBarAppearance.configureWithOpaqueBackground()
-            navBarAppearance.backgroundColor = UIColor.colorPrimaryDark
-            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.appWhite]
-            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.appWhite]
+            navBarAppearance.backgroundColor = UIColor.colorPrimary
+            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.tint]
+            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.tint]
 
             UINavigationBar.appearance().standardAppearance = navBarAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
@@ -58,7 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // タブバーの外観設定
             let tabBarAppearance = UITabBarAppearance()
             tabBarAppearance.configureWithOpaqueBackground()
-            tabBarAppearance.backgroundColor = UIColor.colorPrimaryDark
+            tabBarAppearance.backgroundColor = UIColor.colorPrimary
 
             UITabBar.appearance().standardAppearance = tabBarAppearance
             if #available(iOS 15.0, *) {

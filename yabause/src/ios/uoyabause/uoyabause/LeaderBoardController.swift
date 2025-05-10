@@ -359,12 +359,8 @@ extension LeaderBoardController: UITableViewDelegate, UITableViewDataSource {
             let label = UILabel()
             label.text = text
             label.font = UIFont.boldSystemFont(ofSize: 14)
-            // ダークモードの場合は白系の色、ライトモードの場合は元の色を使用
-            if self.traitCollection.userInterfaceStyle == .dark {
-                label.textColor = .appWhite
-            } else {
-                label.textColor = .colorPrimaryDark
-            }
+            // ヘッダーテキスト色を使用
+            label.textColor = .headerTextColor
             label.textAlignment = .left // ← これはUI属性のため国際化不要
             label.frame = CGRect(x: x, y: 0, width: widths[i], height: 32)
             headerView.addSubview(label)

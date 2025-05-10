@@ -421,64 +421,26 @@ class ReportDialog: UIViewController, UITextViewDelegate {
         let curveValue = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int ?? UIView.AnimationCurve.easeInOut.rawValue
         let curve = UIView.AnimationCurve(rawValue: curveValue) ?? .easeInOut
 
-        // Get the current window
-        guard let currentWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
-
         // Convert keyboard frame to our view's coordinate system
         let keyboardFrameInView = view.convert(keyboardFrame, from: nil)
 
-        // Check if we already have a dialog in the keyboard window
-        if let keyboardWindow = UIApplication.shared.windows.last, keyboardWindow != currentWindow {
-            // Remove any existing dialog views from the keyboard window
-            for subview in keyboardWindow.subviews where subview.tag == 999 {
-                subview.removeFromSuperview()
-            }
+        // Find the scroll view
+        let scrollView = view.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView
 
-            // Create a snapshot of our current view
-            guard let snapshot = view.snapshotView(afterScreenUpdates: true) else { return }
+        UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
+            // Adjust the scroll view's content inset to make room for the keyboard
+            if let scrollView = scrollView {
+                let bottomInset = keyboardFrameInView.height
+                scrollView.contentInset.bottom = bottomInset
+                scrollView.scrollIndicatorInsets.bottom = bottomInset
 
-            // Create a container view that will hold our dialog content
-            let containerView = UIView(frame: CGRect(x: 0, y: 0, width: keyboardWindow.bounds.width, height: keyboardFrameInView.origin.y - 20))
-            containerView.backgroundColor = UIColor.clear
-            containerView.layer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-            containerView.tag = 999 // Tag for easy identification
-
-            // Add the snapshot to the container
-            snapshot.frame = CGRect(x: 0, y: 0, width: containerView.bounds.width, height: containerView.bounds.height)
-            containerView.addSubview(snapshot)
-
-            // Add to the keyboard window
-            keyboardWindow.addSubview(containerView)
-
-            // Animate the appearance
-            containerView.alpha = 0
-            UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
-                containerView.alpha = 1
-            }, completion: nil)
-
-            // Hide the original view controller's view
-            UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
-                self.view.alpha = 0
-            }, completion: nil)
-        } else {
-            // If we can't add to the keyboard window, adjust the current view's frame
-            let scrollView = view.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView
-
-            UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
-                // Adjust the scroll view's content inset to make room for the keyboard
-                if let scrollView = scrollView {
-                    let bottomInset = keyboardFrameInView.height
-                    scrollView.contentInset.bottom = bottomInset
-                    scrollView.scrollIndicatorInsets.bottom = bottomInset
-
-                    // Scroll to make the text view visible if it's the first responder
-                    if self.messageTextView.isFirstResponder {
-                        let textViewFrame = self.messageTextView.convert(self.messageTextView.bounds, to: scrollView)
-                        scrollView.scrollRectToVisible(textViewFrame, animated: false)
-                    }
+                // Scroll to make the text view visible if it's the first responder
+                if self.messageTextView.isFirstResponder {
+                    let textViewFrame = self.messageTextView.convert(self.messageTextView.bounds, to: scrollView)
+                    scrollView.scrollRectToVisible(textViewFrame, animated: false)
                 }
-            }, completion: nil)
-        }
+            }
+        }, completion: nil)
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
@@ -486,22 +448,6 @@ class ReportDialog: UIViewController, UITextViewDelegate {
         let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.3
         let curveValue = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int ?? UIView.AnimationCurve.easeInOut.rawValue
         let curve = UIView.AnimationCurve(rawValue: curveValue) ?? .easeInOut
-
-        // Find and remove our container view from the keyboard window
-        if let keyboardWindow = UIApplication.shared.windows.last {
-            for subview in keyboardWindow.subviews where subview.tag == 999 {
-                UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
-                    subview.alpha = 0
-                }, completion: { _ in
-                    subview.removeFromSuperview()
-                })
-            }
-        }
-
-        // Restore the original view's visibility
-        UIView.animate(withDuration: duration, delay: 0, options: UIView.AnimationOptions(rawValue: UInt(curve.rawValue << 16)), animations: {
-            self.view.alpha = 1
-        }, completion: nil)
 
         // Reset scroll view insets if we adjusted them
         if let scrollView = view.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView {

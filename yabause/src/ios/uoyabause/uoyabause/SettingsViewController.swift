@@ -95,8 +95,8 @@ class SettingsViewController :UITableViewController,UIPickerViewDelegate, UIPick
         setupSwitchStyles()
 
         // ラベルの色を設定（現在のモードに応じて）
-        _cart_sel_label.textColor = adaptiveTextColor
-        _resolution_sel_label.textColor = adaptiveTextColor
+        _cart_sel_label.textColor = .adaptiveTextColor
+        _resolution_sel_label.textColor = .adaptiveTextColor
 
         _picker.isHidden = !_CartPickerIsShowing
         _picker.delegate = self
@@ -229,7 +229,7 @@ class SettingsViewController :UITableViewController,UIPickerViewDelegate, UIPick
         }
 
         // テキスト色を設定（現在のモードに応じて）
-        label?.textColor = adaptiveTextColor
+        label?.textColor = .adaptiveTextColor
 
         if pickerView == _picker {
             label?.text = cartArray[row]
@@ -384,19 +384,19 @@ class SettingsViewController :UITableViewController,UIPickerViewDelegate, UIPick
         cell.backgroundColor = .defaultBackground
 
         // テキスト色を設定（現在のモードに応じて）
-        cell.textLabel?.textColor = adaptiveTextColor
-        cell.detailTextLabel?.textColor = adaptiveTextColor
+        cell.textLabel?.textColor = .adaptiveTextColor
+        cell.detailTextLabel?.textColor = .adaptiveTextColor
 
         // セル内のすべてのラベルの色を設定
         for subview in cell.contentView.subviews {
             if let label = subview as? UILabel {
-                label.textColor = adaptiveTextColor
+                label.textColor = .adaptiveTextColor
             }
 
             // サブビュー内のラベルも検索
             for innerSubview in subview.subviews {
                 if let label = innerSubview as? UILabel {
-                    label.textColor = adaptiveTextColor
+                    label.textColor = .adaptiveTextColor
                 }
             }
         }
@@ -412,8 +412,8 @@ class SettingsViewController :UITableViewController,UIPickerViewDelegate, UIPick
     // セクションヘッダーのスタイルを設定
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         if let headerView = view as? UITableViewHeaderFooterView {
-            headerView.textLabel?.textColor = adaptiveTextColor
-            headerView.contentView.backgroundColor = isDarkMode ? .colorPrimaryDark : .colorAccent
+            headerView.textLabel?.textColor = .adaptiveTextColor
+            headerView.contentView.backgroundColor = .colorPrimary
         }
     }
 
@@ -448,19 +448,14 @@ class SettingsViewController :UITableViewController,UIPickerViewDelegate, UIPick
         }
     }
 
-    // 現在のモードに応じたテキスト色を取得
-    private var adaptiveTextColor: UIColor {
-        return isDarkMode ? .appWhite : .appBlack
-    }
-
     // モード変更時に呼び出されるメソッド
     private func updateInterfaceStyle() {
         // スイッチのスタイルを更新
         setupSwitchStyles()
 
         // ラベルの色を更新
-        _cart_sel_label.textColor = adaptiveTextColor
-        _resolution_sel_label.textColor = adaptiveTextColor
+        _cart_sel_label.textColor = .adaptiveTextColor
+        _resolution_sel_label.textColor = .adaptiveTextColor
 
         // テーブルビューを再読み込み
         tableView.reloadData()

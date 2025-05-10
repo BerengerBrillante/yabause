@@ -52,11 +52,7 @@ class GameItemCell: UICollectionViewCell {
         backgroundColor = .defaultBackground
         contentView.backgroundColor = isSelected ? UIColor.selectedBackground : UIColor.defaultBackground
 
-        if #available(iOS 13.0, *) {
-            titleLabel.textColor = traitCollection.userInterfaceStyle == .dark ? .appWhite : .appBlack
-        } else {
-            titleLabel.textColor = .appBlack
-        }
+        titleLabel.textColor = .adaptiveTextColor
     }
 
     private func setupViews() {
