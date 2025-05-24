@@ -116,6 +116,7 @@ import org.uoyabause.android.backup.TabBackupFragment
 import org.uoyabause.android.cheat.TabCheatFragment
 import org.uoyabause.android.game.BaseGame
 import org.uoyabause.android.game.GameUiEvent
+import org.uoyabause.android.game.SegaRally
 import org.uoyabause.android.game.SonicR
 import java.io.*
 import java.net.URLDecoder
@@ -599,36 +600,14 @@ class Yabause : AppCompatActivity(),
             if (gameCode == "GS-9170" || gameCode == "MK-81800") {
                 val c = SonicR(gameCode)
                 c.uievent = this
-/*
-                val lmenu = navigationView.menu
-                val submenu = lmenu.addSubMenu(
-                    Menu.NONE,
-                    MENU_ID_LEADERBOARD,
-                    Menu.NONE,
-                    "Leader Board"
-                )
-                c.leaderBoards?.forEach {
-                    val lbmenu = submenu.add(it.title)
-                    lbmenu.setIcon(R.drawable.baseline_list_24)
-                    lbmenu.setOnMenuItemClickListener { _ ->
-                        waitingResult = true
-                        val account = GoogleSignIn.getLastSignedInAccount(this)
-                        if (account != null) {
-                            Games.getLeaderboardsClient(this, account)
-                                .getLeaderboardIntent(it.id)
-                                .addOnSuccessListener(OnSuccessListener<Intent?> { intent ->
-                                    startActivityForResult(
-                                        intent,
-                                        MENU_ID_LEADERBOARD
-                                    )
-                                })
-                        }
-                        true
-                    }
-                }
- */
                 currentGame = c
             }
+            else if (gameCode == "GS-9047" || gameCode == "MK-81207") {
+                val c = SegaRally(gameCode)
+                c.uievent = this
+                currentGame = c
+            }
+
         }
 
         if (currentGame != null) {

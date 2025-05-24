@@ -232,9 +232,8 @@ private fun postNewTopScoreToDiscord(gameId: String, leaderboardName: String, sc
 
 class SonicR : BaseGame {
 
-    var gameId: String = ""
-
-    constructor( gameCode : String ) {
+    constructor(gameCode: String) {
+        // リーダーボードの初期化
         leaderBoards = mutableListOf<LeaderBoard>()
         leaderBoards?.add(LeaderBoard("Resort Island", "01"))
         leaderBoards?.add(LeaderBoard("Radical City", "02"))
@@ -242,43 +241,40 @@ class SonicR : BaseGame {
         leaderBoards?.add(LeaderBoard("Reactive Factory", "04"))
         leaderBoards?.add(LeaderBoard("Radiant Emerald", "05"))
 
+        // BaseGameのinitGameIdを使用してgameIdを初期化
+        CoroutineScope(Dispatchers.IO).launch {
+            // gameIdの初期化を待機
+            initGameId(gameCode)
+            
+            // gameIdが設定された後にleaderboardsコレクションの初期化を行う
+            if (gameId.isNotEmpty()) {
+                initLeaderboards()
+            }
+        }
+    }
+    
+    // leaderboardsコレクションの初期化
+    private fun initLeaderboards() {
+        if( gameId.isEmpty() ) return
         val db = FirebaseFirestore.getInstance()
-        db.collection("games")
-            .whereEqualTo("product_number", gameCode)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    // leaderboardIdフィールドがある場合はその値を使用
-                    if (documents.documents[0].get("leaderboardId") != null) {
-                        gameId = documents.documents[0].getString("leaderboardId") ?: documents.documents[0].id
-                    } else {
-                        // なければドキュメントIDを使用
-                        gameId = documents.documents[0].id
-                    }
-
-                    //insertDummyLeaderboardData()
-
-                    // leaderboardsコレクションが空なら初期データ投入
-                    val leaderboardsRef = db.collection("games").document(gameId).collection("leaderboards")
-                    leaderboardsRef.get().addOnSuccessListener { result ->
-                        if (result.isEmpty) {
-                            val leaderboardsData = listOf(
-                                Pair("01", "Resort Island"),
-                                Pair("02", "Radical City"),
-                                Pair("03", "Regal Ruin"),
-                                Pair("04", "Reactive Factory"),
-                                Pair("05", "Radiant Emerald")
-                            )
-                            leaderboardsData.forEach { (id, name) ->
-                                val data = hashMapOf("name" to name)
-                                leaderboardsRef.document(id).set(data)
-                            }
-                        }
-                    }
+        val leaderboardsRef = db.collection("games").document(gameId).collection("leaderboards")
+        leaderboardsRef.get().addOnSuccessListener { result ->
+            if (result.isEmpty) {
+                val leaderboardsData = listOf(
+                    Pair("01", "Resort Island"),
+                    Pair("02", "Radical City"),
+                    Pair("03", "Regal Ruin"),
+                    Pair("04", "Reactive Factory"),
+                    Pair("05", "Radiant Emerald")
+                )
+                leaderboardsData.forEach { (id, name) ->
+                    val data = hashMapOf("name" to name)
+                    leaderboardsRef.document(id).set(data)
                 }
             }
-
+        }
     }
+
 
     fun insertDummyLeaderboardData() {
         val db = FirebaseFirestore.getInstance()
