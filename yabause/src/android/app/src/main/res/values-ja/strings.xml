@@ -410,4 +410,13 @@
     <string name="download_from_cloud">クラウドからダウンロード</string>
     <string name="remove_success">ゲームをクラウドから削除しました</string>
     <string name="remove_failed">ゲームのクラウドからの削除に失敗しました</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">バックアップ制限に達しました</string>
+    <string name="backup_limit_dialog_message">バックアップできるゲームの最大数に達しました。置き換えるゲームを選択してください：</string>
+    <string name="replace">置き換え</string>
+    <string name="backup_date">%1$sにバックアップ</string>
+    <string name="no_game_selected">置き換えるゲームを選択してください</string>
+    <string name="replace_backup_success">バックアップの置き換えに成功しました</string>
+    <string name="replace_backup_failed">バックアップの置き換えに失敗しました</string>
 </resources>

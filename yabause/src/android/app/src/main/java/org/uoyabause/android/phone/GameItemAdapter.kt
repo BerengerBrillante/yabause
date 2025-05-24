@@ -603,13 +603,54 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
             // Launch coroutine to perform backup
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    // Check if user has reached backup limit
-                    if (gameBackupManager.hasReachedBackupLimit()) {
-                        Toast.makeText(
+                    // Perform backup
+                    val result = gameBackupManager.backupGame(gameInfo)
+
+                    // Check if backup limit was reached
+                    if (!result.success && result.limitReached && result.backupList.isNotEmpty()) {
+                        // Show the replacement dialog
+                        org.uoyabause.android.backup.BackupReplaceDialog.show(
                             view.context,
-                            view.context.getString(R.string.backup_limit_reached),
-                            Toast.LENGTH_LONG
-                        ).show()
+                            result.backupList
+                        ) { backupToReplace ->
+                            // User selected a backup to replace
+                            CoroutineScope(Dispatchers.Main).launch {
+                                try {
+                                    // Show progress dialog
+                                    val replaceProgressDialog = ProgressDialog(view.context)
+                                    replaceProgressDialog.setMessage("Replacing backup...")
+                                    replaceProgressDialog.setCancelable(false)
+                                    replaceProgressDialog.show()
+
+                                    // Perform replacement
+                                    val replaceResult = gameBackupManager.replaceBackup(gameInfo, backupToReplace)
+
+                                    // Dismiss progress dialog
+                                    replaceProgressDialog.dismiss()
+
+                                    // Show result
+                                    if (replaceResult.success) {
+                                        Toast.makeText(
+                                            view.context,
+                                            view.context.getString(R.string.replace_backup_success),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            view.context,
+                                            "${view.context.getString(R.string.replace_backup_failed)}: ${replaceResult.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        view.context,
+                                        "${view.context.getString(R.string.replace_backup_failed)}: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
                         return@launch
                     }
 
@@ -619,8 +660,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                     progressDialog.setCancelable(false)
                     progressDialog.show()
 
-                    // Perform backup
-                    val result = gameBackupManager.backupGame(gameInfo)
+                    // If we got here, either the backup was successful or there was an error
+                    // that wasn't related to the backup limit
 
                     // Dismiss progress dialog
                     progressDialog.dismiss()

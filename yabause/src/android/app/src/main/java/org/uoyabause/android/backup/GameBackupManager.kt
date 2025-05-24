@@ -102,62 +102,100 @@ class GameBackupManager(private val context: Context) {
     }
 
     /**
-     * Check if the user has reached their backup limit
-     * @return true if the user has reached their backup limit, false otherwise
+     * Check if the user has reached their backup limit and return the list of current backups
+     * @return A Pair where the first value is true if the user has reached their backup limit, and the second value is the list of current backups
      */
-    suspend fun hasReachedBackupLimit(): Boolean = withContext(Dispatchers.IO) {
-        val currentUser = auth.currentUser ?: return@withContext true
+    suspend fun checkBackupLimitWithList(): Pair<Boolean, List<BackupGameInfo>> = withContext(Dispatchers.IO) {
+        val currentUser = auth.currentUser ?: return@withContext Pair(true, emptyList())
 
         try {
-            val backupsSnapshot = firestore.collection("users")
-                .document(currentUser.uid)
-                .collection("backups")
-                .get()
-                .await()
+            // Get the list of backed up games
+            val backupsList = getBackedUpGames()
 
-            // If we get here, the collection exists (even if empty)
-            return@withContext backupsSnapshot.size() >= BACKUP_LIMIT
+            // Check if the limit is reached
+            val limitReached = backupsList.size >= BACKUP_LIMIT
+
+            return@withContext Pair(limitReached, backupsList)
         } catch (e: Exception) {
-            // Check if the error is because the collection doesn't exist
-            if (e.message?.contains("NOT_FOUND") == true ||
-                e.message?.contains("No document to update") == true ||
-                e.message?.contains("collection does not exist") == true) {
-                // Collection doesn't exist yet, so the user hasn't reached the limit
-                Log.d(TAG, "Backups collection doesn't exist yet for user: ${currentUser.uid}")
-                return@withContext false
-            }
-
-            // Check for permission denied errors
-            if (e.message?.contains("PERMISSION_DENIED") == true) {
-                Log.e(TAG, "Permission denied accessing backups collection. Check Firebase security rules.")
-
-                // Since we can't access the collection due to permissions,
-                // we'll assume the user hasn't reached the limit yet
-                // This allows them to attempt a backup, which will also fail with permission denied
-                // but provides a clearer error message at that point
-                return@withContext false
-            }
-
-            // For other errors, log and return true as a safety measure
-            Log.e(TAG, "Error checking backup limit: ${e.message}")
-            return@withContext true
+            // For errors, log and return true as a safety measure with empty list
+            Log.e(TAG, "Error checking backup limit with list: ${e.message}")
+            return@withContext Pair(true, emptyList())
         }
     }
 
     /**
+     * Check if the user has reached their backup limit
+     * @return true if the user has reached their backup limit, false otherwise
+     */
+    suspend fun hasReachedBackupLimit(): Boolean = withContext(Dispatchers.IO) {
+        val (limitReached, _) = checkBackupLimitWithList()
+        return@withContext limitReached
+    }
+
+    /**
      * Backup a game ROM to Firebase Cloud Storage
-     * @param gameInfo The GameInfo object for the game to backup
+     * @param gameInfo The GameInfo object for the backup
      * @return A Result object indicating success or failure with a message
      */
     suspend fun backupGame(gameInfo: GameInfo): Result = withContext(Dispatchers.IO) {
         val currentUser = auth.currentUser ?: return@withContext Result(false, "User not signed in")
 
         try {
-            // Check if user has reached backup limit
-            if (hasReachedBackupLimit()) {
-                return@withContext Result(false, "Backup limit reached (maximum $BACKUP_LIMIT game)")
+            // Check if user has reached backup limit and get the list of current backups
+            val (limitReached, backupsList) = checkBackupLimitWithList()
+
+            // If limit is reached, return a special result with the list of current backups
+            if (limitReached) {
+                return@withContext Result(
+                    success = false,
+                    message = "Backup limit reached (maximum $BACKUP_LIMIT game)",
+                    backupList = backupsList,
+                    limitReached = true
+                )
             }
 
+            // Proceed with normal backup
+            return@withContext performBackup(gameInfo, null)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error backing up game: ${e.message}")
+            return@withContext Result(false, "Error: ${e.message}")
+        }
+    }
+
+    /**
+     * Replace an existing backup with a new game
+     * @param gameInfo The GameInfo object for the new game to backup
+     * @param backupToReplace The BackupGameInfo object to replace
+     * @return A Result object indicating success or failure with a message
+     */
+    suspend fun replaceBackup(gameInfo: GameInfo, backupToReplace: BackupGameInfo): Result = withContext(Dispatchers.IO) {
+        val currentUser = auth.currentUser ?: return@withContext Result(false, "User not signed in")
+
+        try {
+            // First delete the existing backup
+            val deleteResult = deleteBackup(backupToReplace)
+            if (!deleteResult.success) {
+                return@withContext Result(false, "Failed to delete existing backup: ${deleteResult.message}")
+            }
+
+            // Then perform the new backup
+            return@withContext performBackup(gameInfo, backupToReplace.id)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error replacing backup: ${e.message}")
+            return@withContext Result(false, "Error replacing backup: ${e.message}")
+        }
+    }
+
+    /**
+     * Internal method to perform the actual backup operation
+     * @param gameInfo The GameInfo object for the game to backup
+     * @param documentIdOverride Optional document ID to use instead of gameInfo.id
+     * @return A Result object indicating success or failure with a message
+     */
+    private suspend fun performBackup(gameInfo: GameInfo, documentIdOverride: String?): Result = withContext(Dispatchers.IO) {
+        val currentUser = auth.currentUser ?: return@withContext Result(false, "User not signed in")
+
+        try {
             // Get the file path or URI
             val filePath = gameInfo.file_path
             val fileUri = if (filePath.startsWith("content://")) {
@@ -245,15 +283,17 @@ class GameBackupManager(private val context: Context) {
             )
 
             // Create the backups collection and document
+            // Use the provided document ID if available, otherwise use the game ID
+            val documentId = documentIdOverride ?: gameInfo.id.toString()
             userDocRef
                 .collection("backups")
-                .document(gameInfo.id.toString())
+                .document(documentId)
                 .set(backupData)
                 .await()
 
             return@withContext Result(true, "Game backed up successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "Error backing up game: ${e.message}")
+            Log.e(TAG, "Error performing backup: ${e.message}")
             return@withContext Result(false, "Error: ${e.message}")
         }
     }
@@ -474,7 +514,12 @@ class GameBackupManager(private val context: Context) {
     /**
      * Result class for backup/restore operations
      */
-    data class Result(val success: Boolean, val message: String)
+    data class Result(
+        val success: Boolean,
+        val message: String,
+        val backupList: List<BackupGameInfo> = emptyList(),
+        val limitReached: Boolean = false
+    )
 
     /**
      * Data class for backed up game information

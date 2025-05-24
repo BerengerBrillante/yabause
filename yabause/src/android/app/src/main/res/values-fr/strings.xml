@@ -350,4 +350,13 @@
     <string name="remove_success">Jeu supprimé du cloud avec succès</string>
     <string name="remove_failed">Échec de la suppression du jeu du cloud</string>
     <string name="legal_warning_message">Ce fichier ne doit être utilisé que comme sauvegarde d\'un jeu que vous possédez. Veuillez respecter les lois de votre pays concernant les sauvegardes de jeux.</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Limite de Sauvegarde Atteinte</string>
+    <string name="backup_limit_dialog_message">Vous avez atteint le nombre maximum de jeux que vous pouvez sauvegarder. Sélectionnez un jeu à remplacer :</string>
+    <string name="replace">Remplacer</string>
+    <string name="backup_date">Sauvegardé le %1$s</string>
+    <string name="no_game_selected">Veuillez sélectionner un jeu à remplacer</string>
+    <string name="replace_backup_success">Sauvegarde remplacée avec succès</string>
+    <string name="replace_backup_failed">Échec du remplacement de la sauvegarde</string>
 </resources>

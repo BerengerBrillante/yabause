@@ -322,4 +322,13 @@
     <string name="download_from_cloud">从云端下载</string>
     <string name="remove_success">游戏已从云端删除</string>
     <string name="remove_failed">从云端删除游戏失败</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">已达到备份限制</string>
+    <string name="backup_limit_dialog_message">您已达到可以备份的游戏最大数量。请选择要替换的游戏：</string>
+    <string name="replace">替换</string>
+    <string name="backup_date">备份于 %1$s</string>
+    <string name="no_game_selected">请选择要替换的游戏</string>
+    <string name="replace_backup_success">成功替换备份</string>
+    <string name="replace_backup_failed">替换备份失败</string>
 </resources>

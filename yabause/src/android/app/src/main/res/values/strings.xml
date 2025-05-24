@@ -288,6 +288,15 @@
     <string name="remove_success">Game removed from cloud successfully</string>
     <string name="remove_failed">Failed to remove game from cloud</string>
 
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Backup Limit Reached</string>
+    <string name="backup_limit_dialog_message">You have reached the maximum number of games you can back up. Select a game to replace:</string>
+    <string name="replace">Replace</string>
+    <string name="backup_date">Backed up on %1$s</string>
+    <string name="no_game_selected">Please select a game to replace</string>
+    <string name="replace_backup_success">Successfully replaced backup</string>
+    <string name="replace_backup_failed">Failed to replace backup</string>
+
     <string name="str_rotate_screen">90 degree rotation</string>
     <string name="title_activity_game_select_phone">GameSelectActivityPhone</string>
 

@@ -264,4 +264,13 @@
     <string name="download_from_cloud">Baixar da Nuvem</string>
     <string name="remove_success">Jogo removido da nuvem com sucesso</string>
     <string name="remove_failed">Falha ao remover jogo da nuvem</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Limite de Backup Atingido</string>
+    <string name="backup_limit_dialog_message">Você atingiu o número máximo de jogos que pode fazer backup. Selecione um jogo para substituir:</string>
+    <string name="replace">Substituir</string>
+    <string name="backup_date">Backup feito em %1$s</string>
+    <string name="no_game_selected">Por favor, selecione um jogo para substituir</string>
+    <string name="replace_backup_success">Backup substituído com sucesso</string>
+    <string name="replace_backup_failed">Falha ao substituir backup</string>
 </resources>

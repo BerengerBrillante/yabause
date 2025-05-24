@@ -464,5 +464,14 @@
     <string name="remove_success">Игра успешно удалена из облака</string>
     <string name="remove_failed">Не удалось удалить игру из облака</string>
     <string name="legal_warning_message">Этот файл должен использоваться только как резервная копия игры, которой вы владеете. Пожалуйста, соблюдайте законы вашей страны относительно резервных копий игр.</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Достигнут лимит резервного копирования</string>
+    <string name="backup_limit_dialog_message">Вы достигли максимального количества игр, которые можно сохранить. Выберите игру для замены:</string>
+    <string name="replace">Заменить</string>
+    <string name="backup_date">Сохранено %1$s</string>
+    <string name="no_game_selected">Пожалуйста, выберите игру для замены</string>
+    <string name="replace_backup_success">Резервная копия успешно заменена</string>
+    <string name="replace_backup_failed">Не удалось заменить резервную копию</string>
 </resources>
 	
