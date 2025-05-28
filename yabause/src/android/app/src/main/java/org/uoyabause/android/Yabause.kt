@@ -602,7 +602,7 @@ class Yabause : AppCompatActivity(),
                 c.uievent = this
                 currentGame = c
             }
-            else if (gameCode == "GS-9047" || gameCode == "MK-81207") {
+            else if (gameCode == "GS-9047" || gameCode == "MK-81207" || gameCode == "GS-9116" || gameCode == "MK-81215") {
                 val c = SegaRally(gameCode)
                 c.uievent = this
                 currentGame = c
@@ -2266,9 +2266,9 @@ class Yabause : AppCompatActivity(),
         return null
     }
 
-    fun onBackupWrite(before: ByteArray, after: ByteArray) {
-        Log.d(this.javaClass.name, "onBackupWrite ${before.size} ")
-        currentGame?.onBackUpUpdated(before, after)
+    fun onBackupWrite(fname: String, before: ByteArray, after: ByteArray) {
+        Log.d(this.javaClass.name, "onBackupWrite fname=$fname size=${before.size}")
+        currentGame?.onBackUpUpdated(fname, before, after)
     }
 
     override fun onNewRecord(leaderBoardId: String) {

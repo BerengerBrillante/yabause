@@ -530,7 +530,7 @@ extern "C" const char *GetFileDescriptorPath(const char *fileName)
         return env->GetStringUTFChars(message, &dummy);
 }
 
-void onBackupWrite(char *before, char *after, int size)
+void onBackupWrite(const char *fname, char *before, char *after, int size)
 {
     __android_log_print(ANDROID_LOG_INFO, "yabause", "onBackupWrite is called");
 
@@ -580,14 +580,21 @@ void onBackupWrite(char *before, char *after, int size)
     }
     env->ReleaseByteArrayElements(jniAfter, dst, 0);
 
+    jstring jniFname = env->NewStringUTF(fname);
+    if (jniFname == NULL)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "yabause", "Failed to NewStringUTF for fname");
+        return;
+    }
+
     yclass = env->GetObjectClass(yabause);
-    jniOnBackupWrite = env->GetMethodID(yclass, "onBackupWrite", "([B[B)V");
+    jniOnBackupWrite = env->GetMethodID(yclass, "onBackupWrite", "(Ljava/lang/String;[B[B)V");
     if (jniOnBackupWrite == NULL)
     {
         __android_log_print(ANDROID_LOG_ERROR, "yabause", "Failed to GetMethodID for onBackupWrite");
         return;
     }
-    env->CallVoidMethod(yabause, jniOnBackupWrite, jniBefore, jniAfter);
+    env->CallVoidMethod(yabause, jniOnBackupWrite, jniFname, jniBefore, jniAfter);
 
     if (yvm->DetachCurrentThread() != JNI_OK)
     {
@@ -2277,7 +2284,7 @@ void renderLoop()
             time_t t = time(NULL);
             sprintf(last_state_filename, "%s/%s_%ld.yss", s_savepath, cdip->itemnum, t);
             ret = YabSaveState(last_state_filename);
- 
+
             pthread_mutex_lock(&g_mtxFuncSync);
             pthread_cond_signal(&g_cndFuncSync);
             pthread_mutex_unlock(&g_mtxFuncSync);
@@ -2624,9 +2631,9 @@ int saveScreenshot(const char *filename)
         YUI_LOG("not enough memory\n");
         goto FINISH;
     }
-    
+
     if( pmode == GL_RGBA ){
-        
+
         for( v=(height-1); v>0; v-- ){
             unsigned char * in  = &buf[ v*width*4 ] ;
             unsigned char * out = &bufRGB[ (height-1-v)*width*3 ] ;
@@ -2655,9 +2662,9 @@ int saveScreenshot(const char *filename)
         goto FINISH;
     }
     jpeg_stdio_dest(&cinfo, outfile);
-    cinfo.image_width = width;  
+    cinfo.image_width = width;
     cinfo.image_height = height;
-    cinfo.input_components = 3; 
+    cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, quality, TRUE);

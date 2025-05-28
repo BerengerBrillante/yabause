@@ -54,7 +54,7 @@ typedef struct
 
 typedef struct
 {
- u32 totalsize;	
+ u32 totalsize;
  u32 totalblock;
  u32 blocksize;
  u32 freesize;
@@ -80,7 +80,7 @@ int BiosBUPImport( u32 device, saveinfo_struct * saveinfo, const char * buf, int
 int BiosBUPExport(u32 device, const char *savename, char ** buf, int * bufsize );
 int BiosBUPStatusMem( int device, devicestatus_struct * status );
 
-typedef void(*ON_BACKUP_WRITE_CALLBACK)(char * before, char * after, int size);
+typedef void(*ON_BACKUP_WRITE_CALLBACK)(const char * fname, char * before, char * after, int size);
 void BiosSetOnBackupWrite(ON_BACKUP_WRITE_CALLBACK cbk);
 
 

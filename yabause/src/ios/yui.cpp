@@ -243,8 +243,8 @@ void update_pad_mode()
     }
 }
 
-extern "C" void onBackupWrite(char *before, char *after, int size);
-extern "C" void BiosSetOnBackupWrite(void (*callback)(char *, char *, int));
+extern "C" void onBackupWrite(const char *fname, char *before, char *after, int size);
+extern "C" void BiosSetOnBackupWrite(void (*callback)(const char *, char *, char *, int));
 
 int start_emulation( int originx, int originy, int width, int height ){
 	int i;
@@ -501,10 +501,10 @@ extern "C" {
   }
 
   // バックアップ書き込み時のコールバック
-  void onBackupWrite(char *before, char *after, int size) {
+  void onBackupWrite(const char *fname, char *before, char *after, int size) {
     // Objective-Cのメソッドを呼び出す
-    extern void YSOnBackupWrite(const void *before, const void *after, int size);
-    YSOnBackupWrite(before, after, size);
+    extern void YSOnBackupWrite(const char *fname, const void *before, const void *after, int size);
+    YSOnBackupWrite(fname, before, after, size);
   }
 
   //void glMemoryBarrier( int a ){

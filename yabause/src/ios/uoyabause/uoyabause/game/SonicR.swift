@@ -314,7 +314,7 @@ class SonicR: BaseGame {
         }
     }
 
-    override func onBackUpUpdated(before: Data, after: Data) {
+    override func onBackUpUpdated(fname: String, before: Data, after: Data) {
         if gameId.isEmpty { return }
         guard let currentUser = Auth.auth().currentUser else { return }
 

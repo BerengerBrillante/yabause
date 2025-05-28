@@ -66,168 +66,9 @@ class SonicRBackup {
     }
 }
 
-fun submitScoreToFirestore(
-    gameId: String,
-    leaderboardId: String,
-    score: Long,
-    userName: String,
-    onSuccess: (() -> Unit)? = null,
-    onFailure: ((Exception) -> Unit)? = null
-) {
-    val db = FirebaseFirestore.getInstance()
-    val currentUser = FirebaseAuth.getInstance().currentUser ?: run {
-        onFailure?.invoke(Exception("ユーザーが認証されていません"))
-        return
-    }
-    val userId = currentUser.uid
+// Moved to BaseGame.kt as shared functionality
 
-    // ユーザーの画像URLを取得
-    val photoUrl = currentUser.photoUrl?.toString()
-
-    // Ensure we're using the Firebase user ID for the document ID
-    // but still display the user's name (which might be from Discord)
-    val scoreData = hashMapOf(
-        "name" to userName,
-        "score" to score,
-        "timestamp" to System.currentTimeMillis(),
-        "photoUrl" to photoUrl,
-        "firebaseUid" to userId  // Store the Firebase UID explicitly
-    )
-    val scoreDocRef = db.collection("games/${gameId}/leaderboards")
-        .document(leaderboardId)
-        .collection("scores")
-        .document(userId)
-
-    scoreDocRef.get()
-        .addOnSuccessListener { document ->
-            val currentScore = document.getLong("score")
-            if (currentScore == null || score < currentScore) {
-                // 新記録（より短いタイム）の場合のみ上書き
-                scoreDocRef.set(scoreData)
-                    .addOnSuccessListener {
-                        // 新記録が登録されたら、それが1位かどうかを確認する
-                        checkIfNewTopScore(gameId, leaderboardId, score, userName, photoUrl)
-                        onSuccess?.invoke()
-                    }
-                    .addOnFailureListener { e -> onFailure?.invoke(e) }
-            } else {
-                // 記録を更新しない場合も成功扱い
-                onSuccess?.invoke()
-            }
-        }
-        .addOnFailureListener { e ->
-            onFailure?.invoke(e)
-        }
-}
-
-/**
- * 新しいスコアが1位かどうかを確認し、1位の場合はDiscordに投稿する
- *
- * @param gameId ゲームID
- * @param leaderboardId リーダーボードID
- * @param score スコア（タイム）
- * @param userName ユーザー名
- * @param photoUrl ユーザーのアバターURL
- */
-private fun checkIfNewTopScore(gameId: String, leaderboardId: String, score: Long, userName: String, photoUrl: String?) {
-    val db = FirebaseFirestore.getInstance()
-    val context = YabauseApplication.appContext
-
-    // Firebase Remote ConfigからDiscord Webhook URLを取得
-    val remoteConfig = com.google.firebase.remoteconfig.FirebaseRemoteConfig.getInstance()
-    val webhookUrl = remoteConfig.getString("discord_webhook_url_sonicr")
-
-    // Webhook URLが空または無効な場合は処理を終了
-    if (webhookUrl.isEmpty()) {
-        Log.d("SonicR", "Discord webhook URL is not set in Remote Config")
-        return
-    }
-
-    // リーダーボードのスコアを取得して、新しいスコアが1位かどうかを確認
-    db.collection("games/${gameId}/leaderboards")
-        .document(leaderboardId)
-        .collection("scores")
-        .orderBy("score", Query.Direction.ASCENDING) // タイムアタックなので昇順（小さい方が良い）
-        .limit(1)
-        .get()
-        .addOnSuccessListener { querySnapshot ->
-            if (querySnapshot.isEmpty) {
-                // スコアがない場合は、新しいスコアが1位
-                postNewTopScoreToDiscord(gameId, leaderboardId, score, userName, photoUrl, webhookUrl)
-                return@addOnSuccessListener
-            }
-
-            // 1位のスコアを取得
-            val topScore = querySnapshot.documents[0].getLong("score") ?: Long.MAX_VALUE
-            val topScoreUserId = querySnapshot.documents[0].id
-
-            // 自分のスコアが1位かどうかを確認
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null && (score <= topScore || topScoreUserId == currentUser.uid)) {
-                // 新しいスコアが1位の場合、またはすでに自分が1位の場合
-                // リーダーボード名を取得
-                db.collection("games/${gameId}/leaderboards")
-                    .document(leaderboardId)
-                    .get()
-                    .addOnSuccessListener { leaderboardDoc ->
-                        val leaderboardName = leaderboardDoc.getString("name") ?: leaderboardId
-                        postNewTopScoreToDiscord(gameId, leaderboardName, score, userName, photoUrl, webhookUrl)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("SonicR", "Error getting leaderboard name", e)
-                    }
-            } else {
-                Log.d("SonicR", "New score is not the top score. Top: $topScore, New: $score")
-            }
-        }
-        .addOnFailureListener { e ->
-            Log.e("SonicR", "Error checking if new score is top score", e)
-        }
-}
-
-/**
- * 新記録（1位）をDiscordに投稿する
- *
- * @param gameId ゲームID
- * @param leaderboardName リーダーボード名
- * @param score スコア（タイム）
- * @param userName ユーザー名
- * @param photoUrl ユーザーのアバターURL
- * @param webhookUrl Discord WebhookのURL
- */
-private fun postNewTopScoreToDiscord(gameId: String, leaderboardName: String, score: Long, userName: String, photoUrl: String?, webhookUrl: String) {
-    // バックグラウンドスレッドで実行
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val result = org.uoyabause.android.util.DiscordWebhook.sendNewRecordMessage(
-                webhookUrl = webhookUrl,
-                gameId = gameId,
-                leaderboardName = leaderboardName,
-                userName = userName,
-                score = score,
-                avatarUrl = photoUrl
-            )
-
-            if (result) {
-                Log.d("SonicR", "Successfully posted new top score to Discord")
-                // 成功通知を表示
-                withContext(Dispatchers.Main) {
-                    val context = YabauseApplication.appContext
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.discord_webhook_notification_title) + ": " +
-                                context.getString(R.string.discord_webhook_notification_message),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } else {
-                Log.e("SonicR", "Failed to post new top score to Discord")
-            }
-        } catch (e: Exception) {
-            Log.e("SonicR", "Error posting new top score to Discord", e)
-        }
-    }
-}
+// Moved to BaseGame.kt as shared functionality
 
 
 class SonicR : BaseGame {
@@ -245,14 +86,14 @@ class SonicR : BaseGame {
         CoroutineScope(Dispatchers.IO).launch {
             // gameIdの初期化を待機
             initGameId(gameCode)
-            
+
             // gameIdが設定された後にleaderboardsコレクションの初期化を行う
             if (gameId.isNotEmpty()) {
                 initLeaderboards()
             }
         }
     }
-    
+
     // leaderboardsコレクションの初期化
     private fun initLeaderboards() {
         if( gameId.isEmpty() ) return
@@ -300,7 +141,7 @@ class SonicR : BaseGame {
         }
     }
 
-    override fun onBackUpUpdated(before: ByteArray, after: ByteArray) {
+    override fun onBackUpUpdated(fname: String, before: ByteArray, after: ByteArray) {
 
         if( gameId == "" ) return
         val auth = FirebaseAuth.getInstance()
@@ -321,12 +162,8 @@ class SonicR : BaseGame {
                     // Log the user information for debugging
                     Log.d("SonicR", "Submitting score for user: ${currentUser.uid}, display name: $userName")
 
-                    submitScoreToFirestore(gameId, gid, score, userName)
-                    val bundle = Bundle()
-                    bundle.putLong(FirebaseAnalytics.Param.SCORE, score)
-                    bundle.putString("leaderboard_id", leaderBoards?.get(i)?.id)
-                    val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.POST_SCORE, bundle)
+                    submitScoreToFirestore(gameId, gid, score, userName, "discord_webhook_url_sonicr")
+                    logScoreEvent(score, gid)
                     leaderBoards?.get(i)?.id?.let { this.uievent.onNewRecord(it) }
                 }
             }

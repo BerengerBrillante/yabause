@@ -1254,7 +1254,7 @@ func findGameMainViewController(from root: UIViewController?) -> GameMainViewCon
 }
 
 @_cdecl("YSOnBackupWrite")
-public func YSOnBackupWrite(before: UnsafeRawPointer, after: UnsafeRawPointer, size: Int32) {
+public func YSOnBackupWrite(fname: UnsafePointer<CChar>, before: UnsafeRawPointer, after: UnsafeRawPointer, size: Int32) {
     guard let rootVC = UIApplication.shared.windows.first?.rootViewController,
           let mainViewController = findGameMainViewController(from: rootVC),
           let gameViewController = mainViewController.children.first(where: { $0 is GameViewController }) as? GameViewController else {
@@ -1266,10 +1266,13 @@ public func YSOnBackupWrite(before: UnsafeRawPointer, after: UnsafeRawPointer, s
         gameViewController.detectGame()
     }
 
+    // ファイル名をStringに変換
+    let fileName = String(cString: fname)
+
     // バックアップデータをData型に変換
     let beforeData = Data(bytes: before, count: Int(size))
     let afterData = Data(bytes: after, count: Int(size))
 
     // ゲームのonBackUpUpdatedメソッドを呼び出す
-    gameViewController.currentGame?.onBackUpUpdated(before: beforeData, after: afterData)
+    gameViewController.currentGame?.onBackUpUpdated(fname: fileName, before: beforeData, after: afterData)
 }
