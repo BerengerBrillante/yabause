@@ -352,14 +352,13 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
             inflater.inflate(R.menu.cloud_game_item_popup_menu, popup.getMenu())
         } else {
             inflater.inflate(R.menu.game_item_popup_menu, popup.getMenu())
-
+/*
             // Check if the game is already backed up to the cloud
             if (game != null) {
                 // Launch coroutine to check if game is backed up
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
                         val isBackedUp = isGameBackedUp(game, view.context)
-
                         // Update menu item text based on backup status
                         if (isBackedUp) {
                             popup.menu.findItem(R.id.backup_to_cloud)?.title =
@@ -370,6 +369,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                     }
                 }
             }
+
+ */
         }
 
         popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener {
@@ -385,6 +386,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                     }
                     return@OnMenuItemClickListener false
                 }
+
+/* Disable cloud backup
                 R.id.backup_to_cloud -> {
                     val game_info = dataSet?.get(position)!!
 
@@ -420,6 +423,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
 
                     true
                 }
+
+ */
                 R.id.detail -> {
                     val game_info = dataSet?.get(position)!!
                     // Firestoreからproduct_numberを使用してゲームのドキュメントIDを検索
