@@ -49,14 +49,6 @@
                 app:layout_scrollFlags="scroll|snap"
                 app:popupTheme="@style/ThemeOverlay.Material3.Light" />
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tab_game_index"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                app:tabIndicatorColor="@color/secondary"
-                app:tabMode="auto" />
-
         </com.google.android.material.appbar.AppBarLayout>
 
         <ScrollView
@@ -76,14 +68,163 @@
                 android:text="@string/welcome" />
         </ScrollView>
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/view_pager_game_index"
+        <!-- Main content area with game list, game info, and boxart -->
+        <LinearLayout
+            android:id="@+id/main_content_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/default_background"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
-        </androidx.viewpager.widget.ViewPager>
+            android:orientation="horizontal"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:orientation="vertical"
+            android:padding="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/colorPrimaryDark"
+                    android:padding="8dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardBackgroundColor="@color/fastlane_background"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp">
+
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/search_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:iconifiedByDefault="true"
+                            android:queryHint="@string/search_games"
+                            app:queryBackground="@android:color/transparent"
+                            app:iconifiedByDefault="true"
+                            app:searchIcon="@android:drawable/ic_menu_search"
+                            app:closeIcon="@android:drawable/ic_menu_close_clear_cancel"
+                            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                    </androidx.cardview.widget.CardView>
+
+                    <ImageButton
+                        android:id="@+id/sort_button"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/sort_by"
+                        android:src="@android:drawable/ic_menu_sort_by_size" />
+
+                </LinearLayout>
+
+
+            <!-- Game list area (slimmer) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_games"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1.0"
+                    android:background="@color/default_background" />
+
+            </LinearLayout>
+
+            <!-- Game info area (new middle section) -->
+            <LinearLayout
+                android:id="@+id/game_info_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:orientation="vertical"
+                android:background="@color/default_background"
+                android:padding="0dp">
+
+                <!-- Button container with play and menu buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="4dp">
+
+                    <!-- Game version info -->
+                    <TextView
+                        android:id="@+id/selected_game_version"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Device Info"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="14sp"  />
+
+
+                    <!-- Play button -->
+                    <ImageButton
+                        android:id="@+id/play_game_button"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="16dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_media_play"
+                        app:tint="@color/colorPrimary" />
+
+                    <!-- Menu button -->
+                    <ImageButton
+                        android:id="@+id/selected_game_menu"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/game_menu"
+                        app:srcCompat="@drawable/ic_more_vert_black_24dp"
+                        app:tint="@color/lb_default_brand_color" />
+
+                </LinearLayout>
+
+                <!-- Boxart display area -->
+                <FrameLayout
+                    android:id="@+id/boxart_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@color/default_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    >
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="4dp">
+
+                        <ImageView
+                            android:id="@+id/boxart_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/missing" />
+                    </androidx.cardview.widget.CardView>
+
+                </FrameLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

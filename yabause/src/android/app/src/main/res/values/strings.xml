@@ -466,6 +466,15 @@
     <string name="read_permission_denied">Read permission denied: %1$s</string>
     <string name="other_file_error">Other File Error: %1$s</string>
     <string name="no_game_file_is_selected">No Game file is selected</string>
+    <string name="search_games">Search games</string>
+    <string name="sort_games">Sort games</string>
+    <string name="toggle_view_mode">Toggle view mode</string>
+    <string name="tap_to_start_game">Tap to start game</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_date">Sort by release date</string>
+    <string name="sort_by_recently_played">Sort by recently played</string>
+    <string name="game_menu">Game menu</string>
     <string name="fail_to_open_with">Fail to open %1$s with %2$s</string>
     <string name="fail_to_open">Fail to open %1$s</string>
     <string name="failed_to_initialize">Fail to initialize</string>

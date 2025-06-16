@@ -61,8 +61,21 @@ import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instanc
 import androidx.lifecycle.lifecycleScope
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
-import androidx.viewpager.widget.ViewPager
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import android.widget.ImageButton
+import android.widget.Filter
+import android.widget.LinearLayout
+import android.graphics.drawable.Drawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import jp.wasabeef.glide.transformations.BlurTransformation
+import kotlinx.coroutines.withContext
 import com.google.android.gms.analytics.HitBuilders.ScreenViewBuilder
 import com.google.android.gms.analytics.Tracker
 import com.google.android.material.navigation.NavigationView
@@ -167,7 +180,16 @@ class GameSelectFragmentPhone : Fragment(),
     private lateinit var tabLayout: TabLayout
     private lateinit var progressBar: View
     private lateinit var progressMessage: TextView
+    private lateinit var boxartImage: ImageView
+    //private lateinit var gameInfoOverlay: LinearLayout
+    private lateinit var selectedGameTitle: TextView
+    private lateinit var selectedGameInfo: TextView
+    //private lateinit var selectedGameIcon: ImageView
+    private lateinit var selectedGameVersion: TextView
+    private lateinit var selectedGameMenu: ImageButton
     private var isBackGroundComplete = false
+    private var isAutoSelecting = false // 自動選択中フラグ
+    private var lastScrollTime = 0L // スクロール更新の間引き用
 
     private var isBillingConnected = false
     private val viewModel by viewModels<BillingViewModel>()
@@ -299,6 +321,27 @@ class GameSelectFragmentPhone : Fragment(),
         recyclerView = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.recycler_view_games)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
+        // スクロールリスナーを追加（自動選択機能）
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                // スクロールが停止したときに一番上のアイテムを選択
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    selectTopVisibleItem()
+                }
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                // スクロール中も一番上のアイテムを更新（パフォーマンスを考慮して間引き）
+                val currentTime = System.currentTimeMillis()
+                if (!isAutoSelecting && currentTime - lastScrollTime > 100) { // 100ms間隔で更新
+                    lastScrollTime = currentTime
+                    selectTopVisibleItem()
+                }
+            }
+        })
+
         // 検索バーの設定
         searchView = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.search_view)
 
@@ -306,6 +349,29 @@ class GameSelectFragmentPhone : Fragment(),
         sortButton = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.sort_button)
         sortButton.setOnClickListener {
             showSortMenu(it)
+        }
+
+        // Boxart表示エリアの設定
+        boxartImage = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.boxart_image)
+        //gameInfoOverlay = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.game_info_overlay)
+        //selectedGameTitle = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.selected_game_title)
+        //selectedGameInfo = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.selected_game_info)
+
+        // 中央のゲーム情報エリアの設定
+        //selectedGameIcon = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.selected_game_icon)
+        selectedGameVersion = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.selected_game_version)
+        selectedGameMenu = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.selected_game_menu)
+
+        // Boxartエリアのクリックリスナー（ゲーム開始）
+        val boxartContainer = rootView.findViewById<FrameLayout>(org.devmiyax.yabasanshiro.R.id.boxart_container)
+        boxartContainer.setOnClickListener {
+            startSelectedGame()
+        }
+
+        // 再生ボタンのクリックリスナー（ゲーム開始）
+        val playGameButton = rootView.findViewById<ImageButton>(org.devmiyax.yabasanshiro.R.id.play_game_button)
+        playGameButton.setOnClickListener {
+            startSelectedGame()
         }
 
         val fab: View = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.fab)
@@ -386,6 +452,116 @@ class GameSelectFragmentPhone : Fragment(),
             }
         }
         popup.show()
+    }
+
+
+
+    private fun updateGameInfoSection(gameInfo: GameInfo?) {
+        if (gameInfo == null) {
+            // ゲーム情報がない場合はデフォルト表示
+            selectedGameVersion.text = ""
+            selectedGameMenu.setOnClickListener(null)
+            return
+        }
+
+        // バージョン情報を表示
+        if (gameInfo.isCloudOnly) {
+            selectedGameVersion.text = getString(R.string.cloud_only_game)
+            selectedGameVersion.setCompoundDrawablesWithIntrinsicBounds(
+                R.drawable.cloud_upload_48px, 0, 0, 0
+            )
+            selectedGameVersion.compoundDrawablePadding = 8
+        } else {
+            selectedGameVersion.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+
+            // レーティングとデバイス情報を表示
+            lifecycleScope.launch(Dispatchers.IO) {
+                gameInfo.updateState()
+                var rate = ""
+                for (i in 0 until gameInfo.rating) rate += "★"
+                if (gameInfo.device_infomation != "CD-1/1") {
+                    rate += " " + gameInfo.device_infomation
+                }
+
+                withContext(Dispatchers.Main) {
+                    selectedGameVersion.text = rate
+                }
+            }
+        }
+
+        // メニューボタンのクリックリスナーを設定
+        selectedGameMenu.setOnClickListener {
+            if (::gameAdapter.isInitialized) {
+                val selectedPosition = gameAdapter.getSelectedPosition()
+                if (selectedPosition >= 0) {
+                    // GameItemAdapterのshowPopupMenuメソッドを呼び出す
+                    gameAdapter.showPopupMenu(selectedGameMenu, selectedPosition)
+                }
+            }
+        }
+    }
+
+    private fun updateBoxartDisplay(gameInfo: GameInfo?) {
+        if (gameInfo == null) {
+            // Glideを使ってエラー画像を設定（setImageResourceは使わない）
+            Glide.with(boxartImage)
+                .load(R.drawable.missing)
+                .into(boxartImage)
+            //gameInfoOverlay.visibility = View.GONE
+            return
+        }
+
+        // ゲーム情報を表示
+        //selectedGameTitle.text = gameInfo.game_title
+        //var infoText = ""
+        //if (gameInfo.device_infomation != "CD-1/1") {
+        //    infoText = gameInfo.device_infomation
+        //}
+
+        // レーティングを追加
+        lifecycleScope.launch(Dispatchers.IO) {
+            gameInfo.updateState()
+            var rate = ""
+            for (i in 0 until gameInfo.rating) rate += "★"
+            if (gameInfo.device_infomation != "CD-1/1") {
+                rate += " " + gameInfo.device_infomation
+            }
+
+            withContext(Dispatchers.Main) {
+                //selectedGameInfo.text = rate
+                //gameInfoOverlay.visibility = View.VISIBLE
+            }
+        }
+
+        // Boxart画像を読み込み
+        if (gameInfo.image_url != null && gameInfo.image_url != "") {
+            if (gameInfo.image_url!!.startsWith("http")) {
+                var url = gameInfo.image_url
+                if (gameInfo.isCloudOnly) {
+                    url += "?" + GameInfo.sigin
+                }
+
+                val glideRequest = Glide.with(boxartImage)
+                    .load(url)
+                    .error(R.drawable.missing) // エラー時のフォールバック画像を設定
+
+                // クラウドゲームの場合はブラー効果を適用
+                if (gameInfo.isCloudOnly) {
+                    glideRequest.apply(RequestOptions.bitmapTransform(BlurTransformation(8)))
+                }
+
+                glideRequest.into(boxartImage)
+            } else {
+                Glide.with(requireContext())
+                    .load(gameInfo.image_url?.let { File(it) })
+                    .into(boxartImage)
+            }
+        } else {
+            // Glideを使ってエラー画像を設定（setImageResourceは使わない）
+            Glide.with(boxartImage)
+                .load(R.drawable.missing)
+                .into(boxartImage)
+        }
     }
 
     private var adHeight = 0
@@ -587,6 +763,22 @@ class GameSelectFragmentPhone : Fragment(),
 
                     gameAdapter = GameItemAdapter(allGames)
                     gameAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
+
+                    // スリムモードに固定
+                    gameAdapter.setViewMode(GameItemAdapter.Companion.VIEW_TYPE_SLIM)
+
+                    // 最初のアイテムを選択
+                    allGames?.let { games ->
+                        if (games.isNotEmpty()) {
+                            // 初期選択は最初のアイテム
+                            gameAdapter.setSelectedPosition(0)
+                            // レイアウト完了後に一番上のアイテムを選択
+                            recyclerView.post {
+                                selectTopVisibleItem()
+                            }
+                        }
+                    }
+
                     recyclerView.adapter = gameAdapter
 
                     // 現在のソート順を維持
@@ -1127,6 +1319,22 @@ class GameSelectFragmentPhone : Fragment(),
                         launch(Dispatchers.Main) {
                             gameAdapter = GameItemAdapter(allGames)
                             gameAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
+
+                            // スリムモードに固定
+                            gameAdapter.setViewMode(GameItemAdapter.Companion.VIEW_TYPE_SLIM)
+
+                            // 最初のアイテムを選択
+                            allGames?.let { games ->
+                                if (games.isNotEmpty()) {
+                                    // 初期選択は最初のアイテム
+                                    gameAdapter.setSelectedPosition(0)
+                                    // レイアウト完了後に一番上のアイテムを選択
+                                    recyclerView.post {
+                                        selectTopVisibleItem()
+                                    }
+                                }
+                            }
+
                             recyclerView.adapter = gameAdapter
 
                             // 検索バーのリスナーを設定
@@ -1153,14 +1361,53 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
     override fun onItemClick(position: Int, item: GameInfo?, v: View?) {
-        if (item != null) {
-            if (item.isCloudOnly && item.cloudBackupInfo != null) {
-                // Handle cloud-only game click - download it first
-                downloadCloudGame(item.cloudBackupInfo!!)
-            } else {
-                // Normal game click - start the game
-                presenter.startGame(item, yabauseActivityLauncher)
+        // リストアイテムのクリックは選択のみ（ゲーム開始はboxartエリアのクリックで実行）
+        // 実際の処理はGameItemAdapterで直接setSelectedPositionを呼び出している
+    }
+
+    override fun onItemSelected(position: Int, item: GameInfo?) {
+        updateBoxartDisplay(item)
+        updateGameInfoSection(item)
+    }
+
+    override fun onGameStart(item: GameInfo?) {
+        startSelectedGame()
+    }
+
+    private fun startSelectedGame() {
+        if (::gameAdapter.isInitialized) {
+            val selectedGame = gameAdapter.getSelectedGame()
+            if (selectedGame != null) {
+                if (selectedGame.isCloudOnly && selectedGame.cloudBackupInfo != null) {
+                    // Handle cloud-only game click - download it first
+                    downloadCloudGame(selectedGame.cloudBackupInfo!!)
+                } else {
+                    // Normal game click - start the game
+                    presenter.startGame(selectedGame, yabauseActivityLauncher)
+                }
             }
+        }
+    }
+
+    private fun selectTopVisibleItem() {
+        if (!::recyclerView.isInitialized || !::gameAdapter.isInitialized) {
+            return
+        }
+
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+
+        // 現在表示されている一番上のアイテムの位置を取得
+        val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+
+        if (firstVisiblePosition == RecyclerView.NO_POSITION) {
+            return
+        }
+
+        // 現在の選択と異なる場合のみ更新
+        if (firstVisiblePosition != gameAdapter.getSelectedPosition() && firstVisiblePosition >= 0) {
+            isAutoSelecting = true
+            gameAdapter.setSelectedPosition(firstVisiblePosition)
+            isAutoSelecting = false
         }
     }
 

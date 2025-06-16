@@ -74,6 +74,52 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
     private var dataSet: MutableList<GameInfo?>? = originalDataSet?.toMutableList()
     private var currentSearchQuery: String = ""
 
+    // 表示モード定数（companion objectは後で統合）
+
+    // 現在の表示モード（デフォルトは詳細表示）
+    private var viewMode = Companion.VIEW_TYPE_DETAILED
+
+    // 選択されたアイテムの位置
+    private var selectedPosition = -1
+
+    fun setViewMode(mode: Int) {
+        if (viewMode != mode) {
+            viewMode = mode
+            notifyDataSetChanged()
+        }
+    }
+
+    fun getViewMode(): Int = viewMode
+
+    fun setSelectedPosition(position: Int) {
+        val oldPosition = selectedPosition
+        selectedPosition = position
+        Log.d("GameItemAdapter", "setSelectedPosition: oldPosition=$oldPosition, newPosition=$position")
+
+        // 古い選択を更新
+        if (oldPosition != -1) {
+            Log.d("GameItemAdapter", "notifyItemChanged for old position: $oldPosition")
+            notifyItemChanged(oldPosition)
+        }
+        // 新しい選択を更新
+        if (selectedPosition != -1) {
+            Log.d("GameItemAdapter", "notifyItemChanged for new position: $selectedPosition")
+            notifyItemChanged(selectedPosition)
+            // 選択変更を通知
+            mListener?.onItemSelected(selectedPosition, dataSet?.get(selectedPosition))
+        }
+    }
+
+    fun getSelectedPosition(): Int = selectedPosition
+
+    fun getSelectedGame(): GameInfo? {
+        return if (selectedPosition >= 0 && selectedPosition < (dataSet?.size ?: 0)) {
+            dataSet?.get(selectedPosition)
+        } else {
+            null
+        }
+    }
+
     class GameViewHolder(var rootview: View) :
         RecyclerView.ViewHolder(rootview), View.OnCreateContextMenuListener {
         var textViewName: TextView
@@ -118,9 +164,20 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
     }
 
 
+    override fun getItemViewType(position: Int): Int {
+        return viewMode
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
+        val layoutId = when (viewType) {
+            Companion.VIEW_TYPE_COMPACT -> R.layout.cards_layout_compact
+            Companion.VIEW_TYPE_TEXT_ONLY -> R.layout.cards_layout_text_only
+            Companion.VIEW_TYPE_SLIM -> R.layout.cards_layout_slim
+            else -> R.layout.cards_layout
+        }
+
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.cards_layout, parent, false)
+            .inflate(layoutId, parent, false)
         view.setOnClickListener(GameSelectFragmentPhone.myOnClickListener)
 
 
@@ -166,6 +223,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
     interface OnItemClickListener {
         fun onItemClick(position: Int, item: GameInfo?, v: View?)
         fun onGameRemoved(item: GameInfo?)
+        fun onItemSelected(position: Int, item: GameInfo?)
+        fun onGameStart(item: GameInfo?)
     }
 
     @SuppressLint("NotifyDataSetChanged", "CheckResult")
@@ -183,11 +242,7 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
 
             if (game.isCloudOnly) {
                 // Apply toned-down appearance for cloud-only games
-                textViewName.alpha = 0.7f
                 textViewVersion.text = ctx.getString(R.string.cloud_only_game)
-
-                // Apply a semi-transparent overlay to the card
-                cardView.alpha = 0.8f
 
                 // Add cloud icon indicator
                 textViewVersion.setCompoundDrawablesWithIntrinsicBounds(
@@ -196,8 +251,6 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                 textViewVersion.compoundDrawablePadding = 8
             } else {
                 // Regular appearance for local games
-                textViewName.alpha = 1.0f
-                cardView.alpha = 1.0f
                 textViewVersion.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
 
                 // Set device information
@@ -218,12 +271,45 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                     }
                     withContext(Dispatchers.Main) {
                         textViewVersion.text = rate
+                        // 非同期処理後に選択状態の色を再適用
+                        val isSelected = position == selectedPosition
+                        if (isSelected) {
+                            textViewVersion.setTextColor(ctx.getColor(android.R.color.white))
+                        } else {
+                            textViewVersion.setTextColor(ctx.getColor(R.color.lb_default_brand_color_dark))
+                        }
                     }
                 }
             }
 
-            // Load image
-            if (game.image_url != null && game.image_url != "") {
+            // 選択状態を反映（クラウドゲーム処理の後に適用）
+            val isSelected = position == selectedPosition
+            Log.d("GameItemAdapter", "onBindViewHolder: position=$position, selectedPosition=$selectedPosition, isSelected=$isSelected")
+            if (isSelected) {
+                cardView.setCardBackgroundColor(ctx.getColor(R.color.colorPrimaryDark))
+                textViewName.setTextColor(ctx.getColor(R.color.colorAccent))
+                textViewVersion.setTextColor(ctx.getColor(R.color.colorAccent))
+                // 選択時はアルファ値を1.0にして見やすくする
+                cardView.alpha = 1.0f
+                textViewName.alpha = 1.0f
+                Log.d("GameItemAdapter", "Applied selected style to position $position")
+            } else {
+                cardView.setCardBackgroundColor(ctx.getColor(R.color.default_background))
+                textViewName.setTextColor(ctx.getColor(R.color.colorPrimaryDark))
+                textViewVersion.setTextColor(ctx.getColor(R.color.colorPrimaryDark))
+                // 非選択時はクラウドゲームの場合のアルファ値を適用
+                if (game.isCloudOnly) {
+                    cardView.alpha = 0.8f
+                    textViewName.alpha = 0.7f
+                } else {
+                    cardView.alpha = 1.0f
+                    textViewName.alpha = 1.0f
+                }
+                Log.d("GameItemAdapter", "Applied unselected style to position $position")
+            }
+
+            // Load image (skip for text-only mode)
+            if (viewMode != Companion.VIEW_TYPE_TEXT_ONLY && game.image_url != null && game.image_url != "") {
                 if (game.image_url!!.startsWith("http")) {
                     var url = game.image_url
                     if (game.isCloudOnly) {
@@ -231,7 +317,7 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                     }
                     val glideRequest = Glide.with(imageView)
                         .load(url)
-
+                        .error(R.drawable.missing) // エラー時のフォールバック画像を設定
 
                     // Apply grayscale effect for cloud-only games
                     if (game.isCloudOnly) {
@@ -250,11 +336,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                             mFirebaseAnalytics.logEvent(
                                 "yab_fail_load_image", bundle
                             )
-                            val ac = holder.rootview.context as Activity
-                            ac?.runOnUiThread {
-                                imageView.setImageDrawable(ac.getDrawable(R.drawable.missing))
-                            }
-                            return true
+                            // エラー画像はerror()で設定済みなので、ここでは何もしない
+                            return false // Glideにエラー画像の設定を任せる
                         }
 
                         override fun onResourceReady(
@@ -264,13 +347,10 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                             dataSource: com.bumptech.glide.load.DataSource?,
                             isFirstResource: Boolean
                         ): Boolean {
-                            val ac = holder.rootview.context as Activity
-                            ac?.runOnUiThread {
-                                if (resource != null) imageView.setImageDrawable(resource)
-                            }
-                            return true
+                            // Glideが自動的に画像を設定するのでfalseを返す
+                            return false
                         }
-                    }).submit()
+                    }).into(imageView)
                 } else {
                     Glide.with(holder.rootview.context)
                         .load(game.image_url?.let { File(it) })
@@ -278,11 +358,10 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                 }
             }
 
-            // Set click listener
+            // Set click listener (selection only, no game start)
             holder.rootview.setOnClickListener {
-                if (null != mListener) {
-                    mListener!!.onItemClick(position, dataSet?.get(position), null)
-                }
+                // 選択状態を更新（ゲーム開始はしない）
+                setSelectedPosition(position)
             }
         }
 
@@ -338,7 +417,7 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
         }
     }
 
-    private fun showPopupMenu(
+    fun showPopupMenu(
         view: View,
         position: Int,
     ) { // inflate menu
@@ -777,5 +856,11 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
     companion object {
         private const val CARD_WIDTH = 320
         private const val CARD_HEIGHT = 224
+
+        // 表示モード定数
+        const val VIEW_TYPE_DETAILED = 0
+        const val VIEW_TYPE_COMPACT = 1
+        const val VIEW_TYPE_TEXT_ONLY = 2
+        const val VIEW_TYPE_SLIM = 3
     }
 }
