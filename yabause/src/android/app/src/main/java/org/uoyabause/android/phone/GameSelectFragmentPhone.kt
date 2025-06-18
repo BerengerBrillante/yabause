@@ -35,6 +35,7 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -190,6 +191,8 @@ class GameSelectFragmentPhone : Fragment(),
     private var isBackGroundComplete = false
     private var isAutoSelecting = false // 自動選択中フラグ
     private var lastScrollTime = 0L // スクロール更新の間引き用
+    private var isDPadNavigating = false // D-pad navigation mode flag
+    private var lastInputSource = 0 // Track last input source to distinguish touch vs D-pad
 
     private var isBillingConnected = false
     private val viewModel by viewModels<BillingViewModel>()
@@ -321,23 +324,46 @@ class GameSelectFragmentPhone : Fragment(),
         recyclerView = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.recycler_view_games)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
+        // RecyclerViewのフォーカス設定を調整
+        // キーイベントの重複を防ぐため、RecyclerViewのフォーカスを無効化
+        recyclerView.isFocusable = false
+        recyclerView.isFocusableInTouchMode = false
+        recyclerView.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+
+        // タッチリスナーを追加してD-pad navigation modeをリセット
+        recyclerView.setOnTouchListener { _, event ->
+            if (isDPadNavigating && event.action == android.view.MotionEvent.ACTION_DOWN) {
+                Log.d(TAG, "Touch detected, switching from D-pad to touch navigation mode")
+                isDPadNavigating = false
+            }
+            false // イベントを消費しない
+        }
+
         // スクロールリスナーを追加（自動選択機能）
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                // スクロールが停止したときに一番上のアイテムを選択
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                // スクロールが停止したときに一番上のアイテムを選択（D-pad navigation中は無効）
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && !isDPadNavigating) {
+                    Log.d(TAG, "Touch scroll idle - selecting top visible item")
                     selectTopVisibleItem()
+                } else if (newState == RecyclerView.SCROLL_STATE_IDLE && isDPadNavigating) {
+                    Log.d(TAG, "D-pad scroll idle - maintaining D-pad selection")
                 }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 // スクロール中も一番上のアイテムを更新（パフォーマンスを考慮して間引き）
+                // D-pad navigation中は無効
                 val currentTime = System.currentTimeMillis()
-                if (!isAutoSelecting && currentTime - lastScrollTime > 100) { // 100ms間隔で更新
+                if (!isAutoSelecting && !isDPadNavigating && currentTime - lastScrollTime > 100) { // 100ms間隔で更新
                     lastScrollTime = currentTime
                     selectTopVisibleItem()
+                } else if (isDPadNavigating && currentTime - lastScrollTime > 100) {
+                    // D-pad navigation中はログのみ出力（デバッグ用）
+                    lastScrollTime = currentTime
+                    Log.d(TAG, "Scroll during D-pad navigation - auto-selection disabled")
                 }
             }
         })
@@ -389,6 +415,141 @@ class GameSelectFragmentPhone : Fragment(),
             onAdViewIsShown(adHeight)
         }
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // D-PadナビゲーションはActivityレベルで処理するため、
+        // RecyclerViewのキーリスナーは削除
+        // フォーカスは設定しておく（必要に応じて）
+        recyclerView.post {
+            // RecyclerViewにフォーカスを設定しないことで、
+            // Activityレベルでのキーイベント処理を優先
+            Log.d(TAG, "RecyclerView setup completed")
+        }
+
+        // UI setup
+        setupUI(view, savedInstanceState)
+    }
+
+    private fun handleDPadNavigation(keyCode: Int): Boolean {
+        if (!::gameAdapter.isInitialized || !::recyclerView.isInitialized) {
+            Log.d(TAG, "handleDPadNavigation: adapter or recyclerView not initialized")
+            return false
+        }
+
+        val currentPosition = gameAdapter.getSelectedPosition()
+        val itemCount = gameAdapter.itemCount
+
+        if (itemCount == 0) {
+            Log.d(TAG, "handleDPadNavigation: no items in adapter")
+            return false
+        }
+
+        Log.d(TAG, "handleDPadNavigation: keyCode=$keyCode, currentPosition=$currentPosition, itemCount=$itemCount")
+
+        var newPosition = currentPosition
+        var handled = false
+
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (currentPosition > 0) {
+                    newPosition = currentPosition - 1
+                    handled = true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (currentPosition < itemCount - 1) {
+                    newPosition = currentPosition + 1
+                    handled = true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
+                // D-pad center or Enter key pressed - start the selected game
+                startSelectedGame()
+                return true
+            }
+        }
+
+        if (handled && newPosition != currentPosition) {
+            Log.d(TAG, "D-pad navigation: moving from position $currentPosition to $newPosition")
+            // D-pad navigation mode を有効にして自動選択を無効化
+            isDPadNavigating = true
+            isAutoSelecting = true
+
+            // D-pad navigationでのスクロール方向に応じてAppBarを制御（移動が実際に発生する場合のみ）
+            val appBar = activity?.findViewById<com.google.android.material.appbar.AppBarLayout>(org.devmiyax.yabasanshiro.R.id.main_appbar)
+            if (appBar != null) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        // 下にスクロールする場合はAppBarを隠す
+                        appBar.setExpanded(false, true)
+                    }
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        // 上にスクロールする場合はAppBarを表示
+                        appBar.setExpanded(true, true)
+                    }
+                }
+            }
+
+            // D-pad navigation中はアニメーションを無効化してtmpDetachedエラーを防ぐ
+            val originalAnimator = recyclerView.itemAnimator
+            recyclerView.itemAnimator = null
+
+            // 選択位置を更新
+            gameAdapter.setSelectedPosition(newPosition)
+
+            // RecyclerViewをスクロールして選択されたアイテムを表示
+            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
+            layoutManager?.let {
+                // 選択されたアイテムが見えるようにスクロール
+                val firstVisible = it.findFirstVisibleItemPosition()
+                val lastVisible = it.findLastVisibleItemPosition()
+
+                // AppBarの高さを取得してオフセットに反映
+                val appBarHeight = appBar?.height ?: 0
+
+                if (newPosition < firstVisible || newPosition > lastVisible) {
+                    // アイテムが見えない場合はスムーズスクロール
+                    recyclerView.smoothScrollToPosition(newPosition)
+                } else {
+                    // アイテムが見える場合は、より良い位置に表示されるようにスクロール
+                    // 最後のアイテムの場合はAppBarの高さを考慮してマージンを確保
+                    val isLastItem = newPosition == itemCount - 1
+                    val offset = if (isLastItem) {
+                        // 最後のアイテムの場合はAppBarの高さ分を確保
+                        -appBarHeight
+                    } else {
+                        // 通常は画面の上部1/3の位置に表示
+                        recyclerView.height / 3
+                    }
+                    it.scrollToPositionWithOffset(newPosition, offset)
+                }
+            }
+
+            // フラグをリセット（少し遅延させてスクロール完了を待つ）
+            recyclerView.post {
+                isAutoSelecting = false
+                // アニメーションを復元
+                recyclerView.itemAnimator = originalAnimator
+                // D-pad navigation mode は一定時間後にリセット（タッチ操作に戻る準備）
+                recyclerView.postDelayed({
+                    // タッチ操作がない場合のみリセット
+                    if (isDPadNavigating) {
+                        isDPadNavigating = false
+                    }
+                }, 3000) // 3秒後にD-pad modeを解除
+            }
+        }
+
+        return handled
+    }
+
+    // ActivityからのキーイベントをハンドルするためのPublicメソッド
+    fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        Log.d(TAG, "Fragment onKeyDown called: keyCode=$keyCode, isDPadNavigating=$isDPadNavigating")
+        return handleDPadNavigation(keyCode)
     }
 
 
@@ -502,10 +663,17 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
     private fun updateBoxartDisplay(gameInfo: GameInfo?) {
+        // デフォルト背景色のプレースホルダーを作成
+        val placeholderDrawable = androidx.core.content.ContextCompat.getDrawable(
+            requireContext(), 
+            android.R.color.transparent
+        )
+        
         if (gameInfo == null) {
             // Glideを使ってエラー画像を設定（setImageResourceは使わない）
             Glide.with(boxartImage)
                 .load(R.drawable.missing)
+                .placeholder(placeholderDrawable) // 読み込み中は透明
                 .into(boxartImage)
             //gameInfoOverlay.visibility = View.GONE
             return
@@ -543,6 +711,7 @@ class GameSelectFragmentPhone : Fragment(),
 
                 val glideRequest = Glide.with(boxartImage)
                     .load(url)
+                    .placeholder(placeholderDrawable) // 読み込み中は透明
                     .error(R.drawable.missing) // エラー時のフォールバック画像を設定
 
                 // クラウドゲームの場合はブラー効果を適用
@@ -554,12 +723,15 @@ class GameSelectFragmentPhone : Fragment(),
             } else {
                 Glide.with(requireContext())
                     .load(gameInfo.image_url?.let { File(it) })
+                    .placeholder(placeholderDrawable) // 読み込み中は透明
+                    .error(R.drawable.missing) // エラー時のフォールバック画像を設定
                     .into(boxartImage)
             }
         } else {
             // Glideを使ってエラー画像を設定（setImageResourceは使わない）
             Glide.with(boxartImage)
                 .load(R.drawable.missing)
+                .placeholder(placeholderDrawable) // 読み込み中は透明
                 .into(boxartImage)
         }
     }
@@ -984,8 +1156,7 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view,savedInstanceState)
+    private fun setupUI(view: View, savedInstanceState: Bundle?) {
         val activity = requireActivity() as AppCompatActivity
         firebaseAnalytics = FirebaseAnalytics.getInstance(activity)
         val application = activity.application as YabauseApplication

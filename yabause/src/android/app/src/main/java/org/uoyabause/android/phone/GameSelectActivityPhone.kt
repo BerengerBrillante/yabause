@@ -26,6 +26,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
@@ -174,6 +175,22 @@ class GameSelectActivityPhone : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        android.util.Log.d("GameSelectActivity", "Activity onKeyDown: keyCode=$keyCode")
+
+        // D-pad navigation events をFragmentに委譲
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP ||
+            keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+            keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+            keyCode == KeyEvent.KEYCODE_ENTER) {
+            if (::frg_.isInitialized && frg_.onKeyDown(keyCode, event)) {
+                android.util.Log.d("GameSelectActivity", "Key event handled by fragment")
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onPause() {

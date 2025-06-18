@@ -391,6 +391,13 @@ data class GameInfo(
             } catch (e: FileNotFoundException) {
             } catch (e: IOException) {
             }
+        } else {
+            // Handle other file types (ISO, BIN, IMG, etc.)
+            val file = File(file_path)
+            if (file.exists()) {
+                file.delete()
+            }
+            YabauseStorage.dao.delete(this)
         }
     }
 

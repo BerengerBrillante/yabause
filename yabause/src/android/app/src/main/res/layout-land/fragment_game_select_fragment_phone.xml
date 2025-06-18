@@ -127,8 +127,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view_games"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1.0"
+                    android:layout_height="match_parent"
                     android:background="@color/default_background" />
 
             </LinearLayout>
@@ -156,13 +155,11 @@
                         android:id="@+id/selected_game_version"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
                         android:layout_marginEnd="16dp"
                         android:layout_weight="1"
-                        android:gravity="center_vertical"
-                        android:text="Device Info"
+                        android:textAlignment="center"
                         android:textColor="@color/colorAccent"
-                        android:textSize="14sp"  />
+                        android:textSize="14sp" />
 
 
                     <!-- Play button -->
@@ -194,26 +191,33 @@
                 <!-- Boxart display area -->
                 <FrameLayout
                     android:id="@+id/boxart_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start|top"
+                    android:layout_margin="12dp"
                     android:background="@color/default_background"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    >
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:forceHasOverlappingRendering="false"
+                    android:paddingLeft="64dp"
+                    android:paddingTop="4dp"
+                    android:paddingRight="64dp"
+                    android:paddingBottom="84dp">
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="start|top"
+                        android:minWidth="200dp"
+                        android:minHeight="300dp"
+                        app:cardBackgroundColor="@color/default_background"
                         app:cardCornerRadius="8dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="0dp">
 
                         <ImageView
                             android:id="@+id/boxart_image"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:adjustViewBounds="true"
                             android:scaleType="fitCenter"
                             android:src="@drawable/missing" />

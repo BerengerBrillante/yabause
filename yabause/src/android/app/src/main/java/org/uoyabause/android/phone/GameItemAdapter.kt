@@ -589,9 +589,6 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                                             notifyItemRemoved(position)
                                         }
                                     }
-
-
-                                    notifyItemRemoved(position)
                                 }
                                 .setNegativeButton(R.string.no) { _, _ ->
                                 }

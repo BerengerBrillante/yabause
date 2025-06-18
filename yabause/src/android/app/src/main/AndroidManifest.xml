@@ -177,7 +177,6 @@
 
         <activity
             android:name="org.uoyabause.android.phone.GameSelectActivityPhone"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:label="@string/title_activity_game_select_phone"
             android:theme="@style/AppTheme">
 
