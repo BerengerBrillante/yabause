@@ -1339,11 +1339,11 @@ class GameSelectFragmentPhone : Fragment(),
         drawerToggle.onConfigurationChanged(newConfig)
 
         // 画面の向きに応じてRecyclerViewのレイアウトを変更
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            recyclerView.layoutManager = GridLayoutManager(context, 2)
-        } else {
-            recyclerView.layoutManager = LinearLayoutManager(context)
-        }
+        //if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        //    recyclerView.layoutManager = GridLayoutManager(context, 2)
+        //} else {
+        //    recyclerView.layoutManager = LinearLayoutManager(context)
+        //}
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean { // Pass the event to ActionBarDrawerToggle, if it returns
