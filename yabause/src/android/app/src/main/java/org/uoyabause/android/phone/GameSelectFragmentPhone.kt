@@ -29,6 +29,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.provider.DocumentsContract
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
@@ -287,6 +288,68 @@ class GameSelectFragmentPhone : Fragment(),
                 }
             }
         }
+    }
+
+    // Permission request launcher for SAF write permissions
+    private var permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                // Take persistable permission
+                try {
+                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
+                    Log.d(TAG, "Successfully obtained write permission for URI: $uri")
+
+                    // Notify pending deletion callback
+                    pendingDeletionCallback?.invoke(true)
+                    pendingDeletionCallback = null
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to take persistable permission: ${e.message}")
+                    pendingDeletionCallback?.invoke(false)
+                    pendingDeletionCallback = null
+                }
+            } else {
+                Log.w(TAG, "No URI returned from permission request")
+                pendingDeletionCallback?.invoke(false)
+                pendingDeletionCallback = null
+            }
+        } else {
+            Log.w(TAG, "Permission request cancelled or failed")
+            pendingDeletionCallback?.invoke(false)
+            pendingDeletionCallback = null
+        }
+    }
+
+    // Callback for pending deletion operations
+    private var pendingDeletionCallback: ((Boolean) -> Unit)? = null
+
+    /**
+     * Request write permission for SAF URI
+     */
+    fun requestWritePermission(uri: Uri, callback: (Boolean) -> Unit) {
+        pendingDeletionCallback = callback
+
+        // Show dialog to explain why permission is needed
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.permission_required))
+            .setMessage(getString(R.string.write_permission_explanation))
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // Launch document tree picker to get write permission
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    // Try to start with the same directory if possible
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+                    }
+                }
+                permissionRequestLauncher.launch(intent)
+            }
+            .setNegativeButton(R.string.cancel) { _, _ ->
+                callback(false)
+                pendingDeletionCallback = null
+            }
+            .show()
     }
 
     private fun selectGameFile(){

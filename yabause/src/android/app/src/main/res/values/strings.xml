@@ -482,6 +482,8 @@
     <string name="fail_to_initialize_emulator">Fail to initialize emulator</string>
     <string name="notification_permission_title">Request for Notification Permission</string>
     <string name="notification_permission_message">By allowing notifications, you will receive news from the developer.</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="write_permission_explanation">Write permission is required to delete game files. Please select the folder containing your game files to grant permission.</string>
     <string name="report_notice">
         &lt;h2&gt; Post your review!&lt;/h2&gt; &lt;br&gt; Note: Your review content, username, and profile icon will be publicly visible. Before posting please check the &lt;a href="https://www.yabasanshiro.com/privacy"&gt;privacy policy&lt;/a&gt;.
     </string>

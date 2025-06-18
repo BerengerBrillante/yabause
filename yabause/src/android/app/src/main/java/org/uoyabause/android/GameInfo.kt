@@ -19,10 +19,13 @@
 package org.uoyabause.android
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -66,6 +69,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.lang.Exception
 import java.lang.StringBuilder
 import java.net.Authenticator
@@ -137,6 +141,13 @@ interface GameInfoDao{
 
     @Query("SELECT * FROM GameInfo ORDER BY game_title ASC")
     fun getAllSortedByTitle(): List<GameInfo>
+}
+
+/**
+ * Interface for handling permission requests during file deletion
+ */
+interface PermissionRequestCallback {
+    fun onPermissionRequired(uri: Uri, message: String): Boolean
 }
 
 /**
@@ -337,67 +348,346 @@ data class GameInfo(
         }
     }
 
-    fun removeInstance( ) {
+    /**
+     * Check if the app has write permission for the given content URI
+     */
+    private fun hasWritePermissionForUri(uri: Uri): Boolean {
+        val context = YabauseApplication.appContext
+        return try {
+            // Check if we have persistable permission for this URI
+            val persistedUris = context.contentResolver.persistedUriPermissions
+            val hasPersistedPermission = persistedUris.any { permission ->
+                permission.uri == uri && permission.isWritePermission
+            }
 
+            if (hasPersistedPermission) {
+                Log.d("GameInfo", "Has persisted write permission for URI: $uri")
+                return true
+            }
+
+            // Check if DocumentFile can write
+            val documentFile = DocumentFile.fromSingleUri(context, uri)
+            val canWrite = documentFile?.canWrite() ?: false
+            Log.d("GameInfo", "DocumentFile canWrite: $canWrite for URI: $uri")
+
+            canWrite
+        } catch (e: Exception) {
+            Log.e("GameInfo", "Error checking write permission for URI: $uri, error: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Check if the app has write permission for the parent directory of the given content URI
+     */
+    private fun hasWritePermissionForParentUri(parentUri: Uri): Boolean {
+        val context = YabauseApplication.appContext
+        return try {
+            // Check if we have persistable permission for the parent URI
+            val persistedUris = context.contentResolver.persistedUriPermissions
+            val hasPersistedPermission = persistedUris.any { permission ->
+                permission.uri == parentUri && permission.isWritePermission
+            }
+
+            if (hasPersistedPermission) {
+                Log.d("GameInfo", "Has persisted write permission for parent URI: $parentUri")
+                return true
+            }
+
+            // Check if DocumentFile can write
+            val parentDir = DocumentFile.fromTreeUri(context, parentUri)
+            val canWrite = parentDir?.canWrite() ?: false
+            Log.d("GameInfo", "Parent DocumentFile canWrite: $canWrite for URI: $parentUri")
+
+            canWrite
+        } catch (e: Exception) {
+            Log.e("GameInfo", "Error checking write permission for parent URI: $parentUri, error: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Request write permission for the given URI by launching document tree picker
+     * This method should be called from an Activity context
+     */
+    private fun requestWritePermission(uri: Uri, callback: PermissionRequestCallback? = null): Boolean {
+        Log.w("GameInfo", "Write permission not available for URI: $uri")
+
+        val message = "Write permission is required to delete files. Please grant permission through the file picker."
+        return callback?.onPermissionRequired(uri, message) ?: run {
+            Log.w("GameInfo", "No permission callback provided. Cannot request permission.")
+            false
+        }
+    }
+
+    fun removeInstance(permissionCallback: PermissionRequestCallback? = null) {
+        val isContentUri = file_path.startsWith("content://")
         val fname = file_path.uppercase(Locale.getDefault())
-        if (fname.endsWith("CHD")) {
-            val file = File(file_path)
-            if (file.exists()) {
-                file.delete()
-            }
-            YabauseStorage.dao.delete(this)
-        } else if (fname.endsWith("CCD") || fname.endsWith("MDS")) {
-            val file = File(file_path)
-            val dir = file.parentFile
-            var searchName = file.name
-            searchName = searchName.replace(".(?i)ccd".toRegex(), "")
-            searchName = searchName.replace(".(?i)mds".toRegex(), "")
-            val searchNamef = searchName
-            val matchingFiles = dir?.listFiles { _, name -> name.startsWith(searchNamef) }
-            if( matchingFiles != null ) {
-                for (removefile in matchingFiles) {
-                    if (removefile.exists()) {
-                        removefile.delete()
-                    }
+
+        if (isContentUri) {
+            // Handle content:// URIs
+            val uri = Uri.parse(file_path)
+            val context = YabauseApplication.appContext
+
+            // Check write permission before attempting deletion
+            if (!hasWritePermissionForUri(uri)) {
+                Log.e("GameInfo", "No write permission for URI: $uri")
+                if (!requestWritePermission(uri, permissionCallback)) {
+                    Log.e("GameInfo", "Cannot delete file without write permission: $uri")
+                    // Still remove from database even if file deletion fails
+                    YabauseStorage.dao.delete(this)
+                    return
                 }
             }
-            YabauseStorage.dao.delete(this)
-        } else if (fname.endsWith("CUE")) {
-            val delete_files: MutableList<String> = ArrayList()
-            try {
-                val filereader = FileReader(file_path)
-                val br = BufferedReader(filereader)
-                var str = br.readLine()
-                while (str != null) {
-                    //System.out.println(str);
-                    val p = Pattern.compile("FILE \"(.*)\"")
-                    val m = p.matcher(str)
-                    if (m.find()) {
-                        m.group(1)?.let { delete_files.add(it) }
+
+            if (fname.endsWith("CHD")) {
+                // For CHD files, just delete the main file
+                try {
+                    val documentFile = DocumentFile.fromSingleUri(context, uri)
+                    if (documentFile != null && documentFile.exists()) {
+                        if (documentFile.canWrite()) {
+                            val deleted = documentFile.delete()
+                            Log.d("GameInfo", "Content URI deletion result: $deleted")
+                            if (!deleted) {
+                                Log.w("GameInfo", "Failed to delete file via DocumentFile, trying ContentResolver")
+                                val deletedViaResolver = context.contentResolver.delete(uri, null, null)
+                                Log.d("GameInfo", "ContentResolver deletion result: $deletedViaResolver")
+                            }
+                        } else {
+                            Log.e("GameInfo", "No write permission for file: $uri")
+                        }
+                    } else {
+                        Log.e("GameInfo", "File does not exist or cannot be accessed: $uri")
                     }
-                    str = br.readLine()
+                } catch (e: Exception) {
+                    Log.e("GameInfo", "Failed to delete content URI: ${e.message}")
                 }
-                br.close()
-                val file = File(file_path)
-                for (removefile in delete_files) {
-                    val delname = file.parentFile?.absolutePath + "/" + removefile
-                    val f = File(delname)
-                    if (f.exists()) {
-                        f.delete()
-                    }
-                }
-                file.delete()
                 YabauseStorage.dao.delete(this)
-            } catch (e: FileNotFoundException) {
-            } catch (e: IOException) {
+            } else if (fname.endsWith("CCD") || fname.endsWith("MDS")) {
+                // For CCD/MDS files, find and delete related files
+                try {
+                    val documentFile = DocumentFile.fromSingleUri(context, uri)
+                    val parentUri = Uri.parse(iso_file_path) // iso_file_path contains the directory URI
+                    val parentDir = DocumentFile.fromTreeUri(context, parentUri)
+
+                    // Check write permission for parent directory
+                    if (!hasWritePermissionForParentUri(parentUri)) {
+                        Log.e("GameInfo", "No write permission for parent directory: $parentUri")
+                        if (!requestWritePermission(parentUri, permissionCallback)) {
+                            Log.e("GameInfo", "Cannot delete CCD/MDS files without write permission")
+                            YabauseStorage.dao.delete(this)
+                            return
+                        }
+                    }
+
+                    if (parentDir != null && documentFile != null && parentDir.canWrite()) {
+                        val baseName = documentFile.name?.let { name ->
+                            name.replace(".(?i)ccd".toRegex(), "")
+                                .replace(".(?i)mds".toRegex(), "")
+                        }
+
+                        if (baseName != null) {
+                            // Find and delete all files with the same base name
+                            val filesToDelete = parentDir.listFiles().filter { file ->
+                                file.name?.startsWith(baseName) == true
+                            }
+
+                            for (fileToDelete in filesToDelete) {
+                                try {
+                                    if (fileToDelete.canWrite()) {
+                                        val deleted = fileToDelete.delete()
+                                        Log.d("GameInfo", "Deleted related file ${fileToDelete.name}: $deleted")
+                                        if (!deleted) {
+                                            Log.w("GameInfo", "Failed to delete ${fileToDelete.name} via DocumentFile, trying ContentResolver")
+                                            val deletedViaResolver = context.contentResolver.delete(fileToDelete.uri, null, null)
+                                            Log.d("GameInfo", "ContentResolver deletion result for ${fileToDelete.name}: $deletedViaResolver")
+                                        }
+                                    } else {
+                                        Log.e("GameInfo", "No write permission for related file: ${fileToDelete.name}")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("GameInfo", "Failed to delete related file ${fileToDelete.name}: ${e.message}")
+                                }
+                            }
+                        }
+                    } else {
+                        Log.e("GameInfo", "Parent directory not accessible or no write permission")
+                    }
+                } catch (e: Exception) {
+                    Log.e("GameInfo", "Failed to delete CCD/MDS files: ${e.message}")
+                }
+                YabauseStorage.dao.delete(this)
+            } else if (fname.endsWith("CUE")) {
+                // For CUE files, read the content and delete referenced files
+                try {
+                    val delete_files: MutableList<String> = ArrayList()
+
+                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                            var line = reader.readLine()
+                            while (line != null) {
+                                val p = Pattern.compile("FILE \"(.*)\"")
+                                val m = p.matcher(line)
+                                if (m.find()) {
+                                    m.group(1)?.let { delete_files.add(it) }
+                                }
+                                line = reader.readLine()
+                            }
+                        }
+                    }
+
+                    // Delete referenced files
+                    val parentUri = Uri.parse(iso_file_path) // iso_file_path contains the directory URI
+                    val parentDir = DocumentFile.fromTreeUri(context, parentUri)
+
+                    // Check write permission for parent directory
+                    if (!hasWritePermissionForParentUri(parentUri)) {
+                        Log.e("GameInfo", "No write permission for parent directory: $parentUri")
+                        if (!requestWritePermission(parentUri, permissionCallback)) {
+                            Log.e("GameInfo", "Cannot delete CUE files without write permission")
+                            YabauseStorage.dao.delete(this)
+                            return
+                        }
+                    }
+
+                    if (parentDir != null && parentDir.canWrite()) {
+                        for (fileName in delete_files) {
+                            val fileToDelete = parentDir.findFile(fileName)
+                            if (fileToDelete != null) {
+                                try {
+                                    if (fileToDelete.canWrite()) {
+                                        val deleted = fileToDelete.delete()
+                                        Log.d("GameInfo", "Deleted referenced file $fileName: $deleted")
+                                        if (!deleted) {
+                                            Log.w("GameInfo", "Failed to delete $fileName via DocumentFile, trying ContentResolver")
+                                            val deletedViaResolver = context.contentResolver.delete(fileToDelete.uri, null, null)
+                                            Log.d("GameInfo", "ContentResolver deletion result for $fileName: $deletedViaResolver")
+                                        }
+                                    } else {
+                                        Log.e("GameInfo", "No write permission for referenced file: $fileName")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("GameInfo", "Failed to delete referenced file $fileName: ${e.message}")
+                                }
+                            } else {
+                                Log.w("GameInfo", "Referenced file not found: $fileName")
+                            }
+                        }
+                    } else {
+                        Log.e("GameInfo", "Parent directory not accessible or no write permission")
+                    }
+
+                    // Delete the CUE file itself
+                    val cueDocumentFile = DocumentFile.fromSingleUri(context, uri)
+                    if (cueDocumentFile != null && cueDocumentFile.exists()) {
+                        if (cueDocumentFile.canWrite()) {
+                            val deleted = cueDocumentFile.delete()
+                            Log.d("GameInfo", "Deleted CUE file: $deleted")
+                            if (!deleted) {
+                                Log.w("GameInfo", "Failed to delete CUE file via DocumentFile, trying ContentResolver")
+                                val deletedViaResolver = context.contentResolver.delete(uri, null, null)
+                                Log.d("GameInfo", "ContentResolver deletion result for CUE file: $deletedViaResolver")
+                            }
+                        } else {
+                            Log.e("GameInfo", "No write permission for CUE file")
+                        }
+                    } else {
+                        Log.e("GameInfo", "CUE file does not exist or cannot be accessed")
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("GameInfo", "Failed to delete CUE files: ${e.message}")
+                }
+                YabauseStorage.dao.delete(this)
+            } else {
+                // Handle other content:// file types
+                try {
+                    val documentFile = DocumentFile.fromSingleUri(context, uri)
+                    if (documentFile != null && documentFile.exists()) {
+                        if (documentFile.canWrite()) {
+                            val deleted = documentFile.delete()
+                            Log.d("GameInfo", "Content URI deletion result: $deleted")
+                            if (!deleted) {
+                                Log.w("GameInfo", "Failed to delete file via DocumentFile, trying ContentResolver")
+                                val deletedViaResolver = context.contentResolver.delete(uri, null, null)
+                                Log.d("GameInfo", "ContentResolver deletion result: $deletedViaResolver")
+                            }
+                        } else {
+                            Log.e("GameInfo", "No write permission for file: $uri")
+                        }
+                    } else {
+                        Log.e("GameInfo", "File does not exist or cannot be accessed: $uri")
+                    }
+                } catch (e: Exception) {
+                    Log.e("GameInfo", "Failed to delete content URI: ${e.message}")
+                }
+                YabauseStorage.dao.delete(this)
             }
         } else {
-            // Handle other file types (ISO, BIN, IMG, etc.)
-            val file = File(file_path)
-            if (file.exists()) {
-                file.delete()
+            // Handle regular file:// paths (existing logic)
+            if (fname.endsWith("CHD")) {
+                val file = File(file_path)
+                if (file.exists()) {
+                    file.delete()
+                }
+                YabauseStorage.dao.delete(this)
+            } else if (fname.endsWith("CCD") || fname.endsWith("MDS")) {
+                val file = File(file_path)
+                val dir = file.parentFile
+                var searchName = file.name
+                searchName = searchName.replace(".(?i)ccd".toRegex(), "")
+                searchName = searchName.replace(".(?i)mds".toRegex(), "")
+                val searchNamef = searchName
+                val matchingFiles = dir?.listFiles { _, name -> name.startsWith(searchNamef) }
+                if( matchingFiles != null ) {
+                    for (removefile in matchingFiles) {
+                        if (removefile.exists()) {
+                            removefile.delete()
+                        }
+                    }
+                }
+                YabauseStorage.dao.delete(this)
+            } else if (fname.endsWith("CUE")) {
+                val delete_files: MutableList<String> = ArrayList()
+                try {
+                    val filereader = FileReader(file_path)
+                    val br = BufferedReader(filereader)
+                    var str = br.readLine()
+                    while (str != null) {
+                        //System.out.println(str);
+                        val p = Pattern.compile("FILE \"(.*)\"")
+                        val m = p.matcher(str)
+                        if (m.find()) {
+                            m.group(1)?.let { delete_files.add(it) }
+                        }
+                        str = br.readLine()
+                    }
+                    br.close()
+                    val file = File(file_path)
+                    for (removefile in delete_files) {
+                        val delname = file.parentFile?.absolutePath + "/" + removefile
+                        val f = File(delname)
+                        if (f.exists()) {
+                            f.delete()
+                        }
+                    }
+                    file.delete()
+                    YabauseStorage.dao.delete(this)
+                } catch (e: FileNotFoundException) {
+                } catch (e: IOException) {
+                }
+            } else {
+                // Handle other file types (ISO, BIN, IMG, etc.)
+                val file = File(file_path)
+                if (file.exists()) {
+                    Log.d("GameInfo", "Deleting file: ${file.absolutePath}")
+                    val deleted = file.delete()
+                    Log.d("GameInfo", "File deletion result: $deleted")
+                } else {
+                    Log.d("GameInfo", "File does not exist: ${file.absolutePath}")
+                }
+                YabauseStorage.dao.delete(this)
             }
-            YabauseStorage.dao.delete(this)
         }
     }
 

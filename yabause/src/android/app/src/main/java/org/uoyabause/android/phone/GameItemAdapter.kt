@@ -580,14 +580,79 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
 
                                     var game_info = dataSet?.get(position)!!
 
-                                    GlobalScope.launch(Dispatchers.IO) {
-                                        YabauseStorage.dao.delete(game_info)
-                                        game_info.removeInstance()
-                                        withContext(Dispatchers.Main) {
-                                            dataSet.removeAt(position)
-                                            mListener?.onGameRemoved(game_info)
-                                            notifyItemRemoved(position)
+                                    // Store the game info and position for retry after permission is granted
+                                    val gameToDelete = game_info
+                                    val positionToDelete = position
+
+                                    // Function to perform the actual deletion
+                                    fun performDeletion() {
+                                        GlobalScope.launch(Dispatchers.IO) {
+                                            gameToDelete.removeInstance(null) // No callback needed for retry
+                                            withContext(Dispatchers.Main) {
+                                                dataSet!!.removeAt(positionToDelete)
+                                                mListener?.onGameRemoved(gameToDelete)
+                                                notifyItemRemoved(positionToDelete)
+                                            }
                                         }
+                                    }
+
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        // Create permission callback for SAF permission requests
+                                        val permissionCallback = object : org.uoyabause.android.PermissionRequestCallback {
+                                            override fun onPermissionRequired(uri: android.net.Uri, message: String): Boolean {
+                                                // Log the permission requirement
+                                                android.util.Log.w("GameItemAdapter", "Permission required for URI: $uri")
+                                                android.util.Log.w("GameItemAdapter", "Message: $message")
+
+                                                // Request permission on main thread
+                                                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                                    // Get the fragment instance to request permission
+                                                    val activity = view.context as? androidx.appcompat.app.AppCompatActivity
+                                                    val fragment = activity?.supportFragmentManager?.findFragmentByTag("GameSelectFragmentPhone")
+                                                        ?: activity?.supportFragmentManager?.fragments?.find { it is GameSelectFragmentPhone }
+
+                                                    if (fragment is GameSelectFragmentPhone) {
+                                                        fragment.requestWritePermission(uri) { permissionGranted ->
+                                                            if (permissionGranted) {
+                                                                android.util.Log.d("GameItemAdapter", "Permission granted, retrying deletion")
+                                                                // Permission granted, retry deletion
+                                                                performDeletion()
+                                                            } else {
+                                                                android.util.Log.w("GameItemAdapter", "Permission denied, performing database-only deletion")
+                                                                // Permission denied, show message and perform database-only deletion
+                                                                android.widget.Toast.makeText(
+                                                                    view.context,
+                                                                    "File deletion failed due to permission. Removed from game list only.",
+                                                                    android.widget.Toast.LENGTH_LONG
+                                                                ).show()
+
+                                                                // Remove from database only
+                                                                GlobalScope.launch(Dispatchers.IO) {
+                                                                    org.uoyabause.android.YabauseStorage.dao.delete(gameToDelete)
+                                                                    withContext(Dispatchers.Main) {
+                                                                        dataSet!!.removeAt(positionToDelete)
+                                                                        mListener?.onGameRemoved(gameToDelete)
+                                                                        notifyItemRemoved(positionToDelete)
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    } else {
+                                                        android.util.Log.e("GameItemAdapter", "Could not find GameSelectFragmentPhone to request permission")
+                                                        android.widget.Toast.makeText(
+                                                            view.context,
+                                                            "Cannot delete file: $message",
+                                                            android.widget.Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                                }
+
+                                                // Return false to indicate permission request is in progress
+                                                return false
+                                            }
+                                        }
+
+                                        gameToDelete.removeInstance(permissionCallback)
                                     }
                                 }
                                 .setNegativeButton(R.string.no) { _, _ ->
