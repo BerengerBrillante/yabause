@@ -592,6 +592,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                                                 dataSet!!.removeAt(positionToDelete)
                                                 mListener?.onGameRemoved(gameToDelete)
                                                 notifyItemRemoved(positionToDelete)
+                                                // Auto-select next game after deletion
+                                                selectNextGameAfterDeletion(positionToDelete)
                                             }
                                         }
                                     }
@@ -633,6 +635,8 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                                                                         dataSet!!.removeAt(positionToDelete)
                                                                         mListener?.onGameRemoved(gameToDelete)
                                                                         notifyItemRemoved(positionToDelete)
+                                                                        // Auto-select next game after deletion
+                                                                        selectNextGameAfterDeletion(positionToDelete)
                                                                     }
                                                                 }
                                                             }
@@ -652,7 +656,17 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
                                             }
                                         }
 
+                                        // Delete file and update UI
                                         gameToDelete.removeInstance(permissionCallback)
+                                        
+                                        // After deletion, update UI on main thread
+                                        withContext(Dispatchers.Main) {
+                                            dataSet!!.removeAt(positionToDelete)
+                                            mListener?.onGameRemoved(gameToDelete)
+                                            notifyItemRemoved(positionToDelete)
+                                            // Auto-select next game after deletion
+                                            selectNextGameAfterDeletion(positionToDelete)
+                                        }
                                     }
                                 }
                                 .setNegativeButton(R.string.no) { _, _ ->
@@ -677,6 +691,31 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
         if (index != null && index != -1) {
             dataSet?.removeAt(index)
             notifyItemRemoved(index)
+            // Auto-select next game after deletion
+            selectNextGameAfterDeletion(index)
+        }
+    }
+
+    private fun selectNextGameAfterDeletion(deletedPosition: Int) {
+        if (dataSet.isNullOrEmpty()) {
+            // No games left, clear selection
+            selectedPosition = -1
+            mListener?.onItemSelected(-1, null)
+            return
+        }
+
+        // Select the next available game
+        val newPosition = when {
+            // If deleted game was at the end, select the previous game
+            deletedPosition >= dataSet!!.size -> dataSet!!.size - 1
+            // Otherwise, select the game that moved to the deleted position
+            else -> deletedPosition
+        }
+
+        if (newPosition >= 0 && newPosition < dataSet!!.size) {
+            selectedPosition = newPosition
+            notifyItemChanged(newPosition)
+            mListener?.onItemSelected(newPosition, dataSet!![newPosition])
         }
     }
 

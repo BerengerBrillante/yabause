@@ -24,6 +24,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.provider.DocumentsContract
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.ColumnInfo
@@ -354,18 +355,32 @@ data class GameInfo(
     private fun hasWritePermissionForUri(uri: Uri): Boolean {
         val context = YabauseApplication.appContext
         return try {
-            // Check if we have persistable permission for this URI
+            // For content URIs, we need to check if we have permission for the parent tree URI
             val persistedUris = context.contentResolver.persistedUriPermissions
-            val hasPersistedPermission = persistedUris.any { permission ->
+            
+            // First check if we have direct permission for this URI
+            val hasDirectPermission = persistedUris.any { permission ->
                 permission.uri == uri && permission.isWritePermission
             }
 
-            if (hasPersistedPermission) {
-                Log.d("GameInfo", "Has persisted write permission for URI: $uri")
+            if (hasDirectPermission) {
+                Log.d("GameInfo", "Has direct persisted write permission for URI: $uri")
                 return true
             }
 
-            // Check if DocumentFile can write
+            // For single file URIs, check if we have permission for any parent tree URI
+            val hasTreePermission = persistedUris.any { permission ->
+                permission.isWritePermission && 
+                DocumentsContract.isTreeUri(permission.uri) &&
+                isUriUnderTree(uri, permission.uri)
+            }
+
+            if (hasTreePermission) {
+                Log.d("GameInfo", "Has tree write permission covering URI: $uri")
+                return true
+            }
+
+            // Check if DocumentFile can write as a fallback
             val documentFile = DocumentFile.fromSingleUri(context, uri)
             val canWrite = documentFile?.canWrite() ?: false
             Log.d("GameInfo", "DocumentFile canWrite: $canWrite for URI: $uri")
@@ -374,6 +389,47 @@ data class GameInfo(
         } catch (e: Exception) {
             Log.e("GameInfo", "Error checking write permission for URI: $uri, error: ${e.message}")
             false
+        }
+    }
+
+    /**
+     * Check if a file URI is under a tree URI
+     */
+    private fun isUriUnderTree(fileUri: Uri, treeUri: Uri): Boolean {
+        return try {
+            val context = YabauseApplication.appContext
+            
+            // Get the document ID from the file URI
+            val fileDocumentId = DocumentsContract.getDocumentId(fileUri)
+            
+            // Get the tree document ID from the tree URI
+            val treeDocumentId = DocumentsContract.getTreeDocumentId(treeUri)
+            
+            // Check if the file document ID starts with the tree document ID
+            val isUnderTree = fileDocumentId.startsWith(treeDocumentId)
+            
+            Log.d("GameInfo", "Checking if file URI is under tree:")
+            Log.d("GameInfo", "  File URI: $fileUri")
+            Log.d("GameInfo", "  Tree URI: $treeUri")
+            Log.d("GameInfo", "  File document ID: $fileDocumentId")
+            Log.d("GameInfo", "  Tree document ID: $treeDocumentId")
+            Log.d("GameInfo", "  Is under tree: $isUnderTree")
+            
+            isUnderTree
+        } catch (e: Exception) {
+            Log.e("GameInfo", "Error checking if URI is under tree: ${e.message}")
+            // Fallback: try to use DocumentFile to check if the tree can access the file
+            try {
+                val context = YabauseApplication.appContext
+                val treeDocumentFile = DocumentFile.fromTreeUri(context, treeUri)
+                val fileDocumentFile = DocumentFile.fromSingleUri(context, fileUri)
+                
+                // If both can be resolved, there's a good chance they're related
+                treeDocumentFile != null && fileDocumentFile != null
+            } catch (fallbackException: Exception) {
+                Log.e("GameInfo", "Fallback check also failed: ${fallbackException.message}")
+                false
+            }
         }
     }
 

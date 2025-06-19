@@ -194,6 +194,7 @@ class GameSelectFragmentPhone : Fragment(),
     private var lastScrollTime = 0L // スクロール更新の間引き用
     private var isDPadNavigating = false // D-pad navigation mode flag
     private var lastInputSource = 0 // Track last input source to distinguish touch vs D-pad
+    private var isManuallySelected = false // 手動/削除後選択フラグ
 
     private var isBillingConnected = false
     private val viewModel by viewModels<BillingViewModel>()
@@ -398,6 +399,10 @@ class GameSelectFragmentPhone : Fragment(),
             if (isDPadNavigating && event.action == android.view.MotionEvent.ACTION_DOWN) {
                 Log.d(TAG, "Touch detected, switching from D-pad to touch navigation mode")
                 isDPadNavigating = false
+            }
+            // タッチ操作時に手動選択フラグをリセット（スクロール操作による自動選択を再開）
+            if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                isManuallySelected = false
             }
             false // イベントを消費しない
         }
@@ -1600,6 +1605,14 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
     override fun onItemSelected(position: Int, item: GameInfo?) {
+        // 削除後の選択や手動選択の場合、フラグを設定
+        if (!isAutoSelecting) {
+            isManuallySelected = true
+            // 一定時間後にフラグをリセット（スクロール時の自動選択を再開）
+            recyclerView.postDelayed({
+                isManuallySelected = false
+            }, 2000) // 2秒後にリセット
+        }
         updateBoxartDisplay(item)
         updateGameInfoSection(item)
     }
@@ -1625,6 +1638,11 @@ class GameSelectFragmentPhone : Fragment(),
 
     private fun selectTopVisibleItem() {
         if (!::recyclerView.isInitialized || !::gameAdapter.isInitialized) {
+            return
+        }
+
+        // 手動選択や削除後の選択がある場合は、自動選択をスキップ
+        if (isManuallySelected) {
             return
         }
 
