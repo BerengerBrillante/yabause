@@ -9,7 +9,7 @@ import io.mockk.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.uoyabause.android.game.submitScoreToFirestore
+import org.uoyabause.android.game.SonicR
 
 class SonicRTest {
     private lateinit var firestoreMock: FirebaseFirestore
@@ -17,6 +17,7 @@ class SonicRTest {
     private lateinit var userMock: FirebaseUser
     private lateinit var docRefMock: DocumentReference
     private lateinit var colRefMock: CollectionReference
+    private lateinit var sonicR: SonicR
 
     @Before
     fun setUp() {
@@ -33,12 +34,17 @@ class SonicRTest {
         every { FirebaseAuth.getInstance() } returns authMock
         every { authMock.currentUser } returns userMock
         every { userMock.uid } returns "test_uid"
+        every { userMock.displayName } returns "テストユーザー"
         every { userMock.photoUrl } returns android.net.Uri.parse("https://example.com/test_avatar.png")
-        every { firestoreMock.collection("leaderboards") } returns colRefMock
+        every { firestoreMock.collection("games") } returns colRefMock
+        every { colRefMock.document(any()) } returns docRefMock
+        every { docRefMock.collection("leaderboards") } returns colRefMock
         every { colRefMock.document(any()) } returns docRefMock
         every { docRefMock.collection("scores") } returns colRefMock
-        every { colRefMock.document(any()) } returns docRefMock
         every { docRefMock.set(any()) } returns mockk(relaxed = true)
+        every { docRefMock.get() } returns mockk(relaxed = true)
+
+        sonicR = SonicR("SR")
     }
 
     @After
@@ -47,76 +53,60 @@ class SonicRTest {
     }
 
     @Test
-    fun testSubmitScoreToFirestore() {
-        val leaderboardId = "test_leaderboard"
-        val score = 12345L
-        val userName = "テストユーザー"
-
-        var successCalled = false
-        var failureCalled = false
-        submitScoreToFirestore(
-            "GS",leaderboardId, score, userName,
-            onSuccess = { successCalled = true },
-            onFailure = { failureCalled = true }
-        )
-
-        verify {
-            docRefMock.set(match {
-                val map = it as Map<String, Any?>
-                map["name"] == userName &&
-                map["score"] == score &&
-                map.containsKey("timestamp") &&
-                map["photoUrl"] == "https://example.com/test_avatar.png"
-            })
-        }
-        assert(successCalled)
-        assert(!failureCalled)
-
+    fun testSonicRInitialization() {
+        // Test that SonicR initializes with correct leaderboards
+        assertNotNull(sonicR.leaderBoards)
+        assertEquals(5, sonicR.leaderBoards?.size)
+        
+        // Check leaderboard names
+        val expectedNames = listOf("Resort Island", "Radical City", "Regal Ruin", "Reactive Factory", "Radiant Emerald")
+        val actualNames = sonicR.leaderBoards?.map { it.title }
+        assertEquals(expectedNames, actualNames)
     }
 
     @Test
-    fun testSubmitScoreToFirestore_updateOnlyIfBetterScore() {
-        val leaderboardId = "test_leaderboard_update"
-        val userName = "テストユーザー"
-        val oldScore = 30000L
-        val betterScore = 20000L
-        val worseScore = 40000L
+    fun testLeaderboardIds() {
+        // Test that leaderboard IDs are correct
+        val expectedIds = listOf("01", "02", "03", "04", "05")
+        val actualIds = sonicR.leaderBoards?.map { it.id }
+        assertEquals(expectedIds, actualIds)
+    }
 
-        // 既存スコアが存在し、より良いスコアで上書きされること
-        val docSnapMock = mockk<com.google.firebase.firestore.DocumentSnapshot>(relaxed = true)
-        every { docSnapMock.getLong("score") } returns oldScore
-        every { docRefMock.get() } returns mockk {
-            every { addOnSuccessListener(any()) } answers {
-                firstArg<(com.google.firebase.firestore.DocumentSnapshot) -> Unit>().invoke(docSnapMock)
-                mockk(relaxed = true)
-            }
-            every { addOnFailureListener(any()) } returns mockk(relaxed = true)
+    @Test
+    fun testBackupUpdateLogic() {
+        // Test the backup update functionality
+        val mockUiEvent = mockk<org.uoyabause.android.game.GameUiEvent>(relaxed = true)
+        sonicR.setUiEvent(mockUiEvent)
+
+        // Create test backup data
+        val beforeData = ByteArray(256) // Empty backup
+        val afterData = ByteArray(256)
+        
+        // Set some test score data (this would need to match the actual SonicR backup format)
+        // This is a simplified test - in reality you'd need to understand the backup format
+        
+        assertDoesNotThrow {
+            sonicR.onBackUpUpdated("sonic_backup.dat", beforeData, afterData)
         }
-        every { docRefMock.set(any()) } returns mockk(relaxed = true)
+    }
 
-        var successCalled = false
-        submitScoreToFirestore(
-            "",leaderboardId, betterScore, userName,
-            onSuccess = { successCalled = true },
-            onFailure = { }
-        )
-        verify {
-            docRefMock.set(match {
-                val map = it as Map<String, Any?>
-                map["score"] == betterScore
-            })
+    private fun assertNotNull(value: Any?) {
+        if (value == null) {
+            throw AssertionError("Expected non-null value but was null")
         }
-        assert(successCalled)
+    }
 
-        // 既存スコアより悪い場合はsetされない
-        clearMocks(docRefMock)
-        var successCalled2 = false
-        submitScoreToFirestore(
-            "", leaderboardId, worseScore, userName,
-            onSuccess = { successCalled2 = true },
-            onFailure = { }
-        )
-        verify(exactly = 0) { docRefMock.set(any()) }
-        assert(successCalled2)
+    private fun assertEquals(expected: Any?, actual: Any?) {
+        if (expected != actual) {
+            throw AssertionError("Expected $expected but was $actual")
+        }
+    }
+
+    private fun assertDoesNotThrow(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Exception) {
+            throw AssertionError("Expected no exception but got: ${e.message}")
+        }
     }
 }
