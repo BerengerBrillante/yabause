@@ -195,6 +195,16 @@ class GameSelectActivityPhone : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        adView?.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView?.resume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         adView?.destroy()
     }
 
