@@ -195,6 +195,7 @@ class GameSelectFragmentPhone : Fragment(),
     private var isDPadNavigating = false // D-pad navigation mode flag
     private var lastInputSource = 0 // Track last input source to distinguish touch vs D-pad
     private var isManuallySelected = false // 手動/削除後選択フラグ
+    private var currentSortMode = SortMode.NAME // 現在のソート方法を追跡
 
     private var isBillingConnected = false
     private val viewModel by viewModels<BillingViewModel>()
@@ -666,14 +667,17 @@ class GameSelectFragmentPhone : Fragment(),
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.sort_by_name -> {
+                    currentSortMode = SortMode.NAME
                     gameAdapter.sortByName()
                     true
                 }
                 R.id.sort_by_date -> {
+                    currentSortMode = SortMode.DATE
                     gameAdapter.sortByDate()
                     true
                 }
                 R.id.sort_by_recently_played -> {
+                    currentSortMode = SortMode.RECENTLY_PLAYED
                     gameAdapter.sortByRecentlyPlayed()
                     true
                 }
@@ -1021,8 +1025,8 @@ class GameSelectFragmentPhone : Fragment(),
 
                     recyclerView.adapter = gameAdapter
 
-                    // 現在のソート順を維持
-                    gameAdapter.sortByRecentlyPlayed()
+                    // 現在のソート順を適用
+                    applySortMode()
                 }
             } catch (e: Exception) {
                 Log.d(TAG, e.localizedMessage ?: "Error updating recent games")
@@ -1588,8 +1592,8 @@ class GameSelectFragmentPhone : Fragment(),
                                 }
                             })
 
-                            // デフォルトでは名前順にソート
-                            gameAdapter.sortByName()
+                            // 現在のソート順を適用（デフォルトは名前順）
+                            applySortMode()
                         }
                     } catch (e: Exception) {
                         Log.d(TAG, "${e.localizedMessage}")
@@ -1837,6 +1841,24 @@ class GameSelectFragmentPhone : Fragment(),
                 e.printStackTrace()
             }
             return versionName
+        }
+    }
+
+    // ソートモードを定義する列挙型
+    private enum class SortMode {
+        NAME,
+        DATE,
+        RECENTLY_PLAYED
+    }
+
+    // 現在のソートモードを適用するメソッド
+    private fun applySortMode() {
+        if (::gameAdapter.isInitialized) {
+            when (currentSortMode) {
+                SortMode.NAME -> gameAdapter.sortByName()
+                SortMode.DATE -> gameAdapter.sortByDate()
+                SortMode.RECENTLY_PLAYED -> gameAdapter.sortByRecentlyPlayed()
+            }
         }
     }
 }

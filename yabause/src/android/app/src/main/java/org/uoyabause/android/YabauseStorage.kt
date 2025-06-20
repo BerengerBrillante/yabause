@@ -398,8 +398,12 @@ class YabauseStorage private constructor() {
 */
     fun checkAndRemoveDupe( gameinfo : GameInfo ){
         try {
-            var gameinfoInDb = dao.findByProductId(gameinfo.product_number,gameinfo.device_infomation)
+            val gameinfoInDb = dao.findByProductId(gameinfo.product_number,gameinfo.device_infomation)
             if (gameinfoInDb != null) {
+                // Preserve user-specific data from existing record
+                gameinfo.lastplay_date = gameinfoInDb.lastplay_date
+                gameinfo.rating = gameinfoInDb.rating
+                gameinfo.id = gameinfoInDb.id
                 dao.delete(gameinfoInDb)
             }
         }catch( e : Exception ){

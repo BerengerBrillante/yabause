@@ -751,16 +751,28 @@ class GameItemAdapter(private val originalDataSet: MutableList<GameInfo?>?) :
     fun sortByName() {
         dataSet?.sortBy { it?.game_title?.lowercase(Locale.getDefault()) }
         notifyDataSetChanged()
+        // ソート後に最初のアイテムを選択してBoxArtを更新
+        if (!dataSet.isNullOrEmpty()) {
+            setSelectedPosition(0)
+        }
     }
 
     fun sortByDate() {
         dataSet?.sortBy { it?.release_date }
         notifyDataSetChanged()
+        // ソート後に最初のアイテムを選択してBoxArtを更新
+        if (!dataSet.isNullOrEmpty()) {
+            setSelectedPosition(0)
+        }
     }
 
     fun sortByRecentlyPlayed() {
         dataSet?.sortByDescending { it?.lastplay_date }
         notifyDataSetChanged()
+        // ソート後に最初のアイテムを選択してBoxArtを更新
+        if (!dataSet.isNullOrEmpty()) {
+            setSelectedPosition(0)
+        }
     }
 
     // 現在のフィルタリング状態を維持したままソート
