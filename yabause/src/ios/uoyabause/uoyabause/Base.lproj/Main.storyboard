@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="361-BX-4a8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="361-BX-4a8">
     <device id="iPad13_0rounded" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -393,11 +393,11 @@
             <objects>
                 <viewController id="BV1-FR-VrT" customClass="GameViewController" customModule="YabaSnashiro" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="3se-qz-xqx" customClass="MGLKView">
-                        <rect key="frame" x="0.0" y="0.0" width="1376" height="1032"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1376" height="938"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" restorationIdentifier="start view" translatesAutoresizingMaskIntoConstraints="NO" id="7Cf-tj-1HN">
-                                <rect key="frame" x="651" y="969" width="74" height="45"/>
+                                <rect key="frame" x="651" y="875" width="74" height="45"/>
                                 <subviews>
                                     <view alpha="0.65000000000000002" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NnT-bI-EjB">
                                         <rect key="frame" x="0.0" y="0.0" width="74" height="45"/>
@@ -416,7 +416,7 @@
                                 </constraints>
                             </view>
                             <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" restorationIdentifier="Right" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9ZL-pX-o9L">
-                                <rect key="frame" x="1112" y="667" width="296" height="340"/>
+                                <rect key="frame" x="1112" y="573" width="296" height="340"/>
                                 <subviews>
                                     <view alpha="0.20000000000000001" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zJr-X4-ef5">
                                         <rect key="frame" x="185" y="185" width="68" height="66"/>
@@ -465,7 +465,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CPl-ov-b8z">
-                                <rect key="frame" x="-46" y="667" width="296" height="340"/>
+                                <rect key="frame" x="-46" y="573" width="296" height="340"/>
                                 <subviews>
                                     <view alpha="0.20000000000000001" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9oE-0a-kNO">
                                         <rect key="frame" x="76" y="249" width="171" height="43"/>
@@ -594,7 +594,7 @@
             <objects>
                 <viewController id="p9Z-S9-9Yz" customClass="GameMainViewController" customModule="YabaSnashiro" customModuleProvider="target" sceneMemberID="viewController">
                     <containerView key="view" opaque="NO" contentMode="scaleToFill" id="Pbc-ym-DPw">
-                        <rect key="frame" x="0.0" y="0.0" width="1376" height="1032"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1376" height="938"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <connections>
                             <segue destination="BV1-FR-VrT" kind="embed" id="dT3-1B-cGk"/>
@@ -608,7 +608,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="jv0-d9-rs8"/>
+        <segue reference="Gvh-n1-hjQ"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="baseline_menu_white_24pt" width="24" height="24"/>
@@ -622,10 +622,10 @@
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGray2Color">
-            <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.68235294117647061" green="0.68235294117647061" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

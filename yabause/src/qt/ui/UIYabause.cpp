@@ -54,6 +54,7 @@
 #include <QWindow>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QResource>
 
 #include <firebase/app.h>
 
@@ -62,6 +63,8 @@
 #include "vulkan/VIDVulkanCInterface.h"
 #endif
 #include "QYabVulkanWidget.h"
+
+#include "winsparkle.h"
 
 extern "C" {
 extern VideoInterface_struct *VIDCoreList[];
@@ -174,6 +177,9 @@ UIYabause::UIYabause( QWidget* parent )
 	connect( mouseCursorTimer, SIGNAL( timeout() ), this, SLOT( cursorRestore() ));
 	connect( mYabauseThread, SIGNAL( toggleEmulateMouse( bool ) ), this, SLOT( toggleEmulateMouse( bool ) ) );
 
+	connect(this, SIGNAL(windowWasShown()), this, SLOT(initWinSparkle()),
+		Qt::ConnectionType(Qt::QueuedConnection | Qt::UniqueConnection));
+
   //connect(this, SIGNAL(setStateFileLoaded(std::string)), this, SLOT(onStateFileLoaded(std::string)));
 
 	// Load shortcuts
@@ -238,6 +244,7 @@ UIYabause::UIYabause( QWidget* parent )
 
 UIYabause::~UIYabause()
 {
+	win_sparkle_cleanup();
 	mCanLog = false;
 }
 
@@ -294,10 +301,10 @@ void UIYabause::showEvent( QShowEvent* e )
 		LogChangeOutput( DEBUG_CALLBACK, (char*)qAppendLog );
 		VolatileSettings* vs = QtYabause::volatileSettings();
 
-		if ( vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
-			menubar->hide();
-		if ( vs->value( "View/Toolbar" ).toInt() == BD_ALWAYSHIDE )
-			toolBar->hide();
+		//if ( vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
+	//		menubar->hide();
+		//if ( vs->value( "View/Toolbar" ).toInt() == BD_ALWAYSHIDE )
+	//		toolBar->hide();
 		if ( vs->value( "autostart" ).toBool() )
 			aEmulationRun->trigger();
 		aEmulationFrameSkipLimiter->setChecked( vs->value( "General/EnableFrameSkipLimiter" ).toBool() );
@@ -307,6 +314,83 @@ void UIYabause::showEvent( QShowEvent* e )
 		//QMetaObject::invokeMethod(this, "on_aHelpAbout_triggered", Qt::QueuedConnection );
 
 	}
+
+	emit windowWasShown();
+
+}
+
+#include <cstdlib>
+#include <cwchar>
+
+std::string versionToScalar(const std::string& version) {
+	std::stringstream ss(version);
+	std::string segment;
+	std::vector<int> parts;
+
+	// バージョン文字列を "." で分割
+	while (std::getline(ss, segment, '.')) {
+		parts.push_back(std::stoi(segment));
+	}
+
+	// 各部分をスカラー値に変換
+	std::ostringstream result;
+	if (parts.size() > 0) {
+		result << std::setw(3) << std::setfill('0') << std::setw(3) << parts[0]; // Majorバージョン（1桁）
+	}
+	if (parts.size() > 1) {
+		result << std::setw(3) << std::setfill('0') << parts[1]; // Minorバージョン（3桁）
+	}
+	if (parts.size() > 2) {
+		result << std::setw(3) << std::setfill('0') << parts[2]; // Patchバージョン（3桁）
+	}
+
+	result << "000"; // 手動
+
+	return result.str();
+}
+
+// char* を wchar_t* に変換する関数
+std::wstring charToWString(const char* str) {
+	size_t len = std::strlen(str);
+	std::wstring wstr(len, L'\0');
+	std::mbstowcs(&wstr[0], str, len);
+	return wstr;
+}
+
+void UIYabause::initWinSparkle()
+{
+	std::string scalar = versionToScalar(VERSION);
+	std::wstring wScalarVersion = charToWString(scalar.c_str());
+	win_sparkle_set_app_build_version(wScalarVersion.c_str());
+
+	// Setup updates feed. This must be done before win_sparkle_init(), but
+	// could be also, often more conveniently, done using a VERSIONINFO Windows
+	// resource. See the "psdk" example and its .rc file for an example of that
+	// (these calls wouldn't be needed then).
+	win_sparkle_set_appcast_url("https://www.uoyabause.org/appcast.xml");
+	std::wstring wVersion = charToWString(VERSION);
+	win_sparkle_set_app_details(L"devMiyax", L"YabaSanshiro", wVersion.c_str());
+
+	// Set DSA public key used to verify update's signature.
+	// This is na example how to provide it from external source (i.e. from Qt
+	// resource). See the "psdk" example and its .rc file for an example how to
+	// provide the key using Windows resource.
+	win_sparkle_set_dsa_pub_pem(reinterpret_cast<const char*>(QResource(":/pem/dsa_pub.pem").data()));
+
+	win_sparkle_set_automatic_check_for_updates(1);
+	win_sparkle_set_update_check_interval(3600*8);
+
+	// Initialize the updater and possibly show some UI
+	win_sparkle_init();
+}
+
+void UIYabause::checkForUpdates()
+{
+	win_sparkle_check_update_with_ui();
+}
+
+void UIYabause::on_actionCheck_for_updates_triggered() {
+	win_sparkle_check_update_with_ui();
 }
 
 void UIYabause::closeEvent( QCloseEvent* e )
@@ -331,9 +415,9 @@ void UIYabause::keyPressEvent( QKeyEvent* e )
 	else
 		PerKeyDown( e->key() ); 
 
-	if (e->key() == Qt::Key_Alt) {
-		toggleMenuAndToolBar();
-	}
+	//if (e->key() == Qt::Key_Alt) {
+	//	toggleMenuAndToolBar();
+	//}
 }
 
 void UIYabause::keyReleaseEvent( QKeyEvent* e )
@@ -420,10 +504,9 @@ void UIYabause::mouseMoveEvent( QMouseEvent* e )
 		}
 		else if (vs->value( "View/Menubar" ).toInt() == BD_SHOWONFSHOVER)
 		{
-			if (e->y() < showMenuBarHeight)
-				menubar->show();
-			else
-				menubar->hide();
+//			if (e->y() < showMenuBarHeight)				menubar->show();
+//			else
+//				menubar->hide();
 		}
 
 		hideMouseTimer->start(3 * 1000);
@@ -451,11 +534,11 @@ void UIYabause::resizeEvent( QResizeEvent* event )
 void UIYabause::adjustHeight(int & height)
 {
   // Compensate for menubar and toolbar
-  VolatileSettings* vs = QtYabause::volatileSettings();
-  if (vs->value("View/Menubar").toInt() != BD_ALWAYSHIDE)
-    height += menubar->height();
-  if (vs->value("View/Toolbar").toInt() != BD_ALWAYSHIDE)
-    height += toolBar->height();
+  //VolatileSettings* vs = QtYabause::volatileSettings();
+  //if (vs->value("View/Menubar").toInt() != BD_ALWAYSHIDE)
+  //  height += menubar->height();
+  //if (vs->value("View/Toolbar").toInt() != BD_ALWAYSHIDE)
+  //  height += toolBar->height();
 }
 
 void UIYabause::resizeIntegerScaling()
@@ -533,6 +616,8 @@ void UIYabause::appendLog( const char* s )
 		return;
 	}
 
+	lastErrorMessage = s;
+
 	teLog->moveCursor( QTextCursor::End );
 	teLog->append( s );
 
@@ -555,7 +640,7 @@ void UIYabause::errorReceived( const QString& error, bool internal )
 		appendLog( error.toLocal8Bit().constData() );
 	}
 	else {
-		CommonDialogs::information( error );
+		CommonDialogs::information( error + "\n" + lastErrorMessage );
 	}
 }
 
@@ -705,6 +790,7 @@ int UIYabause::findBestVideoFreq( int width, int height, int bpp, int videoForma
 
 void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat )
 {
+#if 0
 	// Make sure setting is valid
 	if (f && isResolutionValid( width, height, -1, -1 ) < 0)
 		return;
@@ -738,8 +824,8 @@ void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat
 	} 
   else {
     ChangeDisplaySettings(NULL, 0);
-    toolBar->show();
-    menubar->show();
+    //toolBar->show();
+    //menubar->show();
 
     int title_height = (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER));
     int title_width = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
@@ -761,6 +847,7 @@ void UIYabause::toggleFullscreen( int width, int height, bool f, int videoFormat
 		ScreenRestoreResolution();
 	}
 #endif
+#endif
 }
 
 void UIYabause::toggleMenuAndToolBar() {
@@ -768,12 +855,20 @@ void UIYabause::toggleMenuAndToolBar() {
 
 	if (isFullScreen()) {
 		if (isAltPressed) {
-			menubar->show();
-			toolBar->show();
+			//menubar->show();
+			//toolBar->show();
+			menuBar()->show();
+			for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+				toolBar->show();
+			}
 		}
 		else {
-			menubar->hide();
-			toolBar->hide();
+			//menubar->hide();
+			//toolBar->hide();
+			menuBar()->hide();
+			for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+				toolBar->hide();
+			}
 		}
 	}
 }
@@ -784,16 +879,24 @@ void UIYabause::fullscreenRequested( bool f )
 	if (!f) {
 		showNormal();
 		isAltPressed = false;
-		toolBar->show();
-		menubar->show();
+		//toolBar->show();
+		//menubar->show();
+		menuBar()->show();
+		for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+			toolBar->show();
+		}
 		restoreResolution();
-		windowHandle()->setFlags(Qt::Window);
 	}
 	else {
 		isAltPressed = false;
+	  originalGeometry = geometry();
 		saveCurrentResolution();
-		toolBar->hide();
-		menubar->hide();
+		//toolBar->hide();
+		//menubar->hide();
+		menuBar()->hide();
+		for (QToolBar* toolBar : findChildren<QToolBar*>()) {
+			toolBar->hide();
+		}
 		VolatileSettings* vs = QtYabause::volatileSettings();
 		setResolution(vs->value("Video/FullscreenWidth", "1920").toInt(), vs->value("Video/FullscreenHeight", "1080").toInt()); 
 		showFullScreen();
@@ -901,7 +1004,7 @@ void UIYabause::on_aFileSettings_triggered()
 		aEmulationFrameSkipLimiter->setChecked( vs->value( "General/EnableFrameSkipLimiter" ).toBool() );
 		aViewFPS->setChecked( vs->value( "General/ShowFPS" ).toBool() );
 		mouseSensitivity = vs->value( "Input/GunMouseSensitivity" ).toInt();
-		
+#if 0
 		if(isFullScreen())
 		{
 			if ( vs->value( "View/Menubar" ).toInt() == BD_HIDEFS || vs->value( "View/Menubar" ).toInt() == BD_ALWAYSHIDE )
@@ -926,7 +1029,7 @@ void UIYabause::on_aFileSettings_triggered()
 			else
 				toolBar->show();
 		}
-
+#endif
 		
 		//only reset if bios, region, cart,  back up, mpeg, sh2, m68k are changed
 		Settings *ss = (QtYabause::settings());

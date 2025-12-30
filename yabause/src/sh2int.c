@@ -1067,8 +1067,13 @@ static void FASTCALL SH2jsr(SH2_struct * sh)
    s32 m = INSTRUCTION_B(sh->instruction);
 
    temp = sh->regs.PC;
-   sh->regs.PR = sh->regs.PC + 4;
-   sh->regs.PC = sh->regs.R[m];
+   if (sh->regs.R[m] != 0) {
+     sh->regs.PR = sh->regs.PC + 4;
+     sh->regs.PC = sh->regs.R[m];
+   }
+   else {
+     sh->regs.PC += 2;
+   }
    sh->cycles += 2;
    SH2delay(sh, temp + 2);
 }

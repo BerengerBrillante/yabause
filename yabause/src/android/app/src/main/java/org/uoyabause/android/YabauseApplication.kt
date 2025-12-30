@@ -45,6 +45,8 @@ class YabauseApplication : MultiDexApplication() {
         super.onCreate()
         appContext = applicationContext
 
+        GameInfo.initSigin(appContext)
+
         FirebaseApp.initializeApp(applicationContext)
 
         // Log.d(TAG,"Firebase token: " + FirebaseInstanceId.getInstance().getToken() );
@@ -118,16 +120,28 @@ class YabauseApplication : MultiDexApplication() {
             return 0
         }
 
-        fun getVersionName(context: Context): String? {
-            val pm = context.packageManager
+        fun getVersionName(): String? {
+            val pm = appContext.packageManager
             var versionName = ""
             try {
-                val packageInfo = pm.getPackageInfo(context.packageName, 0)
+                val packageInfo = pm.getPackageInfo(appContext.packageName, 0)
                 versionName = packageInfo.versionName
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
             return versionName
+        }
+
+        fun getVersionCode(): Int {
+            val pm = appContext.packageManager
+            var versionCode = 0
+            try {
+                val packageInfo = pm.getPackageInfo(appContext.packageName, 0)
+                versionCode = packageInfo.versionCode
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+            }
+            return versionCode
         }
     }
 }

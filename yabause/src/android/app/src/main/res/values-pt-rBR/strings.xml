@@ -17,7 +17,7 @@
     <string name="input_device_title_player2">Jogador 2 - Dispositivo de Entrada</string>
     <string name="input_device">Escolher</string>
     <string name="input_device_setting">Alterar mapeamento dos botões</string>
-    <string name="onscrenn_pad_setting">Alterar controles de toque</string>    
+    <string name="onscrenn_pad_setting">Alterar controles de toque</string>
     <string name="bios">BIOS</string>
     <string name="cartridge">Cartucho</string>
     <string name="video_core">Tipo de aceleração...</string>
@@ -41,6 +41,16 @@
     <string name="donate_10doller">$10</string>
     <string name="donate_30doller">$30</string>
     <string name="input_the_key">Aperte o botão</string>
+
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">Classificação</string>
+    <string name="leaderboard_position">Pos.</string>
+    <string name="leaderboard_name">Nome</string>
+    <string name="leaderboard_time">Tempo</string>
+    <string name="leaderboard_diff">Dif</string>
+    <string name="leaderboard_no_data">Este jogo ainda não tem classificação</string>
+    <string name="leaderboard_not_supported">Este jogo ainda não suporta classificação</string>
+    <string name="menu_leaderboard">Classificação</string>
     <string name="joystick_is_not_connected">Controle não está conectado.</string>
     <string name="this_key_has_already_been_set">Este botão já está em uso.</string>
 	<string name="up">Cima</string>
@@ -56,14 +66,14 @@
 	<string name="x_button">X</string>
 	<string name="y_button">Y</string>
 	<string name="z_button">Z</string>
-	
+
 	<string name="scale">Escala</string>
 	<string name="do_you_want_to_save_this_setting">Você quer salvar essa configuração?</string>
 	<string name="yes">Sim</string>
 	<string name="no">Não</string>
 	<string name="exit">Sair</string>
 	<string name="ignore">Ignorar</string>
-	
+
 	<string name="opengl_video_interface">Aceleração por hardware (OpenGL)</string>
 	<string name="software_video_interface">Sem aceleração</string>
 	<string name="onscreen_pad">Controles de Toque</string>
@@ -73,6 +83,20 @@
     <string name="select_game_directory">selecione o diretório do jogo</string>
 
 	<string name="menu_save_screenshot">Captura de Tela</string>
+    <string name="menu_report">Relatório</string>
+
+    <string name="report_message_1">Não Inicia</string>
+    <string name="report_message_2">Intro/Menu</string>
+    <string name="report_message_3">Jogável</string>
+    <string name="report_message_4">Ótimo</string>
+    <string name="report_message_5">Perfeito</string>
+
+    <string name="game_report_message_1">Terrível</string>
+    <string name="game_report_message_2">Ruim</string>
+    <string name="game_report_message_3">Médio</string>
+    <string name="game_report_message_4">Bom</string>
+    <string name="game_report_message_5">Excelente</string>
+
     <string name="already_have_been">Se você já foi doado, por favor entre em contato com smiyaxdev@gmail.com</string>
     <string name="close">Close</string>
 
@@ -116,7 +140,7 @@
 
         [Configurações] -> [selecione o diretório do jogo] -> [adicionar]\n\n
 
-        Mais detalhes são descritos em nosso site [https://www.uoyabause.org/static_pages/guide] (https://www.uoyabause.org/static_pages/guide). \n
+        Mais detalhes são descritos em [nosso site](https://www.yabasanshiro.com/howto#android). \n
 
         ]]>
     </string>
@@ -129,7 +153,7 @@
 
     <string name="siginin_message">
         O login permite fazer backup de dados salvos e dados de estado na nuvem e compartilhá-los entre dispositivos.\n
-        No entanto, essas funções são experimentais, por isso não funcionam como esperado, as especificações podem ser alteradas ou encerradas sem aviso prévio. Mesmo se você não fizer login, bibliotecas como o Firebase coletam as informações para melhorar seu aplicativo. Uma política de privacidade detalhada pode ser encontrada em https://www.uoyabause.org/static_pages/privacy_policy.
+        No entanto, essas funções são experimentais, por isso não funcionam como esperado, as especificações podem ser alteradas ou encerradas sem aviso prévio. Mesmo se você não fizer login, bibliotecas como o Firebase coletam as informações para melhorar seu aplicativo. Uma política de privacidade detalhada pode ser encontrada em https://www.yabasanshiro.com/privacy.
     </string>
     <string name="pro_version_available">A versão Pro está disponível!\n\n * Sem restrições para adicionar jogos\n * Salvar / carregar o estado do jogo entre os dispositivos\n * Sem anúncios\n</string>
     <string name="remaining_installation_count">Оставшееся количество установок</string>
@@ -138,8 +162,8 @@
     <string name="which_storage">Qual armazenamento?</string>
     <string name="or_place_file_to">Ou coloque o jogo no \"%1$s\" manualmente.</string>
     <string name="agreement">
-        Ao tocar no botão INICIAR, você concorda com o Contrato <a href="https://www.uoyabause.org/static_pages/eula">de EULA</a>.
-        Nota: <a href="https://www.uoyabause.org/static_pages/privacy_policy">A Política de Privacidade </a> descreve como os dados são tratados. YabaSanshiro envia dados de diagnóstico para devMiyax e serviços de terceiros para ajudar a melhorar o aplicativo.
+        Ao tocar no botão INICIAR, você concorda com o Contrato <a href="https://www.yabasanshiro.com/terms-of-use">de EULA</a>.
+        Nota: <a href="https://www.yabasanshiro.com/privacy">A Política de Privacidade </a> descreve como os dados são tratados. YabaSanshiro envia dados de diagnóstico para devMiyax e serviços de terceiros para ajudar a melhorar o aplicativo.
     </string>
 
 
@@ -182,5 +206,71 @@
     <string name="fail_to_initialize_emulator">Falha ao inicializar o emulador</string>
     <string name="notification_permission_title">Solicitação de permissão de notificação</string>
     <string name="notification_permission_message">Ao permitir notificações, você receberá notícias do desenvolvedor.</string>
+    <string name="search_games">Pesquisar jogos</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="sort_by_name">Ordenar por nome</string>
+    <string name="sort_by_date">Ordenar por data de lançamento</string>
+    <string name="sort_by_recently_played">Ordenar por jogados recentemente</string>
+    <string name="report_notice">
+        &lt;h2&gt;Publique sua avaliação!&lt;/h2&gt; &lt;br&gt; Nota: O conteúdo da sua avaliação, nome de usuário e ícone de perfil serão visíveis publicamente. Antes de publicar, verifique a &lt;a href="https://www.yabasanshiro.com/privacy"&gt;política de privacidade&lt;/a&gt;.
+    </string>
 
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Logo do Discord</string>
+    <string name="link_discord_account">Vincular Conta do Discord</string>
+    <string name="discord_link_prompt_title">Vincular Sua Conta do Discord</string>
+    <string name="discord_link_prompt_message">Deseja vincular sua conta do Discord? Isso atualizará seu perfil com seu nome de usuário e avatar do Discord.</string>
+    <string name="discord_account_linked">Conta do Discord vinculada com sucesso!</string>
+    <string name="discord_account_link_failed">Falha ao vincular conta do Discord</string>
+    <string name="discord_link_error">Erro de vinculação do Discord</string>
+    <string name="discord_link_cancelled">Vinculação do Discord cancelada</string>
+    <string name="discord_already_linked">Conta do Discord já vinculada</string>
+    <string name="discord_unlink_account">Desvincular Conta do Discord</string>
+    <string name="discord_unlink_confirm">Tem certeza que deseja desvincular sua conta do Discord?</string>
+    <string name="discord_account_unlinked">Conta do Discord desvinculada</string>
+    <string name="discord_link_title">Vincular Sua Conta do Discord</string>
+    <string name="discord_link_description">Vincule sua conta do Discord para usar seu nome de usuário e avatar do Discord neste aplicativo.</string>
+    <string name="skip_for_now">Pular por enquanto</string>
+    <string name="menu_link_discord">Vincular Conta do Discord</string>
+    <string name="first_login_discord_prompt">Deseja vincular sua conta do Discord?</string>
+    <string name="discord_link_prompt_yes">Sim, Vincular Conta</string>
+    <string name="discord_link_prompt_no">Não, Obrigado</string>
+    <string name="discord_oauth_redirect_title">Autenticação do Discord</string>
+    <string name="discord_oauth_processing">Processando vinculação de conta do Discord...</string>
+    <string name="account_category">Conta</string>
+    <string name="summary_for_discord_login">Sincronize seu nome de usuário e imagem de avatar com os do Discord.</string>
+    <string name="summary_for_login_to_other">Você pode fazer login na versão Windows do Yaba Ssanshiro com o PIN exibido.</string>
+
+    <string name="delete_account">Excluir Conta</string>
+    <string name="delete_account_summary">Exclua sua conta e todos os dados associados</string>
+    <string name="delete_account_confirmation_title">Excluir Conta</string>
+    <string name="delete_account_confirmation_message">Tem certeza de que deseja excluir sua conta? Isso excluirá permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.</string>
+    <string name="account_deleted">Conta excluída com sucesso</string>
+    <string name="account_deletion_failed">Falha ao excluir conta</string>
+    <string name="discord_link_not_available_on_tv">Este recurso não está disponível na Android TV. Por favor, use seu celular ou tablet.</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">Fazer Backup na Nuvem</string>
+    <string name="remove_from_cloud">Remover da Nuvem</string>
+    <string name="restore_from_cloud">Restaurar da Nuvem</string>
+    <string name="backup_success">Jogo salvo com sucesso</string>
+    <string name="backup_failed">Falha ao fazer backup do jogo</string>
+    <string name="restore_success">Jogo restaurado com sucesso</string>
+    <string name="restore_failed">Falha ao restaurar o jogo</string>
+    <string name="backup_limit_reached">Limite de backup atingido (máximo 1 jogo)</string>
+    <string name="legal_warning_title">Aviso Legal</string>
+    <string name="legal_warning_message">Este arquivo deve ser usado apenas como backup de um jogo que você possui. Por favor, siga as leis do seu país em relação a backups de jogos.</string>
+    <string name="cloud_only_game">Disponível na nuvem (toque para baixar)</string>
+    <string name="download_from_cloud">Baixar da Nuvem</string>
+    <string name="remove_success">Jogo removido da nuvem com sucesso</string>
+    <string name="remove_failed">Falha ao remover jogo da nuvem</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Limite de Backup Atingido</string>
+    <string name="backup_limit_dialog_message">Você atingiu o número máximo de jogos que pode fazer backup. Selecione um jogo para substituir:</string>
+    <string name="replace">Substituir</string>
+    <string name="backup_date">Backup feito em %1$s</string>
+    <string name="no_game_selected">Por favor, selecione um jogo para substituir</string>
+    <string name="replace_backup_success">Backup substituído com sucesso</string>
+    <string name="replace_backup_failed">Falha ao substituir backup</string>
 </resources>

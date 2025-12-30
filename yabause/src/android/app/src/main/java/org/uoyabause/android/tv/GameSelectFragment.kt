@@ -432,7 +432,7 @@ class GameSelectFragment : BrowseSupportFragment(), FileSelectedListener,
                     isfisrtupdate = false
                     val ac: Activity? = this@GameSelectFragment.activity
                     if (ac != null && ac.intent.getBooleanExtra("showPin", false)) {
-                        newInstance(presenter_!!).show(childFragmentManager, "sample")
+                        newInstance().show(childFragmentManager, "sample")
                     } else {
                         presenter_!!.checkSignIn(signInActivityLauncher)
                     }
@@ -830,7 +830,7 @@ class GameSelectFragment : BrowseSupportFragment(), FileSelectedListener,
                 } else if (item == getString(R.string.sign_out)) {
                     presenter_.signOut()
                 } else if (item == getString(R.string.sign_in_to_other_devices)) {
-                    newInstance(presenter_).show(childFragmentManager, "sample")
+                    newInstance().show(childFragmentManager, "sample")
                 } else if (item == getString(R.string.setting)) {
                     val intent = Intent(activity, SettingsActivity::class.java)
                     startActivityForResult(intent, SETTING_ACTIVITY)

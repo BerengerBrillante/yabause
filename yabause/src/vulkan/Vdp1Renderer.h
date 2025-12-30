@@ -43,6 +43,8 @@ using std::vector;
 
 #include <queue> 
 
+#include <iostream>
+
 #define FRAMEBUFFER_COUNT (2)
 #define DESC_COUNT (4)
 
@@ -133,10 +135,7 @@ public:
   int getMsbShadowCount() {
     return msbShadowCount[readframe];
   }
-
-  void setPolygonMode(POLYGONMODE p) {
-    proygonMode = p;
-  }
+  void setPolygonMode(POLYGONMODE p);
 
 protected:
 

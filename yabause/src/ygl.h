@@ -327,7 +327,7 @@ typedef enum
    PG_VFP1_GOURAUDSAHDING_SPD,
    PG_VFP1_STARTUSERCLIP,
    PG_VFP1_ENDUSERCLIP,
-   PG_VFP1_HALFTRANS, 
+   PG_VFP1_HALFTRANS,
    PG_VFP1_SHADOW,
    PG_VFP1_GOURAUDSAHDING_HALFTRANS,
    PG_VFP1_HALF_LUMINANCE,
@@ -436,8 +436,8 @@ int Ygl_uniformVdp1CommonParam(void * p);
 int Ygl_cleanupVdp1CommonParam(void * p);
 
 // std140
-typedef struct  { 
- float u_pri[8*4];  
+typedef struct  {
+ float u_pri[8*4];
  float u_alpha[8*4];
  float u_coloroffset[4];
  float u_cctll;
@@ -491,6 +491,7 @@ typedef struct {
    int colornumber;
    GLuint interuput_texture;
    u32 specialcolormode;
+   int tessellation_level;  // Dynamic tessellation level
 } YglProgram;
 
 typedef struct {
@@ -582,13 +583,13 @@ typedef struct {
    float clear_r;
    float clear_g;
    float clear_b;
-   
+
    // VDP1 Info
    int vdp1_maxpri;
    int vdp1_minpri;
    u32 vdp1_lineTexture;
    int vdp1_hasMesh;
-   
+
    // VDP1 Framebuffer
    int rwidth;
    int rheight;
@@ -634,7 +635,7 @@ typedef struct {
 
    // Thread
    YabMutex * mutex;
-   
+
    u32 lincolor_tex;
    u32 linecolor_pbo;
    u32 * lincolor_buf;
@@ -705,8 +706,8 @@ typedef struct {
   float rotate_mval_v;
 } RBGDrawInfo;
 
-void RBGGenerator_init(int width, int height); 
-void RBGGenerator_resize(int width, int height); 
+void RBGGenerator_init(int width, int height);
+void RBGGenerator_resize(int width, int height);
 void RBGGenerator_update(RBGDrawInfo * rbg );
 GLuint RBGGenerator_getTexture( int id ) ;
 void RBGGenerator_onFinish();
@@ -736,7 +737,7 @@ void YglCacheTriangleGrowShading(YglSprite * input, float * colors, YglCache * c
 u32 * YglGetPerlineBuf(YglPerLineInfo * perline, int linecount,int depth );
 void YglSetPerlineBuf(YglPerLineInfo * perline, u32 * pbuf, int linecount, int depth);
 
-// 0.. no belnd, 1.. Alpha, 2.. Add 
+// 0.. no belnd, 1.. Alpha, 2.. Add
 int YglSetLevelBlendmode( int pri, int mode );
 
 void Ygl_uniformVDP2DrawFramebuffer_linecolor(void * p, float from, float to, float * offsetcol);

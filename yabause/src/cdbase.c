@@ -61,45 +61,6 @@ static int LoadBinCueMultiFile(const char *cuefilename, FILE *iso_file);
 static int LoadBinCue(const char *cuefilename, FILE *iso_file);
 int checkCHD(const char *filename );
 
-// ƒvƒ‰ƒbƒgƒtƒH[ƒ€‚É‰‚¶‚ÄğŒ•ªŠò
-#if defined(_WIN32) || defined(_WIN64)
-#include <wchar.h>
-#include <windows.h>
-
-// Windows—p fopen_utf8: UTF-8 -> UTF-16 ‚É•ÏŠ·‚µ‚Ä _wfopen ‚ğg—p
-FILE* fopen_utf8(const char* utf8_filename, const char* mode) {
-  // UTF-8ƒ‚[ƒh‚ğUTF-16‚É•ÏŠ·
-  int len = MultiByteToWideChar(CP_UTF8, 0, utf8_filename, -1, NULL, 0);
-  if (len == 0) return NULL;
-
-  wchar_t* wfilename = (wchar_t*)malloc(len * sizeof(wchar_t));
-  MultiByteToWideChar(CP_UTF8, 0, utf8_filename, -1, wfilename, len);
-
-  // ƒ‚[ƒh•¶š—ñ‚àUTF-16‚É•ÏŠ·
-  len = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
-  wchar_t* wmode = (wchar_t*)malloc(len * sizeof(wchar_t));
-  MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, len);
-
-  // _wfopen‚ğg—p
-  FILE* file = _wfopen(wfilename, wmode);
-
-  // ƒƒ‚ƒŠ‰ğ•ú
-  free(wfilename);
-  free(wmode);
-
-  return file;
-}
-
-#else
-
-// Mac/Linux—p fopen_utf8: UTF-8•¶š—ñ‚ğ‚»‚Ì‚Ü‚Üg—p
-FILE* fopen_utf8(const char* utf8_filename, const char* mode) {
-  return fopen(utf8_filename, mode);
-}
-
-#endif
-
-
 
 // Remove this for now, execution on windows fails because of it
 // #include "streams/file_stream_transforms.h"
@@ -114,6 +75,12 @@ extern const char * GetFileDescriptorPath( const char * fileName );
 #endif
 
 #if defined(ANDROID)
+
+// Mac/Linuxï¿½p fopen_utf8: UTF-8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ü‚Ügï¿½p
+FILE* fopen_utf8(const char* utf8_filename, const char* mode) {
+  return fopen(utf8_filename, mode);
+}
+
 // Android 11 does not allow access file directory
 #include <unistd.h> // for dup()
 FILE* idiocy_fopen_fd(const char* fname, const char * mode) {
@@ -137,9 +104,47 @@ FILE* idiocy_fopen_fd(const char* fname, const char * mode) {
   return fopen(fname, mode);
 }
 
-#define fopen idiocy_fopen_fd
+#define fopen_utf8 idiocy_fopen_fd
+
+#elif defined(_WINDOWS)
+
+#include <wchar.h>
+#include <windows.h>
+
+// Windowsï¿½p fopen_utf8: UTF-8 -> UTF-16 ï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½ _wfopen ï¿½ï¿½ï¿½gï¿½p
+FILE* fopen_utf8(const char* utf8_filename, const char* mode) {
+  // UTF-8ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½UTF-16ï¿½É•ÏŠï¿½
+  int len = MultiByteToWideChar(CP_UTF8, 0, utf8_filename, -1, NULL, 0);
+  if (len == 0) return NULL;
+
+  wchar_t* wfilename = (wchar_t*)malloc(len * sizeof(wchar_t));
+  MultiByteToWideChar(CP_UTF8, 0, utf8_filename, -1, wfilename, len);
+
+  // ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UTF-16ï¿½É•ÏŠï¿½
+  len = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
+  wchar_t* wmode = (wchar_t*)malloc(len * sizeof(wchar_t));
+  MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, len);
+
+  // _wfopenï¿½ï¿½ï¿½gï¿½p
+  FILE* file = _wfopen(wfilename, wmode);
+
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+  free(wfilename);
+  free(wmode);
+
+  return file;
+}
+
+#else
+
+// Mac/Linuxï¿½p fopen_utf8: UTF-8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ü‚Ügï¿½p
+FILE* fopen_utf8(const char* utf8_filename, const char* mode) {
+  return fopen(utf8_filename, mode);
+}
 
 #endif
+
+
 
 
 #ifndef HAVE_WFOPEN

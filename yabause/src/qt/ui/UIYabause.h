@@ -108,6 +108,7 @@ public:
 
 signals: // [1]
   void setStateFileLoaded(std::string filename );
+	void windowWasShown();
 
 protected:
 	static firebase::App* app;
@@ -149,6 +150,7 @@ protected:
   void *state_buffer = nullptr;
   size_t state_size = 0;
   QString default_title;
+	QString lastErrorMessage;
 	bool isAltPressed;
 
   
@@ -157,6 +159,8 @@ protected:
   HWND hwnd_;
   SavedWinInfo saved_window_info_;
 #endif
+
+	QRect originalGeometry;
 
 public slots:
 	void appendLog( const char* msg );
@@ -177,6 +181,10 @@ public slots:
 	void saveCurrentResolution();
 	void restoreResolution();
 	void setResolution(int width, int height);
+
+	void initWinSparkle();
+	void checkForUpdates();
+
 
 protected slots:
 	void errorReceived( const QString& error, bool internal = true );
@@ -247,6 +255,7 @@ protected slots:
 	void on_aHelpAbout_triggered();
   void on_actionAndroid_triggered();
 	void on_actioniOS_triggered();
+  void on_actionCheck_for_updates_triggered();
 	// toolbar
 	void on_aSound_triggered();
 	void on_aVideoDriver_triggered();

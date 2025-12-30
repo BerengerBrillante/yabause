@@ -319,6 +319,15 @@ else()
 	target_link_libraries( yabause-qt ${CMAKE_CURRENT_SOURCE_DIR}/lib/x86/libcrypto-1_1.lib)
 endif()
 
+# WinSparkle
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/winsparkle/include )
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	target_link_libraries( yabause-qt ${CMAKE_CURRENT_SOURCE_DIR}/winsparkle/x64/Release/WinSparkle.lib)
+else()
+	target_link_libraries( yabause-qt ${CMAKE_CURRENT_SOURCE_DIR}/winsparkle/Release/WinSparkle.lib)
+endif()
+
 
 
 else()
@@ -368,6 +377,12 @@ if (WIN32)
 	install(FILES ${ICU_BIN_DIR}/icuuc76.dll DESTINATION ".")
 	install(FILES ${ICU_BIN_DIR}/icuin76.dll DESTINATION ".")
 	install(FILES ${ICU_BIN_DIR}/icudt76.dll DESTINATION ".")
+
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/winsparkle/x64/Release/WinSparkle.dll DESTINATION ".")
+	else()
+		install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/winsparkle/Release/WinSparkle.dll DESTINATION ".")
+	endif()
 
 	set_property(INSTALL $<TARGET_FILE_NAME:yabause-qt>
 		PROPERTY CPACK_START_MENU_SHORTCUTS "Yaba Sanshiro"
@@ -424,9 +439,9 @@ if (WIN32)
 		endif()
 	endif()
 	
-  if (MSVC)    
-    set (CMAKE_EXE_LINKER_FLAGS /SAFESEH:NO )
-	endif (MSVC)
+    if (MSVC)    
+      set (CMAKE_EXE_LINKER_FLAGS /SAFESEH:NO )
+    endif (MSVC)
 	
 else ()
 	install(TARGETS yabause-qt DESTINATION "bin")

@@ -23,68 +23,30 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.RatingBar
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.switchmaterial.SwitchMaterial
 import org.devmiyax.yabasanshiro.R
 
 /**
  * [RecyclerView.Adapter] that can display a [CheatItem] and makes a call to the
  * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
  */
 class CloudCheatItemRecyclerViewAdapter(
     private val mValues: List<CheatItem?>?,
     private var mListener: OnItemClickListener?
 ) : RecyclerView.Adapter<CloudCheatItemRecyclerViewAdapter.ViewHolder>() {
     private var focusedItem = 0
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-
-        // Handle key up and key down and attempt to move selection
-        recyclerView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-            val lm = recyclerView.layoutManager
-
-            // Return false if scrolled to the bounds and allow focus to move off the list
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                    return@OnKeyListener tryMoveSelection(lm, 1)
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    return@OnKeyListener tryMoveSelection(lm, -1)
-                } else if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
-                    if (mListener != null) {
-                        val holder =
-                            recyclerView.findViewHolderForAdapterPosition(focusedItem) as ViewHolder?
-                        mListener!!.onItemClick(focusedItem, holder!!.mItem, holder.mView)
-                    }
-                }
-            }
-            false
-        })
-    }
-
-    private fun tryMoveSelection(lm: RecyclerView.LayoutManager?, direction: Int): Boolean {
-        val tryFocusItem = focusedItem + direction
-
-        // If still within valid bounds, move the selection, notify to redraw, and scroll
-        if (tryFocusItem >= 0 && tryFocusItem < itemCount) {
-            notifyItemChanged(focusedItem)
-            focusedItem = tryFocusItem
-            notifyItemChanged(focusedItem)
-            lm!!.scrollToPosition(focusedItem)
-            return true
-        }
-        return false
-    }
 
     fun setOnItemClickListener(listener: OnItemClickListener?) {
         mListener = listener
     }
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int, item: CheatItem?, v: View?)
+        fun onItemClick(position: Int, item: CheatItem?, v: View?, isLikeButton: Boolean)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -98,21 +60,63 @@ class CloudCheatItemRecyclerViewAdapter(
         holder.mIdView.text = mValues?.get(position)?.description
         holder.mContentView.text = mValues?.get(position)?.cheat_code
         holder.itemView.isSelected = focusedItem == position
-        if (focusedItem == position) holder.itemView.setBackgroundColor(ContextCompat.getColor(
-            holder.itemView.context,
-            R.color.colorPrimaryDark)) else holder.itemView.setBackgroundColor(ContextCompat.getColor(
-            holder.itemView.context,
-            R.color.halfTransparent))
-        holder.mcb.isChecked = holder.mItem!!.enable
-        holder.mRate.rating = holder.mItem!!.star_count.toFloat()
-        holder.mRateScore.text = String.format("%.1f", holder.mItem!!.star_count.toFloat())
-        holder.mView.setOnClickListener {
-            notifyItemChanged(focusedItem)
-            focusedItem = position
-            notifyItemChanged(focusedItem)
+        
+        if (focusedItem == position) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(
+                holder.itemView.context,
+                R.color.colorPrimaryDark
+            ))
+        } else {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(
+                holder.itemView.context,
+                R.color.halfTransparent
+            ))
+        }
+
+        holder.mLikeCount.text = holder.mItem?.star_count?.toString() ?: "0"
+        
+        // Set enable state
+        holder.mSwitchEnable.isChecked = holder.mItem?.enable == true
+
+        holder.mSwitchEnable.setOnCheckedChangeListener { _ , isChecked ->
             if (null != mListener) {
-                mListener!!.onItemClick(position, holder.mItem, holder.mView)
+                if( isChecked != holder.mItem?.enable ) {
+                    mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+                }
             }
+        }
+
+        holder.mLikeButton.setOnClickListener {
+            if (null != mListener) {
+                mListener!!.onItemClick(position, holder.mItem, holder.mView, true)
+            }
+        }
+
+        holder.mView.setOnClickListener {
+            focusedItem = position
+            
+            // ダイアログを作成して表示
+            val context = holder.mView.context
+            val enableText = if (holder.mSwitchEnable.isChecked == true) "無効化する" else "有効化する"
+            val options = arrayOf("評価する/しない", enableText)
+            
+            androidx.appcompat.app.AlertDialog.Builder(context)
+                .setTitle(holder.mItem?.description)
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> { // 評価する/しない
+                            if (null != mListener) {
+                                mListener!!.onItemClick(position, holder.mItem, holder.mView, true)
+                            }
+                        }
+                        1 -> { // 有効化する/しない
+                            if (null != mListener) {
+                                mListener!!.onItemClick(position, holder.mItem, holder.mView, false)
+                            }
+                        }
+                    }
+                }
+                .show()
         }
     }
 
@@ -120,26 +124,16 @@ class CloudCheatItemRecyclerViewAdapter(
         return if (mValues == null) 0 else mValues.size
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(
-        mView) {
-        val mIdView: TextView
-        val mContentView: TextView
-        var mcb: CheckBox
+    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+        val mIdView: TextView = mView.findViewById(R.id.id)
+        val mContentView: TextView = mView.findViewById(R.id.content)
+        val mLikeButton: ImageButton = mView.findViewById(R.id.button_like)
+        val mLikeCount: TextView = mView.findViewById(R.id.text_like_count)
+        val mSwitchEnable: MaterialSwitch = mView.findViewById(R.id.switch_enable)
         var mItem: CheatItem? = null
-        var mRate: RatingBar
-        var mRateScore: TextView
+
         override fun toString(): String {
             return super.toString() + " '" + mContentView.text + "'"
-        }
-
-        init {
-            mIdView = mView.findViewById<View>(R.id.id) as TextView
-            mContentView = mView.findViewById<View>(R.id.content) as TextView
-            mcb = mView.findViewById<View>(R.id.checkBox_enable) as CheckBox
-            mcb.isEnabled = false
-            mcb.isFocusable = false
-            mRate = mView.findViewById<View>(R.id.ratingBar) as RatingBar
-            mRateScore = mView.findViewById<View>(R.id.textView_rate) as TextView
         }
     }
 }

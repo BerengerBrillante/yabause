@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 VertexManager::VertexManager(VIDVulkan * vulkan) {
   this->vulkan = vulkan;
+  baseVertexBlockSize = 0;
+  baseIndexBlockSize = 0;
 }
 
 VertexManager::~VertexManager() {
@@ -104,7 +106,9 @@ void VertexManager::genBlock(VertexBlock & block, unsigned int vertexSize, unsig
 #endif
 
   vkMapMemory(device, block.stagingBufferMemory, 0, block.vbufferSize, 0, (void**)&block.vdata);
+  memset(block.vdata, 0, block.vbufferSize);
   vkMapMemory(device, block.istagingBufferMemory, 0, block.ibufferSize, 0, (void**)&block.idata);
+  memset(block.idata, 0, block.ibufferSize);
 
 
 }
@@ -137,15 +141,14 @@ void VertexManager::add(
   VkDevice device = vulkan->getDevice();
   char* data;
   VkDeviceSize bufferSize;
-  VertexBlock & last = vertexBlocks[currentBlock];
 
-  int reqVertexSize = last.currentVertex + sizeof(Vertex) * vertices.size();
-  int reqIndexSize = last.currentIndex + sizeof(uint16_t) * indices.size();
+  int reqVertexSize = vertexBlocks[currentBlock].currentVertex + sizeof(Vertex) * vertices.size();
+  int reqIndexSize = vertexBlocks[currentBlock].currentIndex + sizeof(uint16_t) * indices.size();
 
-  if (last.vbufferSize < reqVertexSize || last.ibufferSize < reqIndexSize) {
+  if (vertexBlocks[currentBlock].vbufferSize < reqVertexSize || vertexBlocks[currentBlock].ibufferSize < reqIndexSize) {
 
-    std::cout << "buffer Over (" << currentBlock << ") vertexSize=" << last.vbufferSize << "/" << reqVertexSize
-      << " indexSize=" << last.ibufferSize << "/" << reqIndexSize << std::endl;
+    std::cout << "buffer Over (" << currentBlock << ") vertexSize=" << vertexBlocks[currentBlock].vbufferSize << "/" << reqVertexSize
+      << " indexSize=" << vertexBlocks[currentBlock].ibufferSize << "/" << reqIndexSize << std::endl;
 
     currentBlock++;
     if (currentBlock >= vertexBlocks.size()) {
@@ -167,20 +170,19 @@ void VertexManager::add(
 
     vertexBlocks[currentBlock].currentIndex = 0;
     vertexBlocks[currentBlock].currentVertex = 0;
-    last = vertexBlocks[currentBlock];
   }
 
   // copy vertex buffer
   bufferSize = sizeof(Vertex) * vertices.size();
-  memcpy(last.vdata + last.currentVertex, vertices.data(), (size_t)bufferSize);
-  vertexOffset = last.currentVertex;
-  last.currentVertex += bufferSize;
+  memcpy(vertexBlocks[currentBlock].vdata + vertexBlocks[currentBlock].currentVertex, vertices.data(), (size_t)bufferSize);
+  vertexOffset = vertexBlocks[currentBlock].currentVertex;
+  vertexBlocks[currentBlock].currentVertex += bufferSize;
 
   // copy index buffer
   bufferSize = sizeof(indices[0]) * indices.size();
-  memcpy(last.idata + last.currentIndex, indices.data(), (size_t)bufferSize);
-  indexOffset = last.currentIndex;
-  last.currentIndex += bufferSize;
+  memcpy(vertexBlocks[currentBlock].idata + vertexBlocks[currentBlock].currentIndex, indices.data(), (size_t)bufferSize);
+  indexOffset = vertexBlocks[currentBlock].currentIndex;
+  vertexBlocks[currentBlock].currentIndex += bufferSize;
 
   block = currentBlock;
   vertexSize = vertices.size();

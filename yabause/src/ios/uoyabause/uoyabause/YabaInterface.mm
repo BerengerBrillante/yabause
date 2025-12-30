@@ -11,6 +11,8 @@
 #import <MetalANGLE/MGLKViewController.h>
 #include <string>
 #include "../../../BackupManager.h"
+#include "../../../cheat.h"
+#include "../../../cs2.h"
 
 extern "C" {
 
@@ -339,5 +341,36 @@ int YSCopy( int target, int file  ){
     return i->copy(target,file);
 }
 
+void YSUpdateCheat(NSArray* stringArray) {
+    if (stringArray == nil || [stringArray count] == 0) {
+        CheatClearCodes();
+        return;
+    }
+    
+    int stringCount = (int)[stringArray count];
+    int index = 0;
+    CheatClearCodes();
+    
+    for (int i = 0; i < stringCount; i++) {
+        NSString* string = [stringArray objectAtIndex:i];
+        if (string == nil) {
+            continue;
+        }
+        const char* rawString = [string UTF8String];
+        index = CheatAddARCode(rawString);
+        CheatEnableCode(index);
+    }
+    // CheatDoPatches(); will call at Vblank-in
+    return;
+}
+
+NSString* YSGetCurrentGameCode() {
+    const char *gameCode = Cs2GetCurrentGmaecode();
+    if (gameCode == NULL) {
+        return nil;
+    }
+    NSString *nsGameCode = [NSString stringWithUTF8String:gameCode];
+    return nsGameCode;
+}
 
 } // extern "C"

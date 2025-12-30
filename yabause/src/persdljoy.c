@@ -225,15 +225,15 @@ int PERSDLJoyHandleEvents(void) {
 
 			PerAxisValue((joyId << 18) | SDL_MEDIUM_AXIS_VALUE | i, (u8)(((int)cur+32768) >> 8));
 			
-			if ( cur < -SDL_MEDIUM_AXIS_VALUE )
+			if ( cur < -1500 )
 			{
-				PerKeyUp( (joyId << 18) | SDL_MAX_AXIS_VALUE | i );
-				PerKeyDown( (joyId << 18) | SDL_MIN_AXIS_VALUE | i );
+				PerKeyUp((joyId << 18) | SDL_MIN_AXIS_VALUE | i);
+				PerKeyDown((joyId << 18) | SDL_MAX_AXIS_VALUE | i);
 			}
-			else if ( cur > SDL_MEDIUM_AXIS_VALUE )
+			else if ( cur > 1500 )
 			{
-				PerKeyUp( (joyId << 18) | SDL_MIN_AXIS_VALUE | i );
-				PerKeyDown( (joyId << 18) | SDL_MAX_AXIS_VALUE | i );
+				PerKeyUp((joyId << 18) | SDL_MAX_AXIS_VALUE | i);
+				PerKeyDown((joyId << 18) | SDL_MIN_AXIS_VALUE | i);
 			}
 			else
 			{

@@ -1,6 +1,6 @@
 project(YabaSanshiro)
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 #-------------------------------------------------------------------------------
 #add local find scripts to CMAKE path
@@ -13,8 +13,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(YAB_PACKAGE yabause)
 set(YAB_VERSION_MAJOR 1)
-set(YAB_VERSION_MINOR 16)
-set(YAB_VERSION_PATCH 3)
+set(YAB_VERSION_MINOR 17)
+set(YAB_VERSION_PATCH 1)
 set(YAB_VERSION "${YAB_VERSION_MAJOR}.${YAB_VERSION_MINOR}.${YAB_VERSION_PATCH}")
 
 include(GetGitRevisionDescription)

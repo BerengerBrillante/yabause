@@ -45,6 +45,7 @@ import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.GoogleBuilder
+import com.firebase.ui.auth.AuthUI.IdpConfig.AppleBuilder
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.Tracker
@@ -186,7 +187,10 @@ class GameSelectPresenter(
     fun signIn( launcher : ActivityResultLauncher<Intent> ) {
         val intent = AuthUI.getInstance()
             .createSignInIntentBuilder()
-            .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+            .setAvailableProviders(Arrays.asList(
+                GoogleBuilder().build(),
+                AppleBuilder().build()
+            ))
             .build()
         launcher.launch(intent)
     }
@@ -205,7 +209,10 @@ class GameSelectPresenter(
             target_.startActivity(
                     AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+                        .setAvailableProviders(Arrays.asList(
+                            GoogleBuilder().build(),
+                            AppleBuilder().build()
+                        ))
                         .build()
             )
         })
@@ -256,10 +263,17 @@ class GameSelectPresenter(
 
             val baseref = FirebaseDatabase.getInstance().reference
             val baseurl = "/user-posts/" + currentUser.uid
-            if (currentUser.displayName != null) {
-                username_ = currentUser.displayName
-                baseref.child(baseurl).child("name").setValue(currentUser.displayName)
+
+            // Set username_ based on available information
+            username_ = when {
+                !currentUser.displayName.isNullOrEmpty() -> currentUser.displayName
+                !currentUser.email.isNullOrEmpty() -> currentUser.email!!.split("@").firstOrNull() ?: currentUser.email
+                else -> currentUser.uid
             }
+
+            // Store the username in Firebase
+            baseref.child(baseurl).child("name").setValue(username_)
+
             if (currentUser.email != null) {
                 baseref.child(baseurl).child("email").setValue(currentUser.email)
             }
@@ -288,7 +302,7 @@ class GameSelectPresenter(
 
             // startActivity(SignedInActivity.createIntent(this, response));
             // val application = target_.activity!!.application as YabauseApplication
-            FirebaseCrashlytics.getInstance().setUserId(currentUser.displayName + "_" + currentUser.email)
+            FirebaseCrashlytics.getInstance().setUserId(username_ + "_" + currentUser.email)
 
             if (authEmitter != null) {
                 authEmitter!!.onSuccess(currentUser)
@@ -525,7 +539,6 @@ class GameSelectPresenter(
 
             var zipFileName = ""
             try {
-
                 val f = File(path)
                 zipFileName = storage.getInstallDir().absolutePath + "/" + f.name
                 val fd = File(zipFileName)
@@ -539,12 +552,9 @@ class GameSelectPresenter(
                         } else {
                             copyFileO(inputStream, outputStream)
                         }
-                        inputStream.close()
-                        outputStream.close()
                     }
                 }
                 parcelFileDescriptor.close()
-
 
                 var targetFileName = ""
 
@@ -552,104 +562,91 @@ class GameSelectPresenter(
                     listener_.onUpdateDialogMessage("Extracting ${fd.name}")
                 }
 
-                if (zipFileName.lowercase(Locale.getDefault()).endsWith("zip")) {
+                val installDir = storage.getInstallDir()
 
+                if (zipFileName.lowercase(Locale.getDefault()).endsWith("zip")) {
                     ZipFile(zipFileName).use { zip ->
                         zip.entries().asSequence().forEach { entry ->
+                            val outputFile = File(installDir, entry.name)
+
+                            // パストラバーサル攻撃を防止するための検証
+                            if (!outputFile.canonicalPath.startsWith(installDir.canonicalPath)) {
+                                Log.e(TAG, "Entry is outside of the target dir: ${entry.name}")
+                                return@forEach
+                            }
+
+                            if (entry.isDirectory) {
+                                outputFile.mkdirs()
+                            } else {
+                                outputFile.parentFile?.mkdirs()
+                                zip.getInputStream(entry).use { input ->
+                                    outputFile.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
+                                }
+                            }
 
                             if (entry.name.lowercase(Locale.ROOT).endsWith("ccd") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("cue") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("mds")
                             ) {
-                                targetFileName = storage.getInstallDir().absolutePath + "/" + entry.name
-                            }
-                            zip.getInputStream(entry).use { input ->
-                                if (entry.isDirectory) {
-                                    val unzipdir =
-                                        File(storage.getInstallDir().absolutePath + "/" + entry.name)
-                                    if (!unzipdir.exists()) {
-                                        unzipdir.mkdirs()
-                                    } else {
-                                        unzipdir.delete()
-                                        unzipdir.mkdirs()
-                                    }
-                                } else {
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name).outputStream()
-                                        .use { output ->
-                                            input.copyTo(output)
-                                        }
-                                }
+                                targetFileName = outputFile.absolutePath
                             }
                         }
                     }
                 } else if (zipFileName.lowercase(Locale.getDefault()).endsWith("7z")) {
                     SevenZFile(File(zipFileName)).use { sz ->
                         sz.entries.asSequence().forEach { entry ->
+                            val outputFile = File(installDir, entry.name)
 
-                            Log.i(TAG, "Extracting ${entry.name}")
+                            // パストラバーサル攻撃を防止するための検証
+                            if (!outputFile.canonicalPath.startsWith(installDir.canonicalPath)) {
+                                Log.e(TAG, "Entry is outside of the target dir: ${entry.name}")
+                                return@forEach
+                            }
+
+                            if (entry.isDirectory) {
+                                outputFile.mkdirs()
+                            } else {
+                                outputFile.parentFile?.mkdirs()
+                                sz.getInputStream(entry).use { input ->
+                                    outputFile.outputStream().use { output ->
+                                        input.copyTo(output, bufferSize = 32 * 1024)
+                                    }
+                                }
+                            }
 
                             if (entry.name.lowercase(Locale.ROOT).endsWith("ccd") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("cue") ||
                                 entry.name.lowercase(Locale.ROOT).endsWith("mds")
                             ) {
-                                targetFileName = storage.getInstallDir().absolutePath + "/" + entry.name
-                            }
-
-                            if (entry.isDirectory) {
-                                val unzipdir =
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name)
-                                if (!unzipdir.exists()) {
-                                    unzipdir.mkdirs()
-                                } else {
-                                    unzipdir.delete()
-                                    unzipdir.mkdirs()
-                                }
-                            } else {
-                                sz.getInputStream(entry).use { input ->
-                                    File(storage.getInstallDir().absolutePath + "/" + entry.name).outputStream()
-                                        .use { output ->
-                                            Log.i(TAG, "Starting to copy ${storage.getInstallDir().absolutePath + "/" + entry.name}")
-                                            input.copyTo(output, bufferSize = 32 * 1024)
-                                            Log.i(TAG, "Finished copying ${storage.getInstallDir().absolutePath + "/" + entry.name}")
-                                        }
-                                }
+                                targetFileName = outputFile.absolutePath
                             }
                         }
                     }
                 }
 
-                if (targetFileName != "") {
+                if (targetFileName.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
                         decrementInstallCount()
                         fileSelected(File(targetFileName))
                     }
                 } else {
-
                     withContext(Dispatchers.Main) {
                         Toast.makeText(target_.requireContext(),
                             "ISO image is not found!!",
                             Toast.LENGTH_LONG).show()
-                        Log.e(TAG, "ISO image is not found!!")
                     }
+                    Log.e(TAG, "ISO image is not found!!")
                 }
             } catch (e: Exception) {
-
                 withContext(Dispatchers.Main) {
                     Toast.makeText(target_.requireContext(),
-                        "Fail to copy " + e.localizedMessage,
-                        Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "Fail to copy " + e.localizedMessage)
-                }
-            } catch (e: IOException) {
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(target_.requireContext(),
-                        "Fail to copy " + e.localizedMessage,
+                        "Fail to copy ${e.localizedMessage}",
                         Toast.LENGTH_LONG).show()
                 }
-                Log.e(TAG, "Fail to copy " + e.localizedMessage)
+                Log.e(TAG, "Fail to copy ${e.localizedMessage}")
             } finally {
-
                 val fd = File(zipFileName)
                 if (fd.isFile && fd.exists()) {
                     fd.delete()
@@ -814,7 +811,21 @@ class GameSelectPresenter(
         get() {
             val auth = FirebaseAuth.getInstance()
             return if (auth.currentUser != null) {
-                auth.currentUser!!.displayName
+                when {
+                    // First try to use display name if it exists and is not empty
+                    !auth.currentUser!!.displayName.isNullOrEmpty() -> {
+                        auth.currentUser!!.displayName
+                    }
+                    // Then try to use email if it exists
+                    !auth.currentUser!!.email.isNullOrEmpty() -> {
+                        // Use the part before @ in the email
+                        auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                    }
+                    // Finally fall back to UID
+                    else -> {
+                        auth.currentUser!!.uid
+                    }
+                }
             } else null
         }
     val currentUserPhoto: Uri?
@@ -835,12 +846,16 @@ class GameSelectPresenter(
         if (do_not_ask == true) {
             val auth = FirebaseAuth.getInstance()
             if (auth.currentUser != null) {
-                FirebaseCrashlytics.getInstance().setUserId(auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
-                mFirebaseAnalytics.setUserId(auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
-                mFirebaseAnalytics.setUserProperty("name", auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
+                // Get username using the same logic as currentUserName
+                val username = when {
+                    !auth.currentUser!!.displayName.isNullOrEmpty() -> auth.currentUser!!.displayName
+                    !auth.currentUser!!.email.isNullOrEmpty() -> auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                    else -> auth.currentUser!!.uid
+                }
+
+                FirebaseCrashlytics.getInstance().setUserId(username + "_" + auth.currentUser!!.email)
+                mFirebaseAnalytics.setUserId(username + "_" + auth.currentUser!!.email)
+                mFirebaseAnalytics.setUserProperty("name", username + "_" + auth.currentUser!!.email)
 
                 autoBackupManager.startSubscribeBackupMemory(auth.currentUser!!)
             }
@@ -869,9 +884,12 @@ class GameSelectPresenter(
                             .createSignInIntentBuilder()
                             .setTheme(R.style.Theme_AppCompat)
                             .setTosAndPrivacyPolicyUrls(
-                                "https://www.uoyabause.org/static_pages/eula.html",
-                                "https://www.uoyabause.org/static_pages/privacy_policy")
-                            .setAvailableProviders(Arrays.asList(GoogleBuilder().build()))
+                                "https://www.yabasanshiro.com/terms-of-use",
+                                "https://www.yabasanshiro.com/privacy")
+                            .setAvailableProviders(Arrays.asList(
+                                GoogleBuilder().build(),
+                                AppleBuilder().build()
+                            ))
                             .build())
                 }
                 .setNegativeButton(target_.resources.getString(R.string.decline)) { dialog, _ ->
@@ -887,12 +905,16 @@ class GameSelectPresenter(
                 }
             builder.create().show()
         } else {
-            FirebaseCrashlytics.getInstance().setUserId(auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
-            mFirebaseAnalytics.setUserId(auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
-            mFirebaseAnalytics.setUserProperty("name", auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
+            // Get username using the same logic as currentUserName
+            val username = when {
+                !auth.currentUser!!.displayName.isNullOrEmpty() -> auth.currentUser!!.displayName
+                !auth.currentUser!!.email.isNullOrEmpty() -> auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                else -> auth.currentUser!!.uid
+            }
+
+            FirebaseCrashlytics.getInstance().setUserId(username + "_" + auth.currentUser!!.email)
+            mFirebaseAnalytics.setUserId(username + "_" + auth.currentUser!!.email)
+            mFirebaseAnalytics.setUserProperty("name", username + "_" + auth.currentUser!!.email)
         }
     }
 

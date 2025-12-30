@@ -20,14 +20,13 @@ package org.uoyabause.android.phone
 
 import android.Manifest
 import android.app.AlertDialog
-import android.app.ProgressDialog.show
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
@@ -39,20 +38,13 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-// import net.nend.android.NendAdView
 import org.devmiyax.yabasanshiro.BuildConfig
 import org.devmiyax.yabasanshiro.R
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
-
 import com.google.android.gms.ads.AdListener
-import org.uoyabause.android.BillingViewModel
 
 class GameSelectActivityPhone : AppCompatActivity() {
     lateinit var frg_: GameSelectFragmentPhone
@@ -185,8 +177,34 @@ class GameSelectActivityPhone : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        android.util.Log.d("GameSelectActivity", "Activity onKeyDown: keyCode=$keyCode")
+
+        // D-pad navigation events をFragmentに委譲
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP ||
+            keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+            keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+            keyCode == KeyEvent.KEYCODE_ENTER) {
+            if (::frg_.isInitialized && frg_.onKeyDown(keyCode, event)) {
+                android.util.Log.d("GameSelectActivity", "Key event handled by fragment")
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onPause() {
         super.onPause()
+        adView?.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView?.resume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         adView?.destroy()
     }
 

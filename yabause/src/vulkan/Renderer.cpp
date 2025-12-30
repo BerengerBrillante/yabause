@@ -131,10 +131,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessageSever
     }
   }
 
-
+#if defined(_WINDOWS)
   std::cout << stream.str();
   std::string debugMessage = stream.str();
   OutputDebugStringA(debugMessage.c_str());
+#endif
 
 #if defined(ANDROID)
   LOGE("%s", stream.str().c_str());
@@ -329,6 +330,7 @@ void Renderer::_InitDevice()
 
     vkGetPhysicalDeviceFeatures(_gpu, &deviceFeatures);
 
+#if 0
     VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
     VkPhysicalDeviceMaintenance4FeaturesKHR maintenance4Features = {};
     maintenance4Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES_KHR;
@@ -338,6 +340,7 @@ void Renderer::_InitDevice()
     deviceFeatures2.pNext = &maintenance4Features;
 
     vkGetPhysicalDeviceFeatures2(_gpu, &deviceFeatures2);
+#endif
 
     if (deviceFeatures.tessellationShader ==  VK_TRUE && deviceFeatures.geometryShader == VK_TRUE ) {
       canUseTess = true;

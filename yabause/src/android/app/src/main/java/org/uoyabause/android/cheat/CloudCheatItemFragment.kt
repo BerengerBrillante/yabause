@@ -25,7 +25,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +33,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import java.lang.Exception
 import java.util.ArrayList
@@ -117,10 +117,6 @@ class CloudCheatItemFragment
         fun onListFragmentInteraction(item: CheatItem?)
     }
 
-    //override fun OnAuthAccepted() {
-    //    updateCheatList()
-    //}
-
     fun updateCheatList() {
         _items = ArrayList()
         val baseref = FirebaseDatabase.getInstance().reference
@@ -151,7 +147,9 @@ class CloudCheatItemFragment
                     adapter_ =
                         CloudCheatItemRecyclerViewAdapter(_items, this@CloudCheatItemFragment)
                     listview_!!.adapter = adapter_
-                    adapter_!!.notifyDataSetChanged()
+                    listview_!!.post {
+                        adapter_!!.notifyDataSetChanged()
+                    }
                 } else {
                     Log.e(TAG, "Bad Data " + dataSnapshot.key)
                 }
@@ -164,94 +162,75 @@ class CloudCheatItemFragment
         database_!!.orderByChild("star_count").addValueEventListener(DataListener)
     }
 
-    override fun onItemClick(position: Int, item: CheatItem?, v: View?) {
-        val popup = PopupMenu(activity, v)
-        val inflate = popup.menuInflater
-        inflate.inflate(R.menu.cloud_cheat, popup.menu)
-        val cheatitem = item
-        val popupMenu = popup.menu
-        val mitem = popupMenu.getItem(0)
+    override fun onItemClick(position: Int, item: CheatItem?, v: View?, isLikeButton: Boolean) {
+        if (item == null) return
 
-        if (cheatitem == null) return
-
-        if (cheatitem.enable) {
-            mitem.setTitle(R.string.disable)
+        if (isLikeButton) {
+            toggleLike(item)
         } else {
-            mitem.setTitle(R.string.enable)
+            toggleEnable(item)
         }
-        popup.setOnMenuItemClickListener { selectedItem ->
-            when (selectedItem.itemId) {
-                R.id.acp_activate -> {
-                    cheatitem.enable = !cheatitem.enable
-                    val frag = tabCheatFragmentInstance
-                    if (frag != null) {
-                        if (cheatitem.enable) {
-                            frag.AddActiveCheat(cheatitem.cheat_code)
-                        } else {
-                            frag.RemoveActiveCheat(cheatitem.cheat_code)
-                        }
-                    }
-                    adapter_!!.notifyDataSetChanged()
-                }
-                R.id.acp_rate -> starItem(cheatitem)
-            }
-            false
-        }
-        popup.show()
     }
 
-    fun starItem(item: CheatItem) {
+    private fun toggleEnable(item: CheatItem) {
+        item.enable = !item.enable
+        val frag = tabCheatFragmentInstance
+        if (frag != null) {
+            if (item.enable) {
+                frag.AddActiveCheat(item.cheat_code)
+            } else {
+                frag.RemoveActiveCheat(item.cheat_code)
+            }
+        }
+        
+        // Switchからの呼び出しの場合はUIを更新しない（無限ループを防ぐため）
+        listview_?.post {
+            adapter_?.notifyDataSetChanged()
+        }
+    }
+
+    private fun toggleLike(item: CheatItem) {
         val auth = FirebaseAuth.getInstance()
         if (auth.currentUser == null) {
             return
         }
-        val items = arrayOf("★", "★★", "★★★", "★★★★", "★★★★★")
-        val defaultItem = 0
-        val checkedItems: MutableList<Int> = ArrayList()
-        checkedItems.add(defaultItem)
-        AlertDialog.Builder(requireActivity())
-            .setTitle("Rate this cheat")
-            .setSingleChoiceItems(items, defaultItem) { _, which ->
-                checkedItems.clear()
-                checkedItems.add(which)
-            }
-            .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
-                if (!checkedItems.isEmpty()) {
-                    Log.d("checkedItem:", "" + checkedItems[0])
-                    val baseref = FirebaseDatabase.getInstance().reference
-                    val baseurl = "/shared-cheats/" + mGameCode + "/" + item.key + "/scores"
-                    val scoresRef = baseref.child(baseurl)
-                    scoresRef.limitToFirst(10).addValueEventListener(object : ValueEventListener {
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            if (dataSnapshot.hasChildren()) {
-                                var score = 0.0
-                                var cnt = 0
-                                for (child in dataSnapshot.children) {
-                                    score += child.getValue(Double::class.java)!!
-                                    cnt++
-                                }
-                                score = score / cnt.toDouble()
-                                database_!!.child(item.key).child("star_count").setValue(score)
-                            }
-                        }
+        val userId = auth.currentUser!!.uid
+        val likeRef = database_!!.child(item.key).child("like_users").child(userId)
+        val itemRef = database_!!.child(item.key)
 
-                        override fun onCancelled(databaseError: DatabaseError) {
-                            // Getting Post failed, log a message
-                            Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
-                            // ...
-                        }
-                    })
-                    val checkAuth = FirebaseAuth.getInstance()
-                    if (checkAuth.currentUser == null) {
-                        return@OnClickListener
+        likeRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists()) {
+                // Unlike
+                likeRef.removeValue()
+                itemRef.child("star_count").runTransaction(object : Transaction.Handler {
+                    override fun doTransaction(mutableData: com.google.firebase.database.MutableData): Transaction.Result {
+                        val value = (mutableData.value as? Long ?: 0).toInt()
+                        mutableData.value = Math.max(0, value - 1)
+                        return Transaction.success(mutableData)
                     }
-                    database_!!.child(item.key).child("scores").child(checkAuth.currentUser!!.uid)
-                        .setValue(
-                            checkedItems[0] + 1)
-                }
-            })
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+                    override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                        listview_?.post {
+                            adapter_?.notifyDataSetChanged()
+                        }
+                    }
+                })
+            } else {
+                // Like
+                likeRef.setValue(true)
+                itemRef.child("star_count").runTransaction(object : Transaction.Handler {
+                    override fun doTransaction(mutableData: com.google.firebase.database.MutableData): Transaction.Result {
+                        val value = (mutableData.value as? Long ?: 0).toInt()
+                        mutableData.value = value + 1
+                        return Transaction.success(mutableData)
+                    }
+                    override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                        listview_?.post {
+                            adapter_?.notifyDataSetChanged()
+                        }
+                    }
+                })
+            }
+        }
     }
 
     companion object {

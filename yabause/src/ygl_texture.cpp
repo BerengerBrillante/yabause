@@ -2675,8 +2675,212 @@ RBGGeneratorVulkan::RBGGeneratorVulkan() {
 
 }
 
+
 RBGGeneratorVulkan::~RBGGeneratorVulkan() {
   delete rbgUniformParam;
+  if (vulkan != nullptr) {
+    VkDevice d = vulkan->getDevice();
+    vk::Device device(d);
+
+    // Destroy images and views
+    for (auto& surface : tex_surface) {
+      if (surface.view) device.destroyImageView(surface.view);
+      if (surface.image) device.destroyImage(surface.image);
+      if (surface.mem) device.freeMemory(surface.mem);
+    }
+
+    // Destroy buffers
+    if (ssbo_vram_.buf) {
+      device.destroyBuffer(ssbo_vram_.buf);
+      device.freeMemory(ssbo_vram_.mem);
+    }
+    if (ssbo_cram_.buf) {
+      device.destroyBuffer(ssbo_cram_.buf);
+      device.freeMemory(ssbo_cram_.mem);
+    }
+    if (ssbo_window_.buf) {
+      device.destroyBuffer(ssbo_window_.buf);
+      device.freeMemory(ssbo_window_.mem);
+    }
+    if (ssbo_paraA_.buf) {
+      device.destroyBuffer(ssbo_paraA_.buf);
+      device.freeMemory(ssbo_paraA_.mem);
+    }
+
+    // Destroy uniform buffers
+    for (auto& uniform : rbgUniform) {
+      if (uniform.buf) {
+        device.destroyBuffer(uniform.buf);
+        device.freeMemory(uniform.mem);
+      }
+    }
+
+    // Destroy pipeline resources
+    if (pipelineLayout) device.destroyPipelineLayout(pipelineLayout);
+    if (descriptorPool) device.destroyDescriptorPool(descriptorPool);
+    if (descriptorSetLayout) device.destroyDescriptorSetLayout(descriptorSetLayout);
+    if (sampler) device.destroySampler(sampler);
+
+    // Destroy command resources
+    if (commandPool) {
+      if (command[0]) {  // 少なくとも1つのコマンドバッファが割り当てられている場合
+        device.freeCommandBuffers(commandPool, MAX_RBG_RENDER, command);
+      }
+      device.destroyCommandPool(commandPool);
+    }
+
+    // Destroy fences
+    for (auto& fence : commandfence) {
+      if (fence) device.destroyFence(fence);
+    }
+
+    // Destroy semaphores
+    for (auto& sem : semaphores) {
+      if (sem.ready) device.destroySemaphore(sem.ready);
+      if (sem.complete) device.destroySemaphore(sem.complete);
+    }
+
+    // Destroy all pipelines
+    // RBG 0
+    if (prg_rbg_0_2w_bitmap_4bpp_) device.destroyPipeline(prg_rbg_0_2w_bitmap_4bpp_);
+    if (prg_rbg_0_2w_bitmap_8bpp_) device.destroyPipeline(prg_rbg_0_2w_bitmap_8bpp_);
+    if (prg_rbg_0_2w_bitmap_16bpp_p_) device.destroyPipeline(prg_rbg_0_2w_bitmap_16bpp_p_);
+    if (prg_rbg_0_2w_bitmap_16bpp_) device.destroyPipeline(prg_rbg_0_2w_bitmap_16bpp_);
+    if (prg_rbg_0_2w_bitmap_32bpp_) device.destroyPipeline(prg_rbg_0_2w_bitmap_32bpp_);
+    if (prg_rbg_0_2w_p1_4bpp_) device.destroyPipeline(prg_rbg_0_2w_p1_4bpp_);
+    if (prg_rbg_0_2w_p2_4bpp_) device.destroyPipeline(prg_rbg_0_2w_p2_4bpp_);
+    if (prg_rbg_0_2w_p1_8bpp_) device.destroyPipeline(prg_rbg_0_2w_p1_8bpp_);
+    if (prg_rbg_0_2w_p2_8bpp_) device.destroyPipeline(prg_rbg_0_2w_p2_8bpp_);
+    if (prg_rbg_0_2w_p1_16bpp_p_) device.destroyPipeline(prg_rbg_0_2w_p1_16bpp_p_);
+    if (prg_rbg_0_2w_p2_16bpp_p_) device.destroyPipeline(prg_rbg_0_2w_p2_16bpp_p_);
+    if (prg_rbg_0_2w_p1_16bpp_) device.destroyPipeline(prg_rbg_0_2w_p1_16bpp_);
+    if (prg_rbg_0_2w_p2_16bpp_) device.destroyPipeline(prg_rbg_0_2w_p2_16bpp_);
+    if (prg_rbg_0_2w_p1_32bpp_) device.destroyPipeline(prg_rbg_0_2w_p1_32bpp_);
+    if (prg_rbg_0_2w_p2_32bpp_) device.destroyPipeline(prg_rbg_0_2w_p2_32bpp_);
+
+    // RBG 1
+    if (prg_rbg_1_2w_bitmap_4bpp_) device.destroyPipeline(prg_rbg_1_2w_bitmap_4bpp_);
+    if (prg_rbg_1_2w_bitmap_8bpp_) device.destroyPipeline(prg_rbg_1_2w_bitmap_8bpp_);
+    if (prg_rbg_1_2w_bitmap_16bpp_p_) device.destroyPipeline(prg_rbg_1_2w_bitmap_16bpp_p_);
+    if (prg_rbg_1_2w_bitmap_16bpp_) device.destroyPipeline(prg_rbg_1_2w_bitmap_16bpp_);
+    if (prg_rbg_1_2w_bitmap_32bpp_) device.destroyPipeline(prg_rbg_1_2w_bitmap_32bpp_);
+    if (prg_rbg_1_2w_p1_4bpp_) device.destroyPipeline(prg_rbg_1_2w_p1_4bpp_);
+    if (prg_rbg_1_2w_p2_4bpp_) device.destroyPipeline(prg_rbg_1_2w_p2_4bpp_);
+    if (prg_rbg_1_2w_p1_8bpp_) device.destroyPipeline(prg_rbg_1_2w_p1_8bpp_);
+    if (prg_rbg_1_2w_p2_8bpp_) device.destroyPipeline(prg_rbg_1_2w_p2_8bpp_);
+    if (prg_rbg_1_2w_p1_16bpp_p_) device.destroyPipeline(prg_rbg_1_2w_p1_16bpp_p_);
+    if (prg_rbg_1_2w_p2_16bpp_p_) device.destroyPipeline(prg_rbg_1_2w_p2_16bpp_p_);
+    if (prg_rbg_1_2w_p1_16bpp_) device.destroyPipeline(prg_rbg_1_2w_p1_16bpp_);
+    if (prg_rbg_1_2w_p2_16bpp_) device.destroyPipeline(prg_rbg_1_2w_p2_16bpp_);
+    if (prg_rbg_1_2w_p1_32bpp_) device.destroyPipeline(prg_rbg_1_2w_p1_32bpp_);
+    if (prg_rbg_1_2w_p2_32bpp_) device.destroyPipeline(prg_rbg_1_2w_p2_32bpp_);
+
+    // RBG 2
+    if (prg_rbg_2_2w_bitmap_4bpp_) device.destroyPipeline(prg_rbg_2_2w_bitmap_4bpp_);
+    if (prg_rbg_2_2w_bitmap_8bpp_) device.destroyPipeline(prg_rbg_2_2w_bitmap_8bpp_);
+    if (prg_rbg_2_2w_bitmap_16bpp_p_) device.destroyPipeline(prg_rbg_2_2w_bitmap_16bpp_p_);
+    if (prg_rbg_2_2w_bitmap_16bpp_) device.destroyPipeline(prg_rbg_2_2w_bitmap_16bpp_);
+    if (prg_rbg_2_2w_bitmap_32bpp_) device.destroyPipeline(prg_rbg_2_2w_bitmap_32bpp_);
+    if (prg_rbg_2_2w_p1_4bpp_) device.destroyPipeline(prg_rbg_2_2w_p1_4bpp_);
+    if (prg_rbg_2_2w_p2_4bpp_) device.destroyPipeline(prg_rbg_2_2w_p2_4bpp_);
+    if (prg_rbg_2_2w_p1_8bpp_) device.destroyPipeline(prg_rbg_2_2w_p1_8bpp_);
+    if (prg_rbg_2_2w_p2_8bpp_) device.destroyPipeline(prg_rbg_2_2w_p2_8bpp_);
+    if (prg_rbg_2_2w_p1_16bpp_p_) device.destroyPipeline(prg_rbg_2_2w_p1_16bpp_p_);
+    if (prg_rbg_2_2w_p2_16bpp_p_) device.destroyPipeline(prg_rbg_2_2w_p2_16bpp_p_);
+    if (prg_rbg_2_2w_p1_16bpp_) device.destroyPipeline(prg_rbg_2_2w_p1_16bpp_);
+    if (prg_rbg_2_2w_p2_16bpp_) device.destroyPipeline(prg_rbg_2_2w_p2_16bpp_);
+    if (prg_rbg_2_2w_p1_32bpp_) device.destroyPipeline(prg_rbg_2_2w_p1_32bpp_);
+    if (prg_rbg_2_2w_p2_32bpp_) device.destroyPipeline(prg_rbg_2_2w_p2_32bpp_);
+
+    // RBG 3
+    if (prg_rbg_3_2w_bitmap_4bpp_) device.destroyPipeline(prg_rbg_3_2w_bitmap_4bpp_);
+    if (prg_rbg_3_2w_bitmap_8bpp_) device.destroyPipeline(prg_rbg_3_2w_bitmap_8bpp_);
+    if (prg_rbg_3_2w_bitmap_16bpp_p_) device.destroyPipeline(prg_rbg_3_2w_bitmap_16bpp_p_);
+    if (prg_rbg_3_2w_bitmap_16bpp_) device.destroyPipeline(prg_rbg_3_2w_bitmap_16bpp_);
+    if (prg_rbg_3_2w_bitmap_32bpp_) device.destroyPipeline(prg_rbg_3_2w_bitmap_32bpp_);
+    if (prg_rbg_3_2w_p1_4bpp_) device.destroyPipeline(prg_rbg_3_2w_p1_4bpp_);
+    if (prg_rbg_3_2w_p2_4bpp_) device.destroyPipeline(prg_rbg_3_2w_p2_4bpp_);
+    if (prg_rbg_3_2w_p1_8bpp_) device.destroyPipeline(prg_rbg_3_2w_p1_8bpp_);
+    if (prg_rbg_3_2w_p2_8bpp_) device.destroyPipeline(prg_rbg_3_2w_p2_8bpp_);
+    if (prg_rbg_3_2w_p1_16bpp_p_) device.destroyPipeline(prg_rbg_3_2w_p1_16bpp_p_);
+    if (prg_rbg_3_2w_p2_16bpp_p_) device.destroyPipeline(prg_rbg_3_2w_p2_16bpp_p_);
+    if (prg_rbg_3_2w_p1_16bpp_) device.destroyPipeline(prg_rbg_3_2w_p1_16bpp_);
+    if (prg_rbg_3_2w_p2_16bpp_) device.destroyPipeline(prg_rbg_3_2w_p2_16bpp_);
+    if (prg_rbg_3_2w_p1_32bpp_) device.destroyPipeline(prg_rbg_3_2w_p1_32bpp_);
+    if (prg_rbg_3_2w_p2_32bpp_) device.destroyPipeline(prg_rbg_3_2w_p2_32bpp_);
+
+    // Line versions
+    if (prg_rbg_0_2w_bitmap_4bpp_line_) device.destroyPipeline(prg_rbg_0_2w_bitmap_4bpp_line_);
+    if (prg_rbg_0_2w_bitmap_8bpp_line_) device.destroyPipeline(prg_rbg_0_2w_bitmap_8bpp_line_);
+    if (prg_rbg_0_2w_bitmap_16bpp_p_line_) device.destroyPipeline(prg_rbg_0_2w_bitmap_16bpp_p_line_);
+    
+
+    if (prg_rbg_0_2w_bitmap_16bpp_line_) device.destroyPipeline(prg_rbg_0_2w_bitmap_16bpp_line_);
+    if (prg_rbg_0_2w_bitmap_32bpp_line_) device.destroyPipeline(prg_rbg_0_2w_bitmap_32bpp_line_);
+    if (prg_rbg_0_2w_p1_4bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p1_4bpp_line_);
+    if (prg_rbg_0_2w_p2_4bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p2_4bpp_line_);
+    if (prg_rbg_0_2w_p1_8bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p1_8bpp_line_);
+    if (prg_rbg_0_2w_p2_8bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p2_8bpp_line_);
+    if (prg_rbg_0_2w_p1_16bpp_p_line_) device.destroyPipeline(prg_rbg_0_2w_p1_16bpp_p_line_);
+    if (prg_rbg_0_2w_p2_16bpp_p_line_) device.destroyPipeline(prg_rbg_0_2w_p2_16bpp_p_line_);
+    if (prg_rbg_0_2w_p1_16bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p1_16bpp_line_);
+    if (prg_rbg_0_2w_p2_16bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p2_16bpp_line_);
+    if (prg_rbg_0_2w_p1_32bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p1_32bpp_line_);
+    if (prg_rbg_0_2w_p2_32bpp_line_) device.destroyPipeline(prg_rbg_0_2w_p2_32bpp_line_);
+
+    // Line versions RBG 1
+    if (prg_rbg_1_2w_bitmap_4bpp_line_) device.destroyPipeline(prg_rbg_1_2w_bitmap_4bpp_line_);
+    if (prg_rbg_1_2w_bitmap_8bpp_line_) device.destroyPipeline(prg_rbg_1_2w_bitmap_8bpp_line_);
+    if (prg_rbg_1_2w_bitmap_16bpp_p_line_) device.destroyPipeline(prg_rbg_1_2w_bitmap_16bpp_p_line_);
+    if (prg_rbg_1_2w_bitmap_16bpp_line_) device.destroyPipeline(prg_rbg_1_2w_bitmap_16bpp_line_);
+    if (prg_rbg_1_2w_bitmap_32bpp_line_) device.destroyPipeline(prg_rbg_1_2w_bitmap_32bpp_line_);
+    if (prg_rbg_1_2w_p1_4bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p1_4bpp_line_);
+    if (prg_rbg_1_2w_p2_4bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p2_4bpp_line_);
+    if (prg_rbg_1_2w_p1_8bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p1_8bpp_line_);
+    if (prg_rbg_1_2w_p2_8bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p2_8bpp_line_);
+    if (prg_rbg_1_2w_p1_16bpp_p_line_) device.destroyPipeline(prg_rbg_1_2w_p1_16bpp_p_line_);
+    if (prg_rbg_1_2w_p2_16bpp_p_line_) device.destroyPipeline(prg_rbg_1_2w_p2_16bpp_p_line_);
+    if (prg_rbg_1_2w_p1_16bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p1_16bpp_line_);
+    if (prg_rbg_1_2w_p2_16bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p2_16bpp_line_);
+    if (prg_rbg_1_2w_p1_32bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p1_32bpp_line_);
+    if (prg_rbg_1_2w_p2_32bpp_line_) device.destroyPipeline(prg_rbg_1_2w_p2_32bpp_line_);
+
+    // Line versions RBG 2
+    if (prg_rbg_2_2w_bitmap_4bpp_line_) device.destroyPipeline(prg_rbg_2_2w_bitmap_4bpp_line_);
+    if (prg_rbg_2_2w_bitmap_8bpp_line_) device.destroyPipeline(prg_rbg_2_2w_bitmap_8bpp_line_);
+    if (prg_rbg_2_2w_bitmap_16bpp_p_line_) device.destroyPipeline(prg_rbg_2_2w_bitmap_16bpp_p_line_);
+    if (prg_rbg_2_2w_bitmap_16bpp_line_) device.destroyPipeline(prg_rbg_2_2w_bitmap_16bpp_line_);
+    if (prg_rbg_2_2w_bitmap_32bpp_line_) device.destroyPipeline(prg_rbg_2_2w_bitmap_32bpp_line_);
+    if (prg_rbg_2_2w_p1_4bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p1_4bpp_line_);
+    if (prg_rbg_2_2w_p2_4bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p2_4bpp_line_);
+    if (prg_rbg_2_2w_p1_8bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p1_8bpp_line_);
+    if (prg_rbg_2_2w_p2_8bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p2_8bpp_line_);
+    if (prg_rbg_2_2w_p1_16bpp_p_line_) device.destroyPipeline(prg_rbg_2_2w_p1_16bpp_p_line_);
+    if (prg_rbg_2_2w_p2_16bpp_p_line_) device.destroyPipeline(prg_rbg_2_2w_p2_16bpp_p_line_);
+    if (prg_rbg_2_2w_p1_16bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p1_16bpp_line_);
+    if (prg_rbg_2_2w_p2_16bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p2_16bpp_line_);
+    if (prg_rbg_2_2w_p1_32bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p1_32bpp_line_);
+    if (prg_rbg_2_2w_p2_32bpp_line_) device.destroyPipeline(prg_rbg_2_2w_p2_32bpp_line_);
+
+    // Line versions RBG 3
+    if (prg_rbg_3_2w_bitmap_4bpp_line_) device.destroyPipeline(prg_rbg_3_2w_bitmap_4bpp_line_);
+    if (prg_rbg_3_2w_bitmap_8bpp_line_) device.destroyPipeline(prg_rbg_3_2w_bitmap_8bpp_line_);
+    if (prg_rbg_3_2w_bitmap_16bpp_p_line_) device.destroyPipeline(prg_rbg_3_2w_bitmap_16bpp_p_line_);
+    if (prg_rbg_3_2w_bitmap_16bpp_line_) device.destroyPipeline(prg_rbg_3_2w_bitmap_16bpp_line_);
+    if (prg_rbg_3_2w_bitmap_32bpp_line_) device.destroyPipeline(prg_rbg_3_2w_bitmap_32bpp_line_);
+    if (prg_rbg_3_2w_p1_4bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p1_4bpp_line_);
+    if (prg_rbg_3_2w_p2_4bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p2_4bpp_line_);
+    if (prg_rbg_3_2w_p1_8bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p1_8bpp_line_);
+    if (prg_rbg_3_2w_p2_8bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p2_8bpp_line_);
+    if (prg_rbg_3_2w_p1_16bpp_p_line_) device.destroyPipeline(prg_rbg_3_2w_p1_16bpp_p_line_);
+    if (prg_rbg_3_2w_p2_16bpp_p_line_) device.destroyPipeline(prg_rbg_3_2w_p2_16bpp_p_line_);
+    if (prg_rbg_3_2w_p1_16bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p1_16bpp_line_);
+    if (prg_rbg_3_2w_p2_16bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p2_16bpp_line_);
+    if (prg_rbg_3_2w_p1_32bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p1_32bpp_line_);
+    if (prg_rbg_3_2w_p2_32bpp_line_) device.destroyPipeline(prg_rbg_3_2w_p2_32bpp_line_);
+
+
+  }
 }
 
 
@@ -2737,9 +2941,9 @@ int RBGGeneratorVulkan::init(VIDVulkan * vulkan, int width, int height) {
 
   VkBuffer u;
   VkDeviceMemory m;
-  vulkan->createBuffer(allocatedSize,
-    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, u, m);
   for (int i = 0; i < MAX_RBG_RENDER; i++) {
+    vulkan->createBuffer(allocatedSize,
+      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, u, m);
     rbgUniform[i].buf = vk::Buffer(u);
     rbgUniform[i].mem = vk::DeviceMemory(m);
   }
@@ -3046,7 +3250,7 @@ vk::Pipeline RBGGeneratorVulkan::compile_color_dot(
   std::vector<uint32_t> data;
   std::vector<char> buffer;
   SpvCompilationResult result;
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
   std::size_t hash_value = std::hash<std::string>()(target);
   // Serach from file
   string mempath = YuiGetShaderCachePath();
@@ -3063,20 +3267,13 @@ vk::Pipeline RBGGeneratorVulkan::compile_color_dot(
     file.seekg(0, std::ios::beg);
 
     // ファイルの内容を読み込む
-    buffer.resize(file_size);
-    file.read(buffer.data(), file_size);
-
-    for( int i=0; i<file_size; i+= 4 ){
-      uint32_t value = static_cast<uint32_t>(buffer[i+0])
-                   | (static_cast<uint32_t>(buffer[i+1]) << 8)
-                   | (static_cast<uint32_t>(buffer[i+2]) << 16)
-                   | (static_cast<uint32_t>(buffer[i+3]) << 24);
-      data.push_back(value);
-    }
+    data.resize(file_size / sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(data.data()), file_size);
     file.close();
 
-  }else{
-#endif
+  }
+  else {
+    //#endif
     Compiler compiler;
     CompileOptions options;
     options.SetOptimizationLevel(shaderc_optimization_level_performance);
@@ -3094,7 +3291,7 @@ vk::Pipeline RBGGeneratorVulkan::compile_color_dot(
       throw std::runtime_error("failed to create shader module!");
     }
     data = { result.cbegin(), result.cend() };
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
     std::ofstream file(file_path, std::ios::binary);
     if (!file) {
         std::cerr << "Error: Failed to open file." << std::endl;
@@ -3102,12 +3299,12 @@ vk::Pipeline RBGGeneratorVulkan::compile_color_dot(
     }
 
     // データを書き込む
-    file.write((const char*)data.data(), data.size()* sizeof(uint32_t));
+    file.write(reinterpret_cast<char*>(data.data()), data.size() * sizeof(uint32_t));
 
     // ファイルを閉じる
     file.close();
   }
-#endif
+//#endif
 
   VkShaderModuleCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

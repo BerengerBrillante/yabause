@@ -94,42 +94,121 @@ Vdp1Renderer::Vdp1Renderer(int width, int height, VIDVulkan *vulkan) {
 }
 
 Vdp1Renderer::~Vdp1Renderer() {
+  VkDevice device = vulkan->getDevice();  
 
-  delete pipleLineFactory;
-  VkDevice device = vulkan->getDevice();
-  vkDestroySampler(device, offscreenPass.sampler, nullptr);
-  for( int i=0; i<FRAMEBUFFER_COUNT; i++ ){
-    vkDestroyImage(device, offscreenPass.color[i].image, nullptr);
-    vkFreeMemory(device, offscreenPass.color[i].mem, nullptr);
-    vkDestroyImageView(device, offscreenPass.color[i].view, nullptr);
+  // Offscreen pass resources cleanup
+  for (int i = 0; i < FRAMEBUFFER_COUNT; i++) {
+    if (offscreenPass.color[i].image) vkDestroyImage(device, offscreenPass.color[i].image, nullptr);
+    if (offscreenPass.color[i].mem) vkFreeMemory(device, offscreenPass.color[i].mem, nullptr);
+    if (offscreenPass.color[i].view) vkDestroyImageView(device, offscreenPass.color[i].view, nullptr);
+    if (offscreenPass.color[i]._render_complete_semaphore) {
+      vkDestroySemaphore(device, offscreenPass.color[i]._render_complete_semaphore, nullptr);
+    }
+    // Destroy any remaining fences in the queue
+    while (!offscreenPass.color[i].renderFences.empty()) {
+      vkDestroyFence(device, offscreenPass.color[i].renderFences.front(), nullptr);
+      offscreenPass.color[i].renderFences.pop();
+    }
   }
-  vkDestroyImage(device, offscreenPass.depth.image, nullptr);
-  vkFreeMemory(device, offscreenPass.depth.mem, nullptr);
-  vkDestroyImageView(device, offscreenPass.depth.view, nullptr);
-  vkDestroyFramebuffer(device, offscreenPass.frameBuffer[0], nullptr);
-  vkDestroyFramebuffer(device, offscreenPass.frameBuffer[1], nullptr);
 
-  if (dstImage != VK_NULL_HANDLE) {
-    vkDestroyImage(device, dstImage, nullptr);
+  // Destroy depth resources
+  if (offscreenPass.depth.image) vkDestroyImage(device, offscreenPass.depth.image, nullptr);
+  if (offscreenPass.depth.mem) vkFreeMemory(device, offscreenPass.depth.mem, nullptr);
+  if (offscreenPass.depth.view) vkDestroyImageView(device, offscreenPass.depth.view, nullptr);
+
+  // Destroy framebuffers and other offscreen resources
+  for (int i = 0; i < 2; i++) {
+    if (offscreenPass.frameBuffer[i]) {
+      vkDestroyFramebuffer(device, offscreenPass.frameBuffer[i], nullptr);
+    }
   }
-  if (dstImageMemory != VK_NULL_HANDLE) {
-    vkFreeMemory(device, dstImageMemory, nullptr);
+  if (offscreenPass.renderPass) vkDestroyRenderPass(device, offscreenPass.renderPass, nullptr);
+  if (offscreenPass.sampler) vkDestroySampler(device, offscreenPass.sampler, nullptr);
+
+  // Destroy command pool and buffers
+  if (_command_pool) {
+    if (!_command_buffers.empty()) {
+      vkFreeCommandBuffers(device, _command_pool, static_cast<uint32_t>(_command_buffers.size()), _command_buffers.data());
+    }
+    vkDestroyCommandPool(device, _command_pool, nullptr);
   }
-  if (dstDeviceImage != VK_NULL_HANDLE) {
+
+  // Destroy uniform buffers
+  if (_uniformBuffer) {
+    vkDestroyBuffer(device, _uniformBuffer, nullptr);
+    vkFreeMemory(device, _uniformBufferMemory, nullptr);
+  }
+
+  if (_clearUniformBuffer) {
+    vkDestroyBuffer(device, _clearUniformBuffer, nullptr);
+    vkFreeMemory(device, _clearUniformBufferMemory, nullptr);
+  }
+
+  // Destroy vertex and index buffers
+  if (_vertexBuffer) {
+    vkDestroyBuffer(device, _vertexBuffer, nullptr);
+    vkFreeMemory(device, _vertexBufferMemory, nullptr);
+  }
+  if (_indexBuffer) {
+    vkDestroyBuffer(device, _indexBuffer, nullptr);
+    vkFreeMemory(device, _indexBufferMemory, nullptr);
+  }
+
+  // Destroy descriptor resources
+  if (_descriptorPool) {
+    vkDestroyDescriptorPool(device, _descriptorPool, nullptr);
+  }
+  if (_descriptorSetLayout) {
+    vkDestroyDescriptorSetLayout(device, _descriptorSetLayout, nullptr);
+  }
+
+  // Destroy shader modules
+  if (_vertShaderModule) vkDestroyShaderModule(device, _vertShaderModule, nullptr);
+  if (_fragShaderModule) vkDestroyShaderModule(device, _fragShaderModule, nullptr);
+
+  // Destroy pipeline resources
+  if (_pipelineLayout) vkDestroyPipelineLayout(device, _pipelineLayout, nullptr);
+  if (_graphicsPipeline) vkDestroyPipeline(device, _graphicsPipeline, nullptr);
+
+  // Cleanup pipelines vector
+  for (auto pipeline : piplelines) {
+    delete pipeline;
+  }
+  piplelines.clear();
+
+  // Destroy framebuffer read/write resources
+  if (dstDeviceImage) {
     vkDestroyImage(device, dstDeviceImage, nullptr);
-  }
-  if (dstDeviceImageMemory != VK_NULL_HANDLE) {
     vkFreeMemory(device, dstDeviceImageMemory, nullptr);
   }
+  if (dstImage) {
+    vkDestroyImage(device, dstImage, nullptr);
+    vkFreeMemory(device, dstImageMemory, nullptr);
+  }
+  if (writeDeviceImage) {
+    vkDestroyImage(device, writeDeviceImage, nullptr);
+    vkFreeMemory(device, writeDeviceImageMemory, nullptr);
+  }
+  if (writeImage) {
+    vkDestroyImage(device, writeImage, nullptr);
+    vkFreeMemory(device, writeImageMemory, nullptr);
+  }
 
-  if (tm) {
-    delete tm;
-    tm = nullptr;
+  // Free CPU buffers
+  if (cpuWriteBuffer) {
+    delete[] cpuWriteBuffer;
+    cpuWriteBuffer = nullptr;
   }
-  if (vm) {
-    delete vm;
-    vm = nullptr;
-  }
+
+  // Delete managers
+  delete tm;
+  delete vm;
+  delete pipleLineFactory;
+
+}
+
+void Vdp1Renderer::setPolygonMode(POLYGONMODE p) {
+  proygonMode = p;
 }
 
 void Vdp1Renderer::setUp() {
@@ -765,6 +844,8 @@ void Vdp1Renderer::drawEnd(void) {
 
   piplelines.push_back(currentPipeLine);
   for (int i = 0; i < piplelines.size(); i++) {
+
+
     piplelines[i]->moveToVertexBuffer(piplelines[i]->vertices, piplelines[i]->indices);
     piplelines[i]->setUBO(&ubo, sizeof(vdp1Ubo));
     piplelines[i]->setSampler(VdpPipeline::bindIdTexture, tm->geTextureImageView(), tm->getTextureSampler());
@@ -1016,6 +1097,12 @@ void Vdp1Renderer::drawEnd(void) {
                            VK_INDEX_TYPE_UINT16);
 
       vkCmdDrawIndexed(cb, piplelines[i]->indexSize, 1, 0, 0, 0);
+      //printf("draw %d\n", piplelines[i]->indexOffset, piplelines[i]->indexSize);
+
+      //std::ostringstream stream;
+      //stream << "piplelines[" << i << "]->indexOffset = " << piplelines[i]->indexOffset << " piplelines[" << i << "]->indexSize = " << piplelines[i]->indexSize << std::endl;
+      //std::string debugMessage = stream.str();
+      //OutputDebugStringA(debugMessage.c_str());
 
       if (piplelines[i]->prgid != PG_VDP1_SYSTEM_CLIP && piplelines[i]->prgid != PG_VDP1_USER_CLIP) {
         this->cpuFramebufferWriteCount[0] = 0;
@@ -2213,7 +2300,7 @@ void Vdp1Renderer::genClearPipeline() {
 
   std::vector<uint32_t> fshaderData;
   std::vector<char> buffer;
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
   std::size_t hash_value = std::hash<std::string>()(get_shader_header() + fragmentShaderName);
   // Serach from file
   string mempath = YuiGetShaderCachePath();
@@ -2230,18 +2317,12 @@ void Vdp1Renderer::genClearPipeline() {
     file.seekg(0, std::ios::beg);
 
     // ファイルの内容を読み込む
-    buffer.resize(file_size);
-    file.read(buffer.data(), file_size);
-
-    for (int i = 0; i < file_size; i += 4) {
-      uint32_t value = static_cast<uint32_t>(buffer[i + 0]) | (static_cast<uint32_t>(buffer[i + 1]) << 8) |
-                       (static_cast<uint32_t>(buffer[i + 2]) << 16) | (static_cast<uint32_t>(buffer[i + 3]) << 24);
-      fshaderData.push_back(value);
-    }
+    fshaderData.resize(file_size / sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(fshaderData.data()), file_size);
     file.close();
 
   } else {
-#endif
+//#endif
     result = compiler.CompileGlslToSpv(get_shader_header() + fragmentShaderName, shaderc_fragment_shader,
                                        "clear fragment", options);
 
@@ -2252,7 +2333,7 @@ void Vdp1Renderer::genClearPipeline() {
     }
 
     fshaderData = {result.cbegin(), result.cend()};
-#if !defined(_WINDOWS)
+//#if !defined(_WINDOWS)
     std::ofstream file(file_path, std::ios::binary);
     if (!file) {
       std::cerr << "Error: Failed to open file." << std::endl;
@@ -2260,12 +2341,12 @@ void Vdp1Renderer::genClearPipeline() {
     }
 
     // データを書き込む
-    file.write((const char *)fshaderData.data(), fshaderData.size() * sizeof(uint32_t));
+    file.write(reinterpret_cast<char*>(fshaderData.data()), fshaderData.size() * sizeof(uint32_t));
 
     // ファイルを閉じる
     file.close();
   }
-#endif
+//#endif
 
   VkShaderModuleCreateInfo fcreateInfo = {};
   fcreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -3770,6 +3851,7 @@ int Vdp1Renderer::genPolygon(YglSprite *input, CharTexture *output, float *color
   } else {
     program = currentPipeLine;
   }
+
 
   Vertex tmp[4];
   tmp[0].pos[0] = input->vertices[0];

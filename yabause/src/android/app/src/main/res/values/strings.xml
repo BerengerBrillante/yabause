@@ -123,6 +123,10 @@
     <string name="refresh_db">Refresh Game List</string>
     <string name="select_bk_image">Select Background Image</string>
 
+    <string name="report_sent_success">Thank you for your report!</string>
+    <string name="report_sent_failed">Failed to send report</string>
+
+
     <!-- Error messages -->
     <string name="video_error_media_load_timeout">Media loading timed out</string>
     <string name="video_error_server_inaccessible">Media server was not reachable</string>
@@ -221,23 +225,33 @@
     <string name="order_number_used">This order number has been used.</string>
     <string name="new_version_available">New Yaba Sanshiro is available</string>
 
-    <string name="sign_in_cancelled">Sign in is calcelled</string>
+    <string name="sign_in_cancelled">Sign in is cancelled</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="unknown_sign_in_response">Unknown sign in response</string>
+    <string name="apple_sign_in_error">Apple Sign In Error</string>
+    <string name="apple_sign_in_cancelled">Apple Sign In was cancelled</string>
     <string name="are_you_sure_to_delete">Are you sure to delete</string>
     <string name="share">Share</string>
     <string name="unsahre">UnShare</string>
     <string name="send">Send</string>
-    <string name="issue_report">ISSUE REPORT:</string>
+    <string name="issue_report">REVIEW:</string>
     <string name="status_report">STATUS REPORT:</string>
     <string name="send_warning">Send current screenshot and state  (Upload size is about 2MByte)</string>
-    <string name="report_message_1">This game does not boot.</string>
-    <string name="report_message_2">This game boots to title screen, but game is not playable.</string>
-    <string name="report_message_3">This game is playable, but there are many graphics and sound glitches.</string>
-    <string name="report_message_4">This game is playable, but there are a few graphics and sound glitches.</string>
-    <string name="report_message_5">This game runs almost perfectly.</string>
-    <string name="report_message_6">This game runs perfectly and is confirmed to reach the ending.</string>
+
+    <string name="report_message_1">Won\'t Boot</string>
+    <string name="report_message_2">Intro/Menu</string>
+    <string name="report_message_3">Playable</string>
+    <string name="report_message_4">Great</string>
+    <string name="report_message_5">Perfect</string>
+
+    <string name="game_report_message_1">Awful</string>
+    <string name="game_report_message_2">Bad</string>
+    <string name="game_report_message_3">Average</string>
+    <string name="game_report_message_4">Good</string>
+    <string name="game_report_message_5">Excellent</string>
+
+
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="sign_out">Sign out</string>
@@ -256,7 +270,32 @@
     <string name="copy_to_external">Copy to external</string>
     <string name="copy_to_internal">Copy to internal</string>
     <string name="activate">Activate</string>
-    <string name="rate">Rate</string>
+    <string name="rate">Like</string>
+
+    <!-- Cloud Game Backup -->
+    <string name="backup_to_cloud">Backup to Cloud</string>
+    <string name="remove_from_cloud">Remove from Cloud</string>
+    <string name="restore_from_cloud">Restore from Cloud</string>
+    <string name="backup_success">Game backed up successfully</string>
+    <string name="backup_failed">Failed to backup game</string>
+    <string name="restore_success">Game restored successfully</string>
+    <string name="restore_failed">Failed to restore game</string>
+    <string name="backup_limit_reached">Backup limit reached (maximum 1 game)</string>
+    <string name="legal_warning_title">Legal Notice</string>
+    <string name="legal_warning_message">This file should only be used as a backup of a game you own. Please follow your country\'s laws regarding game backups.</string>
+    <string name="cloud_only_game">Available in cloud (tap to download)</string>
+    <string name="download_from_cloud">Download from Cloud</string>
+    <string name="remove_success">Game removed from cloud successfully</string>
+    <string name="remove_failed">Failed to remove game from cloud</string>
+
+    <!-- Backup Replacement Dialog -->
+    <string name="backup_limit_dialog_title">Backup Limit Reached</string>
+    <string name="backup_limit_dialog_message">You have reached the maximum number of games you can back up. Select a game to replace:</string>
+    <string name="replace">Replace</string>
+    <string name="backup_date">Backed up on %1$s</string>
+    <string name="no_game_selected">Please select a game to replace</string>
+    <string name="replace_backup_success">Successfully replaced backup</string>
+    <string name="replace_backup_failed">Failed to replace backup</string>
 
     <string name="str_rotate_screen">90 degree rotation</string>
     <string name="title_activity_game_select_phone">GameSelectActivityPhone</string>
@@ -324,7 +363,7 @@
         [Setting] -> [Select Game Directory] -> [ADD] \n\n
 
 
-        More detail is described in our web site [https://www.uoyabause.org/static_pages/guide](https://www.uoyabause.org/static_pages/guide).\n
+        More detail is described in our [web site](https://www.yabasanshiro.com/howto#android).\n
 
         ]]>
     </string>
@@ -373,8 +412,8 @@
     <string name="which_storage">Which Storage?</string>
     <string name="or_place_file_to">Or place game into \"%1$s\" manually.</string>
     <string name="agreement">
-    By Tapping START button, you agree to <a href="https://www.uoyabause.org/static_pages/eula">the End-User License Agreement</a>.
-    Note: <a href="https://www.uoyabause.org/static_pages/privacy_policy"> The Privacy Policy </a> describes how data is handled. YabaSanshiro sends diagnostics data to devMiyax and third party services to help improve the app.
+    By Tapping START button, you agree to <a href="https://www.yabasanshiro.com/terms-of-use">the terms of use</a>.
+    Note: <a href="https://www.yabasanshiro.com/privacy"> The Privacy Policy </a> describes how data is handled. YabaSanshiro sends diagnostics data to devMiyax and third party services to help improve the app.
     </string>
 
     <string name="use_cpu_affinity">
@@ -385,9 +424,20 @@
         Use SH2 cache
     </string>
 
+    <!-- LeaderBoard strings -->
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="leaderboard_position">Pos.</string>
+    <string name="leaderboard_name">Name</string>
+    <string name="leaderboard_time">Time</string>
+    <string name="leaderboard_diff">Diff</string>
+    <string name="leaderboard_no_data">This game does not have a leaderboard yet</string>
+    <string name="leaderboard_not_supported">This game does not support leaderboard yet</string>
+    <string name="menu_leaderboard">Leaderboard</string>
+
     <string name="restore_defaults">
         Restore defaults
     </string>
+    <string name="menu_detail">Detail</string>
     <string name="last_play_game">Last play game:</string>
     <string name="device">Device:</string>
     <string name="auto_backup_memory_sync">Auto backup sync</string>
@@ -416,6 +466,15 @@
     <string name="read_permission_denied">Read permission denied: %1$s</string>
     <string name="other_file_error">Other File Error: %1$s</string>
     <string name="no_game_file_is_selected">No Game file is selected</string>
+    <string name="search_games">Search games</string>
+    <string name="sort_games">Sort games</string>
+    <string name="toggle_view_mode">Toggle view mode</string>
+    <string name="tap_to_start_game">Tap to start game</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_date">Sort by release date</string>
+    <string name="sort_by_recently_played">Sort by recently played</string>
+    <string name="game_menu">Game menu</string>
     <string name="fail_to_open_with">Fail to open %1$s with %2$s</string>
     <string name="fail_to_open">Fail to open %1$s</string>
     <string name="failed_to_initialize">Fail to initialize</string>
@@ -423,5 +482,50 @@
     <string name="fail_to_initialize_emulator">Fail to initialize emulator</string>
     <string name="notification_permission_title">Request for Notification Permission</string>
     <string name="notification_permission_message">By allowing notifications, you will receive news from the developer.</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="write_permission_explanation">Write permission is required to delete game files. Please select the folder containing your game files to grant permission.</string>
+    <string name="report_notice">
+        &lt;h2&gt; Post your review!&lt;/h2&gt; &lt;br&gt; Note: Your review content, username, and profile icon will be publicly visible. Before posting please check the &lt;a href="https://www.yabasanshiro.com/privacy"&gt;privacy policy&lt;/a&gt;.
+    </string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Discord Logo</string>
+    <string name="link_discord_account">Link Discord Account</string>
+    <string name="discord_link_prompt_title">Link Your Discord Account</string>
+    <string name="discord_link_prompt_message">Would you like to link your Discord account? This will update your profile with your Discord username and avatar.</string>
+    <string name="discord_account_linked">Discord account successfully linked!</string>
+    <string name="discord_account_link_failed">Failed to link Discord account</string>
+    <string name="discord_link_error">Discord linking error</string>
+    <string name="discord_link_cancelled">Discord linking cancelled</string>
+    <string name="discord_already_linked">Discord account already linked</string>
+    <string name="discord_unlink_account">Unlink Discord Account</string>
+    <string name="discord_unlink_confirm">Are you sure you want to unlink your Discord account?</string>
+    <string name="discord_account_unlinked">Discord account unlinked</string>
+    <string name="discord_link_title">Link Your Discord Account</string>
+    <string name="discord_link_description">Link your Discord account to use your Discord username and avatar in this app.</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="menu_link_discord">Link Discord Account</string>
+    <string name="first_login_discord_prompt">Would you like to link your Discord account?</string>
+    <string name="discord_link_prompt_yes">Yes, Link Account</string>
+    <string name="discord_link_prompt_no">No, Thanks</string>
+    <string name="discord_oauth_redirect_title">Discord Authentication</string>
+    <string name="discord_oauth_processing">Processing Discord account link...</string>
+    <string name="account_category">Account</string>
+    <string name="summary_for_discord_login">Sync your username and avatar image with your Discord one.</string>
+    <string name="summary_for_login_to_other">You can log in to the Windows version of Yaba Ssanshiro with the pin displayed.</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_summary">Delete your account and all associated data</string>
+    <string name="delete_account_confirmation_title">Delete Account</string>
+    <string name="delete_account_confirmation_message">Are you sure you want to delete your account? This will permanently delete your account and all associated data. This action cannot be undone.</string>
+    <string name="account_deleted">Account successfully deleted</string>
+    <string name="account_deletion_failed">Failed to delete account</string>
+    <string name="discord_link_not_available_on_tv">This feature is not available on Android TV. Please use your phone or tablet.</string>
+
+    <!-- Discord Webhook Settings -->
+    <string name="discord_webhook_enabled">Enable Discord Webhook Notifications</string>
+    <string name="discord_webhook_url">Discord Webhook URL</string>
+    <string name="discord_webhook_url_summary">Enter the Discord webhook URL to post new records</string>
+    <string name="discord_webhook_notification_title">New Record Posted</string>
+    <string name="discord_webhook_notification_message">Your new record has been posted to Discord</string>
+    <string name="discord_webhook_error">Failed to post to Discord</string>
 </resources>
-	
