@@ -20,7 +20,7 @@
     <string name="onscrenn_pad_setting">オンスクリーンパッドのテスト</string>
     <string name="bios">Bios</string>
     <string name="cartridge">カートリッジ</string>
-    <string name="video_core">描画エンジン</string>      
+    <string name="video_core">描画エンジン</string>
     <string name="setting_sound">サウンド</string>
     <string name="setting_graphics">グラフィックス</string>
     <string name="setting_general">一般</string>
@@ -39,8 +39,8 @@
     <string name="donate_3doller">300円</string>
     <string name="donate_5doller">500円</string>
     <string name="donate_10doller">1,000円</string>
-    <string name="donate_30doller">3,000円</string>   	
-    
+    <string name="donate_30doller">3,000円</string>
+
     <string name="input_the_key">キーを入力してください</string>
 
     <!-- LeaderBoard strings -->
@@ -67,14 +67,14 @@
 	<string name="x_button">X</string>
 	<string name="y_button">Y</string>
 	<string name="z_button">Z</string>
-	
+
 	<string name="scale">大きさ</string>
 	<string name="do_you_want_to_save_this_setting">この状態で保存しますか？</string>
 	<string name="yes">はい</string>
 	<string name="no">いいえ</string>
 	<string name="exit">終了</string>
 	<string name="ignore">無視</string>
-	
+
 	<string name="opengl_video_interface">OpenGL描画</string>
 	<string name="software_video_interface">ソフトウェア描画</string>
 	<string name="onscreen_pad">オンスクリーンパッド</string>
@@ -361,4 +361,30 @@
     <string name="report_notice">
         &lt;h2&gt;レビューを投稿！&lt;/h2&gt; &lt;br&gt; 注意：あなたのレビュー内容、ユーザー名、プロフィールアイコンは公開されます。投稿する前に&lt;a href="https://www.yabasanshiro.com/privacy"&gt;プライバシーポリシー&lt;/a&gt;をご確認ください。
     </string>
+    <string name="account_category">アカウント</string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Discordロゴ</string>
+    <string name="link_discord_account">Discordアカウントを連携</string>
+    <string name="discord_link_prompt_title">Discordアカウントを連携する</string>
+    <string name="discord_link_prompt_message">Discordアカウントを連携しますか？これにより、プロフィールがDiscordのユーザー名とアバターで更新されます。</string>
+    <string name="discord_account_linked">Discordアカウントが正常に連携されました！</string>
+    <string name="discord_account_link_failed">Discordアカウントの連携に失敗しました</string>
+    <string name="discord_link_error">Discord連携エラー</string>
+    <string name="discord_link_cancelled">Discord連携がキャンセルされました</string>
+    <string name="discord_already_linked">Discordアカウントはすでに連携されています</string>
+    <string name="discord_unlink_account">Discordアカウントの連携を解除</string>
+    <string name="discord_unlink_confirm">Discordアカウントの連携を解除してもよろしいですか？</string>
+    <string name="discord_account_unlinked">Discordアカウントの連携が解除されました</string>
+    <string name="discord_link_title">Discordアカウントを連携する</string>
+    <string name="discord_link_description">Discordアカウントを連携して、このアプリでDiscordのユーザー名とアバターを使用します。</string>
+    <string name="skip_for_now">今はスキップ</string>
+    <string name="menu_link_discord">Discordアカウントを連携</string>
+    <string name="first_login_discord_prompt">Discordアカウントを連携しますか？</string>
+    <string name="discord_link_prompt_yes">はい、アカウントを連携します</string>
+    <string name="discord_link_prompt_no">いいえ、結構です</string>
+    <string name="discord_oauth_redirect_title">Discord認証</string>
+    <string name="discord_oauth_processing">Discordアカウント連携を処理中...</string>
+    <string name="summary_for_discord_login">ユーザー名とアバター画像をDiscordのものと同期します。</string>
+    <string name="summary_for_login_to_other">表示されるPINを使用して、Yaba SsanshiroのWindows版にログインできます。</string>
 </resources>

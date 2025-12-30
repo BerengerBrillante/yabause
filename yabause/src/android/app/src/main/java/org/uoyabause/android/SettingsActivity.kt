@@ -30,6 +30,9 @@ import java.util.ArrayList
 import org.devmiyax.yabasanshiro.BuildConfig
 import org.devmiyax.yabasanshiro.R
 import org.uoyabause.android.YabauseStorage.Companion.storage
+import org.uoyabause.android.auth.DiscordLinkActivity
+import org.uoyabause.android.GameSelectPresenter
+import org.uoyabause.android.ShowPinInFragment
 import org.uoyabause.android.tv.GameSelectFragment
 
 class SettingsActivity : AppCompatActivity() {
@@ -84,6 +87,27 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onDestroy() {
             super.onDestroy()
+        }
+
+        /**
+         * Set up account preferences
+         */
+        private fun setupAccountPreferences() {
+            // Set up Discord link preference
+            val discordLinkPref = findPreference("pref_discord_link") as Preference?
+            discordLinkPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                val intent = Intent(requireContext(), DiscordLinkActivity::class.java)
+                startActivity(intent)
+                true
+            }
+
+            // Set up login to other devices preference
+            val loginToOtherPref = findPreference("pref_login_to_other") as Preference?
+            loginToOtherPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                //val presenter = GameSelectPresenter(this@SettingsFragment, null)
+                ShowPinInFragment.newInstance().show(parentFragmentManager, "pin_dialog")
+                true
+            }
         }
 
         fun setUpInstall() {
@@ -387,6 +411,9 @@ class SettingsActivity : AppCompatActivity() {
             val frameLimitSetting =
                 preferenceManager.findPreference("pref_frameLimit") as ListPreference?
             frameLimitSetting!!.summary = frameLimitSetting.entry
+
+            // Set up account preferences
+            setupAccountPreferences()
 
             setUpInstall()
         }

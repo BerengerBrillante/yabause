@@ -235,6 +235,35 @@
             android:name="com.google.android.gms.games.APP_ID"
             android:value="@string/game_id" />
 
+        <!-- Discord OAuth2 Redirect Activity -->
+        <activity
+            android:name="org.uoyabause.android.auth.DiscordOAuthRedirectActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:label="@string/discord_oauth_redirect_title"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="yabasanshiro"
+                    android:host="discord-auth" />
+            </intent-filter>
+        </activity>
+
+        <!-- Discord Link Activity -->
+        <activity
+            android:name="org.uoyabause.android.auth.DiscordLinkActivity"
+            android:exported="false"
+            android:label="@string/link_discord_account"
+            android:theme="@style/AppTheme"
+            android:parentActivityName="org.uoyabause.android.phone.GameSelectActivityPhone">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.uoyabause.android.phone.GameSelectActivityPhone" />
+        </activity>
+
     </application>
 
 </manifest>

@@ -33,6 +33,7 @@ class SonicRTest {
         every { FirebaseAuth.getInstance() } returns authMock
         every { authMock.currentUser } returns userMock
         every { userMock.uid } returns "test_uid"
+        every { userMock.photoUrl } returns android.net.Uri.parse("https://example.com/test_avatar.png")
         every { firestoreMock.collection("leaderboards") } returns colRefMock
         every { colRefMock.document(any()) } returns docRefMock
         every { docRefMock.collection("scores") } returns colRefMock
@@ -64,7 +65,8 @@ class SonicRTest {
                 val map = it as Map<String, Any?>
                 map["name"] == userName &&
                 map["score"] == score &&
-                map.containsKey("timestamp")
+                map.containsKey("timestamp") &&
+                map["photoUrl"] == "https://example.com/test_avatar.png"
             })
         }
         assert(successCalled)

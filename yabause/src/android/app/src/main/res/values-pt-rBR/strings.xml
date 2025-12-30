@@ -17,7 +17,7 @@
     <string name="input_device_title_player2">Jogador 2 - Dispositivo de Entrada</string>
     <string name="input_device">Escolher</string>
     <string name="input_device_setting">Alterar mapeamento dos botões</string>
-    <string name="onscrenn_pad_setting">Alterar controles de toque</string>    
+    <string name="onscrenn_pad_setting">Alterar controles de toque</string>
     <string name="bios">BIOS</string>
     <string name="cartridge">Cartucho</string>
     <string name="video_core">Tipo de aceleração...</string>
@@ -66,14 +66,14 @@
 	<string name="x_button">X</string>
 	<string name="y_button">Y</string>
 	<string name="z_button">Z</string>
-	
+
 	<string name="scale">Escala</string>
 	<string name="do_you_want_to_save_this_setting">Você quer salvar essa configuração?</string>
 	<string name="yes">Sim</string>
 	<string name="no">Não</string>
 	<string name="exit">Sair</string>
 	<string name="ignore">Ignorar</string>
-	
+
 	<string name="opengl_video_interface">Aceleração por hardware (OpenGL)</string>
 	<string name="software_video_interface">Sem aceleração</string>
 	<string name="onscreen_pad">Controles de Toque</string>
@@ -214,4 +214,30 @@
     <string name="report_notice">
         &lt;h2&gt;Publique sua avaliação!&lt;/h2&gt; &lt;br&gt; Nota: O conteúdo da sua avaliação, nome de usuário e ícone de perfil serão visíveis publicamente. Antes de publicar, verifique a &lt;a href="https://www.yabasanshiro.com/privacy"&gt;política de privacidade&lt;/a&gt;.
     </string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Logo do Discord</string>
+    <string name="link_discord_account">Vincular Conta do Discord</string>
+    <string name="discord_link_prompt_title">Vincular Sua Conta do Discord</string>
+    <string name="discord_link_prompt_message">Deseja vincular sua conta do Discord? Isso atualizará seu perfil com seu nome de usuário e avatar do Discord.</string>
+    <string name="discord_account_linked">Conta do Discord vinculada com sucesso!</string>
+    <string name="discord_account_link_failed">Falha ao vincular conta do Discord</string>
+    <string name="discord_link_error">Erro de vinculação do Discord</string>
+    <string name="discord_link_cancelled">Vinculação do Discord cancelada</string>
+    <string name="discord_already_linked">Conta do Discord já vinculada</string>
+    <string name="discord_unlink_account">Desvincular Conta do Discord</string>
+    <string name="discord_unlink_confirm">Tem certeza que deseja desvincular sua conta do Discord?</string>
+    <string name="discord_account_unlinked">Conta do Discord desvinculada</string>
+    <string name="discord_link_title">Vincular Sua Conta do Discord</string>
+    <string name="discord_link_description">Vincule sua conta do Discord para usar seu nome de usuário e avatar do Discord neste aplicativo.</string>
+    <string name="skip_for_now">Pular por enquanto</string>
+    <string name="menu_link_discord">Vincular Conta do Discord</string>
+    <string name="first_login_discord_prompt">Deseja vincular sua conta do Discord?</string>
+    <string name="discord_link_prompt_yes">Sim, Vincular Conta</string>
+    <string name="discord_link_prompt_no">Não, Obrigado</string>
+    <string name="discord_oauth_redirect_title">Autenticação do Discord</string>
+    <string name="discord_oauth_processing">Processando vinculação de conta do Discord...</string>
+    <string name="account_category">Conta</string>
+    <string name="summary_for_discord_login">Sincronize seu nome de usuário e imagem de avatar com os do Discord.</string>
+    <string name="summary_for_login_to_other">Você pode fazer login na versão Windows do Yaba Ssanshiro com o PIN exibido.</string>
 </resources>

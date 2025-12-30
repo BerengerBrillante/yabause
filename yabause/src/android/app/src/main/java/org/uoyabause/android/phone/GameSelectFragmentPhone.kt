@@ -290,6 +290,19 @@ class GameSelectFragmentPhone : Fragment(),
         progressBar.visibility = View.GONE
         progressMessage = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.pbText)
 
+        // RecyclerViewの設定
+        recyclerView = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.recycler_view_games)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // 検索バーの設定
+        searchView = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.search_view)
+
+        // ソートボタンの設定
+        sortButton = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.sort_button)
+        sortButton.setOnClickListener {
+            showSortMenu(it)
+        }
+
         val fab: View = rootView.findViewById(org.devmiyax.yabasanshiro.R.id.fab)
         if (Build.VERSION.SDK_INT >= VERSION_CODES.Q) {
             fab.setOnClickListener {
@@ -303,6 +316,29 @@ class GameSelectFragmentPhone : Fragment(),
             onAdViewIsShown(adHeight)
         }
         return rootView
+    }
+
+    private fun showSortMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.sort_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.sort_by_name -> {
+                    gameAdapter.sortByName()
+                    true
+                }
+                R.id.sort_by_date -> {
+                    gameAdapter.sortByDate()
+                    true
+                }
+                R.id.sort_by_recently_played -> {
+                    gameAdapter.sortByRecentlyPlayed()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
     private var adHeight = 0
@@ -430,14 +466,7 @@ class GameSelectFragmentPhone : Fragment(),
                 val i = Intent(Intent.ACTION_VIEW, uri)
                 startActivity(i)
             }
-            org.devmiyax.yabasanshiro.R.id.menu_item_login_to_other -> {
 
-                firebaseAnalytics?.logEvent("game_select_fragment"){
-                    param("event", "menu_item_login_to_other")
-                }
-
-                ShowPinInFragment.newInstance(presenter).show(childFragmentManager, "sample")
-            }
         }
         return false
     }
@@ -483,26 +512,23 @@ class GameSelectFragmentPhone : Fragment(),
     }
 
     private fun updateRecent() {
-        gameListPages?.forEach { it ->
-            if (it.pageTitle == "recent") {
+        // 最近プレイしたゲームのリストを取得して表示を更新
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val recentList = YabauseStorage.dao.getRecentGames()
 
-                GlobalScope.launch(Dispatchers.IO) {
-                    var resentList: List<GameInfo> = emptyList()
-                    try {
-                        resentList = YabauseStorage.dao.getRecentGames()
-                    } catch (e: Exception) {
-                        Log.d(TAG, e.localizedMessage!!)
-                    }
-                    GlobalScope.launch(Dispatchers.Main) {
-                        val mutableResentList: MutableList<GameInfo?> = resentList.toMutableList()
-                        val nullableMutableResentList: MutableList<GameInfo?>? = mutableResentList
-                        val resentAdapter = GameItemAdapter(nullableMutableResentList)
-                        resentAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
-                        it.gameList = resentAdapter
-                        tabPageAdapter.setGameList(gameListPages)
-                        tabPageAdapter.notifyDataSetChanged()
-                    }
+                launch(Dispatchers.Main) {
+                    // 全ゲームリストを再取得
+                    allGames = YabauseStorage.dao.getAllSortedByTitle().toMutableList()
+                    gameAdapter = GameItemAdapter(allGames)
+                    gameAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
+                    recyclerView.adapter = gameAdapter
+
+                    // 現在のソート順を維持
+                    gameAdapter.sortByRecentlyPlayed()
                 }
+            } catch (e: Exception) {
+                Log.d(TAG, e.localizedMessage ?: "Error updating recent games")
             }
         }
     }
@@ -820,8 +846,13 @@ class GameSelectFragmentPhone : Fragment(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         drawerToggle.onConfigurationChanged(newConfig)
-        tabPageAdapter.setGameList(gameListPages)
-        tabPageAdapter.notifyDataSetChanged()
+
+        // 画面の向きに応じてRecyclerViewのレイアウトを変更
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerView.layoutManager = GridLayoutManager(context, 2)
+        } else {
+            recyclerView.layoutManager = LinearLayoutManager(context)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean { // Pass the event to ActionBarDrawerToggle, if it returns
@@ -881,7 +912,7 @@ class GameSelectFragmentPhone : Fragment(),
                             false
                         )
                     ) {
-                        ShowPinInFragment.newInstance(presenter).show(
+                        ShowPinInFragment.newInstance().show(
                             childFragmentManager,
                             "sample"
                         )
@@ -1006,83 +1037,30 @@ class GameSelectFragmentPhone : Fragment(),
                 GlobalScope.launch(Dispatchers.IO) {
                     var recentList: List<GameInfo> = emptyList()
                     try {
-                        recentList = YabauseStorage.dao.getRecentGames()
-                    } catch (e: Exception) {
-                        Log.d(TAG, e.localizedMessage!!)
-                        return@launch
-                    }
+                        allGames = YabauseStorage.dao.getAllSortedByTitle().toMutableList()
 
-                    launch(Dispatchers.Main) {
-                        val mutableResentList: MutableList<GameInfo?> = recentList.toMutableList()
-                        val nullableMutableResentList: MutableList<GameInfo?>? = mutableResentList
-                        val resentAdapter = GameItemAdapter(nullableMutableResentList)
-                        gameListPages = mutableListOf()
-                        val resentPage = GameListPage("recent", resentAdapter)
-                        resentAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
-                        gameListPages!!.add(resentPage)
+                        launch(Dispatchers.Main) {
+                            gameAdapter = GameItemAdapter(allGames)
+                            gameAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
+                            recyclerView.adapter = gameAdapter
 
-                        GlobalScope.launch(Dispatchers.IO) {
-                            var list: MutableList<GameInfo>? = null
-                            try {
-                                list = YabauseStorage.dao.getAllSortedByTitle().toMutableList()
-                            } catch (e: Exception) {
-                                Log.d(TAG, "${e.localizedMessage}")
-                                return@launch
-                            }
-
-                            launch(Dispatchers.Main) {
-                                var i = 0
-                                while (i < alphabet.size) {
-                                    var hit = false
-                                    val alphabetedList: MutableList<GameInfo?> =
-                                        ArrayList()
-                                    val it = list!!.iterator()
-                                    while (it.hasNext()) {
-                                        val game = it.next()
-                                        if (game.game_title.uppercase(Locale.ROOT)
-                                                .indexOf(alphabet[i]) == 0
-                                        ) {
-                                            alphabetedList.add(game)
-                                            Log.d(
-                                                "GameSelect",
-                                                alphabet[i] + ":" + game.game_title
-                                            )
-                                            hit = true
-                                            it.remove()
-                                        }
-                                    }
-                                    if (hit) {
-                                        val pageAdapter = GameItemAdapter(alphabetedList)
-                                        pageAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
-                                        val aPage = GameListPage(alphabet[i], pageAdapter)
-                                        gameListPages!!.add(aPage)
-                                    }
-                                    i++
-                                }
-                                val othersList: MutableList<GameInfo?> = ArrayList()
-                                val it: Iterator<GameInfo> = list!!.iterator()
-                                while (it.hasNext()) {
-                                    val game = it.next()
-                                    Log.d("GameSelect", "Others:" + game.game_title)
-                                    othersList.add(game)
+                            // 検索バーのリスナーを設定
+                            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                                override fun onQueryTextSubmit(query: String?): Boolean {
+                                    return false
                                 }
 
-                                if (othersList.size > 0) {
-                                    val otherAdapter = GameItemAdapter(othersList)
-                                    otherAdapter.setOnItemClickListener(this@GameSelectFragmentPhone)
-                                    val otherPage = GameListPage("OTHERS", otherAdapter)
-                                    gameListPages!!.add(otherPage)
+                                override fun onQueryTextChange(newText: String?): Boolean {
+                                    gameAdapter.filter.filter(newText)
+                                    return true
                                 }
+                            })
 
-                                val viewPager =
-                                    rootView.findViewById(org.devmiyax.yabasanshiro.R.id.view_pager_game_index) as? ViewPager
-                                tabPageAdapter.setGameList(gameListPages)
-                                viewPager!!.adapter = tabPageAdapter
-                                tabLayout.setupWithViewPager(viewPager)
-                                viewPager.adapter!!.notifyDataSetChanged()
-
-                            }
+                            // デフォルトでは名前順にソート
+                            gameAdapter.sortByName()
                         }
+                    } catch (e: Exception) {
+                        Log.d(TAG, "${e.localizedMessage}")
                     }
                 }
             }
@@ -1103,39 +1081,9 @@ class GameSelectFragmentPhone : Fragment(),
         }
 
         if (item == null) return
-        val recentPage = gameListPages!!.find { it.pageTitle == "RECENT" }
-        recentPage?.gameList?.removeItem(item.id)
 
-        val title = item.game_title.uppercase(Locale.getDefault())[0]
-        val alphabetPage = gameListPages!!.find { it.pageTitle == title.toString() }
-        if (alphabetPage != null) {
-            alphabetPage.gameList.removeItem(item.id)
-            if (alphabetPage.gameList.itemCount == 0) {
-
-                val index = gameListPages!!.indexOfFirst { it.pageTitle == title.toString() }
-                if (index != -1) {
-                    tabLayout.removeTabAt(index)
-                }
-
-                gameListPages!!.removeAll { it.pageTitle == title.toString() }
-                tabPageAdapter.notifyDataSetChanged()
-            }
-        }
-
-        val othersPage = gameListPages!!.find { it.pageTitle == "OTHERS" }
-        if (othersPage != null) {
-            othersPage.gameList.removeItem(item.id)
-            if (othersPage.gameList.itemCount == 0) {
-
-                val index = gameListPages!!.indexOfFirst { it.pageTitle == "OTHERS" }
-                if (index != -1) {
-                    tabLayout.removeTabAt(index)
-                }
-
-                gameListPages!!.removeAll { it.pageTitle == "OTHERS" }
-                tabPageAdapter.notifyDataSetChanged()
-            }
-        }
+        // アダプターから削除
+        gameAdapter.removeItem(item.id)
     }
 
     override fun onResume() {

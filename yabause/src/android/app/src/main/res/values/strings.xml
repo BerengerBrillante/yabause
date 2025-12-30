@@ -451,4 +451,30 @@
     <string name="report_notice">
         &lt;h2&gt; Post your review!&lt;/h2&gt; &lt;br&gt; Note: Your review content, username, and profile icon will be publicly visible. Before posting please check the &lt;a href="https://www.yabasanshiro.com/privacy"&gt;privacy policy&lt;/a&gt;.
     </string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Discord Logo</string>
+    <string name="link_discord_account">Link Discord Account</string>
+    <string name="discord_link_prompt_title">Link Your Discord Account</string>
+    <string name="discord_link_prompt_message">Would you like to link your Discord account? This will update your profile with your Discord username and avatar.</string>
+    <string name="discord_account_linked">Discord account successfully linked!</string>
+    <string name="discord_account_link_failed">Failed to link Discord account</string>
+    <string name="discord_link_error">Discord linking error</string>
+    <string name="discord_link_cancelled">Discord linking cancelled</string>
+    <string name="discord_already_linked">Discord account already linked</string>
+    <string name="discord_unlink_account">Unlink Discord Account</string>
+    <string name="discord_unlink_confirm">Are you sure you want to unlink your Discord account?</string>
+    <string name="discord_account_unlinked">Discord account unlinked</string>
+    <string name="discord_link_title">Link Your Discord Account</string>
+    <string name="discord_link_description">Link your Discord account to use your Discord username and avatar in this app.</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="menu_link_discord">Link Discord Account</string>
+    <string name="first_login_discord_prompt">Would you like to link your Discord account?</string>
+    <string name="discord_link_prompt_yes">Yes, Link Account</string>
+    <string name="discord_link_prompt_no">No, Thanks</string>
+    <string name="discord_oauth_redirect_title">Discord Authentication</string>
+    <string name="discord_oauth_processing">Processing Discord account link...</string>
+    <string name="account_category">Account</string>
+    <string name="summary_for_discord_login">Sync your username and avatar image with your Discord one.</string>
+    <string name="summary_for_login_to_other">You can log in to the Windows version of Yaba Ssanshiro with the pin displayed.</string>
 </resources>

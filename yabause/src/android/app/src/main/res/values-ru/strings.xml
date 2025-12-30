@@ -227,6 +227,32 @@
     <string name="send_your_order_id">Отправьте ваш номер заказа uoYabause, чтобы отключить рекламу. Уточнить номер заказа можно на http://payments.google.com</string>
     <string name="order_number_not_found">Такой номер заказа не обнаружен.</string>
     <string name="order_number_used">Данный номер заказа уже используется.</string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Логотип Discord</string>
+    <string name="link_discord_account">Привязать аккаунт Discord</string>
+    <string name="discord_link_prompt_title">Привязать аккаунт Discord</string>
+    <string name="discord_link_prompt_message">Хотите привязать свой аккаунт Discord? Это обновит ваш профиль, добавив имя пользователя и аватар из Discord.</string>
+    <string name="discord_account_linked">Аккаунт Discord успешно привязан!</string>
+    <string name="discord_account_link_failed">Не удалось привязать аккаунт Discord</string>
+    <string name="discord_link_error">Ошибка привязки Discord</string>
+    <string name="discord_link_cancelled">Привязка Discord отменена</string>
+    <string name="discord_already_linked">Аккаунт Discord уже привязан</string>
+    <string name="discord_unlink_account">Отвязать аккаунт Discord</string>
+    <string name="discord_unlink_confirm">Вы уверены, что хотите отвязать свой аккаунт Discord?</string>
+    <string name="discord_account_unlinked">Аккаунт Discord отвязан</string>
+    <string name="discord_link_title">Привязать аккаунт Discord</string>
+    <string name="discord_link_description">Привяжите свой аккаунт Discord, чтобы использовать имя пользователя и аватар из Discord в этом приложении.</string>
+    <string name="skip_for_now">Пропустить</string>
+    <string name="menu_link_discord">Привязать аккаунт Discord</string>
+    <string name="first_login_discord_prompt">Хотите привязать свой аккаунт Discord?</string>
+    <string name="discord_link_prompt_yes">Да, привязать аккаунт</string>
+    <string name="discord_link_prompt_no">Нет, спасибо</string>
+    <string name="discord_oauth_redirect_title">Аутентификация Discord</string>
+    <string name="discord_oauth_processing">Обработка привязки аккаунта Discord...</string>
+    <string name="account_category">Аккаунт</string>
+    <string name="summary_for_discord_login">Синхронизируйте имя пользователя и аватар с вашим аккаунтом Discord.</string>
+    <string name="summary_for_login_to_other">Вы можете войти в Windows-версию Yaba Ssanshiro с помощью отображаемого PIN-кода.</string>
     <string name="new_version_available">Доступна новая версия Yaba Sanshiro</string>
 
     <string name="sign_in_cancelled">Вход отменён</string>

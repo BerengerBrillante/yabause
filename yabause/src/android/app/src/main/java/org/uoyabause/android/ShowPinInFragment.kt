@@ -38,12 +38,13 @@ class ShowPinInFragment : DialogFragment() {
     private var authchecker: DisposableSingleObserver<FirebaseUser>? = null
     lateinit var rootView: View
     private var pinNumber: String? = null
-    private lateinit var presenter_: GameSelectPresenter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
+            /*
             authchecker = object : DisposableSingleObserver<FirebaseUser>() {
                 override fun onError(e: Throwable) {
                     this@ShowPinInFragment.dismiss()
@@ -54,6 +55,7 @@ class ShowPinInFragment : DialogFragment() {
                 }
             }
             presenter_.signIn(authchecker)
+            */
             return
         } else {
             getIpdToken(user)
@@ -243,9 +245,6 @@ class ShowPinInFragment : DialogFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(presenter: GameSelectPresenter) =
-            ShowPinInFragment().apply {
-                presenter_ = presenter
-            }
+        fun newInstance() = ShowPinInFragment()
     }
 }

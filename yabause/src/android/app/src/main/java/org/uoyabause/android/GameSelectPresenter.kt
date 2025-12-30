@@ -263,10 +263,17 @@ class GameSelectPresenter(
 
             val baseref = FirebaseDatabase.getInstance().reference
             val baseurl = "/user-posts/" + currentUser.uid
-            if (currentUser.displayName != null) {
-                username_ = currentUser.displayName
-                baseref.child(baseurl).child("name").setValue(currentUser.displayName)
+
+            // Set username_ based on available information
+            username_ = when {
+                !currentUser.displayName.isNullOrEmpty() -> currentUser.displayName
+                !currentUser.email.isNullOrEmpty() -> currentUser.email!!.split("@").firstOrNull() ?: currentUser.email
+                else -> currentUser.uid
             }
+
+            // Store the username in Firebase
+            baseref.child(baseurl).child("name").setValue(username_)
+
             if (currentUser.email != null) {
                 baseref.child(baseurl).child("email").setValue(currentUser.email)
             }
@@ -295,7 +302,7 @@ class GameSelectPresenter(
 
             // startActivity(SignedInActivity.createIntent(this, response));
             // val application = target_.activity!!.application as YabauseApplication
-            FirebaseCrashlytics.getInstance().setUserId(currentUser.displayName + "_" + currentUser.email)
+            FirebaseCrashlytics.getInstance().setUserId(username_ + "_" + currentUser.email)
 
             if (authEmitter != null) {
                 authEmitter!!.onSuccess(currentUser)
@@ -804,10 +811,20 @@ class GameSelectPresenter(
         get() {
             val auth = FirebaseAuth.getInstance()
             return if (auth.currentUser != null) {
-                if( auth.currentUser!!.displayName != null ) {
-                    auth.currentUser!!.displayName
-                }else {
-                    auth.currentUser!!.uid
+                when {
+                    // First try to use display name if it exists and is not empty
+                    !auth.currentUser!!.displayName.isNullOrEmpty() -> {
+                        auth.currentUser!!.displayName
+                    }
+                    // Then try to use email if it exists
+                    !auth.currentUser!!.email.isNullOrEmpty() -> {
+                        // Use the part before @ in the email
+                        auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                    }
+                    // Finally fall back to UID
+                    else -> {
+                        auth.currentUser!!.uid
+                    }
                 }
             } else null
         }
@@ -829,12 +846,16 @@ class GameSelectPresenter(
         if (do_not_ask == true) {
             val auth = FirebaseAuth.getInstance()
             if (auth.currentUser != null) {
-                FirebaseCrashlytics.getInstance().setUserId(auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
-                mFirebaseAnalytics.setUserId(auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
-                mFirebaseAnalytics.setUserProperty("name", auth.currentUser!!
-                    .displayName + "_" + auth.currentUser!!.email)
+                // Get username using the same logic as currentUserName
+                val username = when {
+                    !auth.currentUser!!.displayName.isNullOrEmpty() -> auth.currentUser!!.displayName
+                    !auth.currentUser!!.email.isNullOrEmpty() -> auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                    else -> auth.currentUser!!.uid
+                }
+
+                FirebaseCrashlytics.getInstance().setUserId(username + "_" + auth.currentUser!!.email)
+                mFirebaseAnalytics.setUserId(username + "_" + auth.currentUser!!.email)
+                mFirebaseAnalytics.setUserProperty("name", username + "_" + auth.currentUser!!.email)
 
                 autoBackupManager.startSubscribeBackupMemory(auth.currentUser!!)
             }
@@ -884,12 +905,16 @@ class GameSelectPresenter(
                 }
             builder.create().show()
         } else {
-            FirebaseCrashlytics.getInstance().setUserId(auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
-            mFirebaseAnalytics.setUserId(auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
-            mFirebaseAnalytics.setUserProperty("name", auth.currentUser!!
-                .displayName + "_" + auth.currentUser!!.email)
+            // Get username using the same logic as currentUserName
+            val username = when {
+                !auth.currentUser!!.displayName.isNullOrEmpty() -> auth.currentUser!!.displayName
+                !auth.currentUser!!.email.isNullOrEmpty() -> auth.currentUser!!.email!!.split("@").firstOrNull() ?: auth.currentUser!!.email
+                else -> auth.currentUser!!.uid
+            }
+
+            FirebaseCrashlytics.getInstance().setUserId(username + "_" + auth.currentUser!!.email)
+            mFirebaseAnalytics.setUserId(username + "_" + auth.currentUser!!.email)
+            mFirebaseAnalytics.setUserProperty("name", username + "_" + auth.currentUser!!.email)
         }
     }
 

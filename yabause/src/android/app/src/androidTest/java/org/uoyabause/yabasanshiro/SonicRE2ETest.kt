@@ -48,6 +48,8 @@ class SonicRE2ETest {
                             assertTrue(doc.exists())
                             assertEquals(userName, doc.getString("name"))
                             assertEquals(score, doc.getLong("score"))
+                            // photoUrlはnullかもしれないが、フィールドは存在するはず
+                            assertTrue(doc.contains("photoUrl"))
                             latch.countDown()
                         }
                         .addOnFailureListener {
@@ -116,6 +118,8 @@ class SonicRE2ETest {
                                             assertTrue(doc.exists())
                                             assertEquals(userName, doc.getString("name"))
                                             assertEquals(betterScore, doc.getLong("score"))
+                                            // photoUrlはnullかもしれないが、フィールドは存在するはず
+                                            assertTrue(doc.contains("photoUrl"))
                                             latch.countDown()
                                         }
                                         .addOnFailureListener {

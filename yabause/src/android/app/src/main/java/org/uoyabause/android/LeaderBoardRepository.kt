@@ -15,11 +15,11 @@ class LeaderBoardRepository {
     private val auth = FirebaseAuth.getInstance()
     private val pageSize = 100
     private var gameId: String = "" // ゲームIDを保持する変数
-    
+
     companion object {
         const val TAG = "LeaderBoardRepository"
     }
-    
+
     // スコアエントリーデータクラス
     data class ScoreEntry(
         val userId: String,
@@ -27,15 +27,16 @@ class LeaderBoardRepository {
         val score: Long,
         val timestamp: Long,
         val rank: Int,
-        val diff: Long = 0 // トップスコアとの差分
+        val diff: Long = 0, // トップスコアとの差分
+        val photoUrl: String? = null // ユーザーのアバター画像URL
     )
-    
+
     // リーダーボードデータクラス
     data class LeaderboardInfo(
         val id: String,
         val name: String?
     )
-    
+
     // ページデータ結果クラス
     data class PageResult(
         val scores: List<ScoreEntry>,
@@ -44,7 +45,7 @@ class LeaderBoardRepository {
         val hasMoreBefore: Boolean = false,
         val hasMoreAfter: Boolean = false
     )
-    
+
     // ユーザー位置情報クラス
     data class UserPosition(
         val userId: String,
@@ -53,7 +54,7 @@ class LeaderBoardRepository {
         val totalCount: Int,
         val pageNumber: Int
     )
-    
+
     // リーダーボードID一覧を取得
     suspend fun getLeaderboards(gameCode: String): List<LeaderboardInfo> = withContext(Dispatchers.IO) {
         try {
@@ -62,7 +63,7 @@ class LeaderBoardRepository {
                 .whereEqualTo("product_number", gameCode)
                 .get()
                 .await()
-                
+
             if (gameDocuments.isEmpty) {
                 Log.d(TAG, "No game found with product_number: $gameCode")
                 return@withContext emptyList<LeaderboardInfo>()
@@ -76,19 +77,19 @@ class LeaderBoardRepository {
             }
 
             Log.d(TAG, "Found gameId: ${this@LeaderBoardRepository.gameId}")
-            
+
             // ゲームIDを使ってリーダーボード一覧を取得
             val leaderboardsResult = db.collection("games/${this@LeaderBoardRepository.gameId}/leaderboards")
                 .get()
                 .await()
-                
+
             if (leaderboardsResult.isEmpty) {
                 Log.d(TAG, "No leaderboards found for gameId: ${this@LeaderBoardRepository.gameId}")
                 return@withContext emptyList<LeaderboardInfo>()
             }
-            
+
             Log.d(TAG, "取得ドキュメント数: ${leaderboardsResult.documents.size}")
-            
+
             // リーダーボード情報をマッピング
             return@withContext leaderboardsResult.documents.map { doc ->
                 LeaderboardInfo(
@@ -101,19 +102,19 @@ class LeaderBoardRepository {
             return@withContext emptyList<LeaderboardInfo>()
         }
     }
-    
+
     // 現在のユーザーのスコアから順位を取得
     suspend fun getCurrentPosition(leaderboardId: String): UserPosition? = withContext(Dispatchers.IO) {
         try {
             val userId = auth.currentUser?.uid ?: return@withContext null
-            
+
             if (gameId.isEmpty()) {
                 Log.e(TAG, "gameId is not set. Call getLeaderboards first.")
                 return@withContext null
             }
-            
+
             Log.d(TAG, "Getting current position for leaderboardId: $leaderboardId, userId: $userId")
-            
+
             // 総数を取得
             val countQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
@@ -121,22 +122,22 @@ class LeaderBoardRepository {
                 .count()
             val countSnapshot = countQuery.get(AggregateSource.SERVER).await()
             val totalCount = countSnapshot.count.toInt()
-            
+
             // 自分のスコアを取得
             val myScoreDoc = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores").document(userId)
                 .get()
                 .await()
-                
+
             if (!myScoreDoc.exists()) {
                 Log.d(TAG, "User score document not found")
                 return@withContext null
             }
-                
+
             val myScore = myScoreDoc.getLong("score") ?: 0L
             Log.d(TAG, "Found user score: $myScore")
-            
+
             // 自分の順位を計算
             val betterScoresQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
@@ -145,12 +146,12 @@ class LeaderBoardRepository {
                 .count()
             val betterScoresCount = betterScoresQuery.get(AggregateSource.SERVER).await().count.toInt()
             val myRank = betterScoresCount + 1
-            
+
             // 自分の順位が含まれるページ番号を計算
             val pageNumber = (myRank - 1) / pageSize
-            
+
             Log.d(TAG, "User position: rank=$myRank, totalCount=$totalCount, pageNumber=$pageNumber")
-            
+
             return@withContext UserPosition(
                 userId = userId,
                 score = myScore,
@@ -163,7 +164,7 @@ class LeaderBoardRepository {
             return@withContext null
         }
     }
-    
+
 
     // 指定されたページを取得（ユーザーIDが指定された場合はそのユーザーのスコアが含まれるページを取得）
     suspend fun loadPage(leaderboardId: String, pageNumber: Int, userId: String? = null, topScore: Long = 0): PageResult = withContext(Dispatchers.IO) {
@@ -178,16 +179,16 @@ class LeaderBoardRepository {
                     hasMoreAfter = false
                 )
             }
-            
+
             Log.d(TAG, "Loading page $pageNumber for leaderboardId: $leaderboardId, userId: $userId")
-            
+
             // 総数を取得
             val countQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
                 .count()
             val totalCount = countQuery.get(AggregateSource.SERVER).await().count.toInt()
-            
+
             if (totalCount == 0) {
                 return@withContext PageResult(
                     scores = emptyList(),
@@ -197,7 +198,7 @@ class LeaderBoardRepository {
                     hasMoreAfter = false
                 )
             }
-            
+
             // ユーザーIDが指定された場合
             if (userId != null) {
                 // ユーザーのスコアドキュメントを取得
@@ -206,18 +207,18 @@ class LeaderBoardRepository {
                     .collection("scores").document(userId)
                     .get()
                     .await()
-                    
+
                 if (!userScoreDoc.exists()) {
                     Log.d(TAG, "User score document not found")
                     // ユーザーのスコアが見つからない場合は最初のページを返す
                     return@withContext loadPageByNumber(leaderboardId, 0, totalCount)
                 }
-                
+
                 // ユーザーのスコアを取得
                 val userScore = userScoreDoc.getLong("score") ?: 0L
                 val userTimestamp = userScoreDoc.getLong("timestamp") ?: 0L
                 Log.d(TAG, "Found user score: $userScore, timestamp: $userTimestamp")
-                
+
                 // ユーザーより良いスコアの数を取得して順位を計算
                 val betterScoresQuery = db.collection("games").document(gameId)
                     .collection("leaderboards").document(leaderboardId)
@@ -226,17 +227,17 @@ class LeaderBoardRepository {
                     .count()
                 val betterScoresCount = betterScoresQuery.get(AggregateSource.SERVER).await().count.toInt()
                 val userRank = betterScoresCount + 2
-                
+
                 // ユーザーの順位からページ番号を計算
                 val pageNumber = (userRank - 1) / pageSize
                 val offset = pageNumber * pageSize
-                
+
                 Log.d(TAG, "User rank: $userRank, pageNumber: $pageNumber, offset: $offset")
-                
+
                 // ユーザーのスコアを中心にページサイズ分のデータを取得
                 // 前半分と後半分に分けて取得
                 val halfPageSize = pageSize / 2
-                
+
                 // ユーザーのスコアより上位のスコアを取得（最大halfPageSize件）
                 val beforeQuery = db.collection("games").document(gameId)
                     .collection("leaderboards").document(leaderboardId)
@@ -245,7 +246,7 @@ class LeaderBoardRepository {
                     .orderBy("timestamp", Query.Direction.DESCENDING)
                     .startAt(userScore, userTimestamp)
                     .limit(halfPageSize.toLong())
-                
+
                 // ユーザーのスコアより下位のスコアを取得（最大halfPageSize件）
                 val afterQuery = db.collection("games").document(gameId)
                     .collection("leaderboards").document(leaderboardId)
@@ -254,13 +255,13 @@ class LeaderBoardRepository {
                     .orderBy("timestamp", Query.Direction.ASCENDING)
                     .startAfter(userScore, userTimestamp)
                     .limit(halfPageSize.toLong())
-                
+
                 val beforeResult = beforeQuery.get().await()
                 val afterResult = afterQuery.get().await()
-                
+
                 // 結果を結合してソート
                 val combinedScores = mutableListOf<ScoreEntry>()
-                
+
                 // 前半分のスコアを追加（逆順になっているので逆転して追加）
                 beforeResult.documents.reversed().forEachIndexed { index, doc ->
                     val rank = userRank - (beforeResult.documents.size - index)
@@ -272,12 +273,13 @@ class LeaderBoardRepository {
                                 score = doc.getLong("score") ?: 0L,
                                 timestamp = doc.getLong("timestamp") ?: 0L,
                                 diff = (doc.getLong("score") ?: 0L) - topScore,
-                                rank = rank
+                                rank = rank,
+                                photoUrl = doc.getString("photoUrl")
                             )
                         )
                     }
                 }
-                
+
                 // 後半分のスコアを追加
                 afterResult.documents.forEachIndexed { index, doc ->
                     combinedScores.add(
@@ -287,11 +289,12 @@ class LeaderBoardRepository {
                             score = doc.getLong("score") ?: 0L,
                             timestamp = doc.getLong("timestamp") ?: 0L,
                             diff = (doc.getLong("score") ?: 0L) - topScore,
-                            rank = userRank + index
+                            rank = userRank + index,
+                            photoUrl = doc.getString("photoUrl")
                         )
                     )
                 }
-                
+
                 // ユーザー自身のスコアを追加
 /*
                 combinedScores.add(
@@ -300,22 +303,23 @@ class LeaderBoardRepository {
                         name = userScoreDoc.getString("name") ?: "Unknown",
                         score = userScore,
                         timestamp = userTimestamp,
-                        rank = userRank
+                        rank = userRank,
+                        photoUrl = userScoreDoc.getString("photoUrl")
                     )
                 )
 */
                 // スコアでソート（同じスコアの場合はタイムスタンプでソート）
                 combinedScores.sortWith(compareBy<ScoreEntry> { it.score }.thenBy { it.timestamp })
-                
+
                 // ソート後に順位を再計算
                 //combinedScores.forEachIndexed { index, entry ->
                 //    combinedScores[index] = entry.copy(rank = index + 1)
                 //}
-                
+
                 // 前後にページがあるか確認
                 val hasMoreBefore = userRank > halfPageSize
                 val hasMoreAfter = (userRank + halfPageSize) < totalCount
-                
+
                 return@withContext PageResult(
                     scores = combinedScores,
                     firstVisible =  beforeResult.documents.reversed().firstOrNull(),
@@ -338,13 +342,13 @@ class LeaderBoardRepository {
             )
         }
     }
-    
+
     // ページ番号を指定してページを取得
     suspend fun loadPageByNumber(leaderboardId: String, pageNumber: Int, totalCount: Int, topScore: Long = 0): PageResult = withContext(Dispatchers.IO) {
         val offset = pageNumber * pageSize
         val hasMoreBefore = pageNumber > 0
         val hasMoreAfter = (offset + pageSize) < totalCount
-        
+
         // ページデータを取得
         val query = db.collection("games").document(gameId)
             .collection("leaderboards").document(leaderboardId)
@@ -352,7 +356,7 @@ class LeaderBoardRepository {
             .orderBy("score", Query.Direction.ASCENDING)
             .orderBy("timestamp")
             .limit(pageSize.toLong())
-        
+
         if (offset > 0) {
             // オフセット位置までスキップするクエリ
             val skipQuery = db.collection("games").document(gameId)
@@ -361,18 +365,18 @@ class LeaderBoardRepository {
                 .orderBy("score", Query.Direction.ASCENDING)
                 .orderBy("timestamp")
                 .limit(offset.toLong())
-            
+
             val skipResult = skipQuery.get().await()
-            
+
             if (skipResult.isEmpty) {
                 // オフセット位置にデータがない場合は、最初のページを返す
                 val firstPageResult = query.get().await()
                 return@withContext processPageResult(firstPageResult, 0, false, hasMoreAfter, topScore)
             }
-            
+
             // オフセットの最後のドキュメントを取得
             val lastSkippedDoc = skipResult.documents.lastOrNull()
-            
+
             if (lastSkippedDoc != null) {
                 // 目的のページを取得
                 val pageQuery = db.collection("games").document(gameId)
@@ -382,7 +386,7 @@ class LeaderBoardRepository {
                     .orderBy("timestamp")
                     .startAfter(lastSkippedDoc)
                     .limit(pageSize.toLong())
-                
+
                 val pageResult = pageQuery.get().await()
                 return@withContext processPageResult(pageResult, offset, hasMoreBefore, hasMoreAfter, topScore)
             } else {
@@ -396,19 +400,19 @@ class LeaderBoardRepository {
             return@withContext processPageResult(pageResult, 0, false, hasMoreAfter, topScore)
         }
     }
-    
+
     // 指定されたユーザーのスコアが含まれるページを取得
     suspend fun loadPageForUser(leaderboardId: String, userId: String, topScore: Long = 0): PageResult = withContext(Dispatchers.IO) {
         try {
             Log.d(TAG, "Loading page for user: $userId in leaderboard: $leaderboardId")
-            
+
             // ユーザーのスコアドキュメントを取得
             val userScoreDoc = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores").document(userId)
                 .get()
                 .await()
-                
+
             if (!userScoreDoc.exists()) {
                 Log.d(TAG, "User score document not found")
                 // ユーザーのスコアが見つからない場合は最初のページを返す
@@ -418,22 +422,22 @@ class LeaderBoardRepository {
                     .orderBy("score", Query.Direction.ASCENDING)
                     .orderBy("timestamp")
                     .limit(pageSize.toLong())
-                
+
                 val firstPageResult = firstPageQuery.get().await()
                 return@withContext processPageResult(firstPageResult, 0, false, true)
             }
-            
+
             // ユーザーのスコアを取得
             val userScore = userScoreDoc.getLong("score") ?: 0L
             Log.d(TAG, "Found user score: $userScore")
-            
+
             // 総数を取得
             val countQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
                 .count()
             val totalCount = countQuery.get(AggregateSource.SERVER).await().count.toInt()
-            
+
             // ユーザーより良いスコアの数を取得して順位を計算
             val betterScoresQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
@@ -442,13 +446,13 @@ class LeaderBoardRepository {
                 .count()
             val betterScoresCount = betterScoresQuery.get(AggregateSource.SERVER).await().count.toInt()
             val userRank = betterScoresCount + 1
-            
+
             // ユーザーの順位からページ番号を計算
             val pageNumber = (userRank - 1) / pageSize
             val offset = pageNumber * pageSize
-            
+
             Log.d(TAG, "User rank: $userRank, pageNumber: $pageNumber, offset: $offset")
-            
+
             // ユーザーのスコアを含むページを取得
             if (offset > 0) {
                 // オフセットがある場合は、その分だけスキップする必要がある
@@ -458,9 +462,9 @@ class LeaderBoardRepository {
                     .orderBy("score", Query.Direction.ASCENDING)
                     .orderBy("timestamp")
                     .limit(offset.toLong())
-                
+
                 val offsetResult = offsetQuery.get().await()
-                
+
                 if (offsetResult.isEmpty) {
                     // オフセット位置にデータがない場合は、最初のページを返す
                     Log.d(TAG, "No data found at offset, returning first page")
@@ -470,14 +474,14 @@ class LeaderBoardRepository {
                         .orderBy("score", Query.Direction.ASCENDING)
                         .orderBy("timestamp")
                         .limit(pageSize.toLong())
-                    
+
                     val firstPageResult = firstPageQuery.get().await()
                     return@withContext processPageResult(firstPageResult, 0, false, true)
                 }
-                
+
                 // オフセットの最後のドキュメントを取得
                 val offsetLastDoc = offsetResult.documents.lastOrNull()
-                
+
                 if (offsetLastDoc == null) {
                     Log.e(TAG, "offsetLastDoc is null, cannot use startAfter")
                     // 最初のページを返す
@@ -487,11 +491,11 @@ class LeaderBoardRepository {
                         .orderBy("score", Query.Direction.ASCENDING)
                         .orderBy("timestamp")
                         .limit(pageSize.toLong())
-                    
+
                     val firstPageResult = firstPageQuery.get().await()
                     return@withContext processPageResult(firstPageResult, 0, false, true)
                 }
-                
+
                 // 目的のページを取得
                 val pageQuery = db.collection("games").document(gameId)
                     .collection("leaderboards").document(leaderboardId)
@@ -500,9 +504,9 @@ class LeaderBoardRepository {
                     .orderBy("timestamp")
                     .startAfter(offsetLastDoc)
                     .limit(pageSize.toLong())
-                
+
                 val pageResult = pageQuery.get().await()
-                
+
                 if (pageResult.isEmpty) {
                     // 次のページにデータがない場合は、最初のページを返す
                     Log.d(TAG, "No data found in user page, returning first page")
@@ -512,14 +516,14 @@ class LeaderBoardRepository {
                         .orderBy("score", Query.Direction.ASCENDING)
                         .orderBy("timestamp")
                         .limit(pageSize.toLong())
-                    
+
                     val firstPageResult = firstPageQuery.get().await()
                     return@withContext processPageResult(firstPageResult, 0, false, true)
                 }
-                
+
                 val hasMoreBefore = pageNumber > 0
                 val hasMoreAfter = (offset + pageSize) < totalCount
-                
+
                 return@withContext processPageResult(pageResult, offset, hasMoreBefore, hasMoreAfter)
             } else {
                 // 最初のページの場合は直接取得
@@ -529,7 +533,7 @@ class LeaderBoardRepository {
                     .orderBy("score", Query.Direction.ASCENDING)
                     .orderBy("timestamp")
                     .limit(pageSize.toLong())
-                
+
                 val pageResult = pageQuery.get().await()
                 return@withContext processPageResult(pageResult, 0, false, (pageSize < totalCount))
             }
@@ -544,7 +548,7 @@ class LeaderBoardRepository {
             )
         }
     }
-    
+
     // ページ結果を処理するヘルパーメソッド
     private fun processPageResult(
         pageResult: com.google.firebase.firestore.QuerySnapshot,
@@ -562,7 +566,7 @@ class LeaderBoardRepository {
                 hasMoreAfter = false
             )
         }
-        
+
         // ページデータをマッピング
         val scores = pageResult.documents.mapIndexed { index, doc ->
             val score = doc.getLong("score") ?: 0L
@@ -575,10 +579,11 @@ class LeaderBoardRepository {
                 score = score,
                 timestamp = doc.getLong("timestamp") ?: 0L,
                 rank = offset + index + 1,
-                diff = diff
+                diff = diff,
+                photoUrl = doc.getString("photoUrl")
             )
         }
-        
+
         return PageResult(
             scores = scores,
             firstVisible = pageResult.documents.firstOrNull(),
@@ -587,7 +592,7 @@ class LeaderBoardRepository {
             hasMoreAfter = hasMoreAfter
         )
     }
-    
+
     // 次のページを取得
     suspend fun loadScoreAfter(leaderboardId: String, lastVisible: DocumentSnapshot, lastRank: Int = 0, topScore: Long = 0): PageResult = withContext(Dispatchers.IO) {
         try {
@@ -601,9 +606,9 @@ class LeaderBoardRepository {
                     hasMoreAfter = false
                 )
             }
-            
+
             Log.d(TAG, "Loading scores after for leaderboardId: $leaderboardId")
-            
+
             // 最後のドキュメントの後から次のページを取得
             val query = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
@@ -612,9 +617,9 @@ class LeaderBoardRepository {
                 .orderBy("timestamp")
                 .startAfter(lastVisible)
                 .limit(pageSize.toLong())
-            
+
             val result = query.get().await()
-            
+
             if (result.isEmpty) {
                 return@withContext PageResult(
                     scores = emptyList(),
@@ -624,10 +629,10 @@ class LeaderBoardRepository {
                     hasMoreAfter = false
                 )
             }
-            
+
             // ViewModelから渡された最後の順位を使用
             val startRank = if (lastRank > 0) lastRank + 1 else 1
-            
+
             // ページデータをマッピング
             val scores = result.documents.mapIndexed { index, doc ->
                 val score = doc.getLong("score")?: 0L
@@ -638,20 +643,21 @@ class LeaderBoardRepository {
                     score = score,
                     timestamp = doc.getLong("timestamp") ?: 0L,
                     rank = startRank + index,
-                    diff = diff
+                    diff = diff,
+                    photoUrl = doc.getString("photoUrl")
                 )
             }
-            
+
             // 総数を取得して、次のページがあるか確認
             val countQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
                 .count()
             val totalCount = countQuery.get(AggregateSource.SERVER).await().count.toInt()
-            
+
             val lastRankInCurrentPage = startRank + scores.size - 1
             val hasMoreAfter = lastRankInCurrentPage < totalCount
-            
+
             return@withContext PageResult(
                 scores = scores,
                 firstVisible = result.documents.firstOrNull(),
@@ -670,7 +676,7 @@ class LeaderBoardRepository {
             )
         }
     }
-    
+
     // 前のページを取得
     suspend fun loadScoresBefore(leaderboardId: String, firstVisible: DocumentSnapshot, firstRank: Int = 0, topScore: Long = 0): PageResult = withContext(Dispatchers.IO) {
 
@@ -746,7 +752,8 @@ class LeaderBoardRepository {
                     score = doc.getLong("score") ?: 0L,
                     timestamp = doc.getLong("timestamp") ?: 0L,
                     rank = startRank + index,
-                    diff = diff
+                    diff = diff,
+                    photoUrl = doc.getString("photoUrl")
                 )
             }
 
@@ -771,7 +778,7 @@ class LeaderBoardRepository {
             )
         }
     }
-    
+
     // フォーマット関数
     fun formatTime(msec: Long): String {
         val min = msec / 60000
@@ -779,7 +786,7 @@ class LeaderBoardRepository {
         val ms = msec % 1000
         return String.format("%d:%02d.%03d", min, sec, ms)
     }
-    
+
     // 指定されたリーダーボードの総スコア数を取得
     suspend fun getTotalScoreCount(leaderboardId: String): Int = withContext(Dispatchers.IO) {
         try {
@@ -787,25 +794,25 @@ class LeaderBoardRepository {
                 Log.e(TAG, "gameId is not set. Call getLeaderboards first.")
                 return@withContext 0
             }
-            
+
             Log.d(TAG, "Getting total score count for leaderboardId: $leaderboardId")
-            
+
             // スコアの総数を取得
             val countQuery = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
                 .count()
-            
+
             val totalCount = countQuery.get(AggregateSource.SERVER).await().count.toInt()
             Log.d(TAG, "Total score count for leaderboardId: $leaderboardId is $totalCount")
-            
+
             return@withContext totalCount
         } catch (e: Exception) {
             Log.e(TAG, "Error getting total score count", e)
             return@withContext 0
         }
     }
-    
+
     // 指定されたリーダーボードのトップスコア（最高スコア）を取得
     suspend fun getTopScore(leaderboardId: String): Long = withContext(Dispatchers.IO) {
         try {
@@ -813,27 +820,27 @@ class LeaderBoardRepository {
                 Log.e(TAG, "gameId is not set. Call getLeaderboards first.")
                 return@withContext 0L
             }
-            
+
             Log.d(TAG, "Getting top score for leaderboardId: $leaderboardId")
-            
+
             // スコアコレクションを取得（スコアの降順で1件だけ取得）
             val query = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
                 .orderBy("score", Query.Direction.ASCENDING)
                 .limit(1)
-            
+
             val result = query.get().await()
-            
+
             if (result.isEmpty) {
                 Log.d(TAG, "No scores found for leaderboardId: $leaderboardId")
                 return@withContext 0L
             }
-            
+
             // トップスコアを取得
             val topScore = result.documents.firstOrNull()?.getLong("score") ?: 0L
             Log.d(TAG, "Top score for leaderboardId: $leaderboardId is $topScore")
-            
+
             return@withContext topScore
         } catch (e: Exception) {
             Log.e(TAG, "Error getting top score", e)

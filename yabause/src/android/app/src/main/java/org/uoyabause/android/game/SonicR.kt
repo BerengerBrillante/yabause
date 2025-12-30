@@ -2,7 +2,10 @@ package org.uoyabause.android.game
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -20,7 +23,7 @@ import org.uoyabause.android.YabauseApplication
 00000040: 02 00 1F 40 03 00 69 78 04 00 69 78 00 00 69 78    ...@..ix..ix..ix
 00000050: 01 00 1F 40 02 00 69 78 03 00 69 78 04 00 69 78    ...@..ix..ix..ix
 00000060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-00000070: 00 00 00 00 00 00 00 00 00 00 00 00 01 01 06 11    ........\> 
+00000070: 00 00 00 00 00 00 00 00 00 00 00 00 01 01 06 11    ........\>
 00000080: 00 00 1F 40 01 00 69 78 02 00 69 78 03 00 69 78    ...@..ix..ix..ix
 00000090: 04 00 1F 40 00 00 69 78 01 00 69 78 02 00 69 78    ...@..ix..ix..ix
 000000a0: 03 00 1F 40 04 00 69 78 00 00 69 78 01 00 69 78    ...@..ix..ix..ix
@@ -71,15 +74,23 @@ fun submitScoreToFirestore(
     onFailure: ((Exception) -> Unit)? = null
 ) {
     val db = FirebaseFirestore.getInstance()
-    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+    val currentUser = FirebaseAuth.getInstance().currentUser ?: run {
         onFailure?.invoke(Exception("ユーザーが認証されていません"))
         return
     }
+    val userId = currentUser.uid
 
+    // ユーザーの画像URLを取得
+    val photoUrl = currentUser.photoUrl?.toString()
+
+    // Ensure we're using the Firebase user ID for the document ID
+    // but still display the user's name (which might be from Discord)
     val scoreData = hashMapOf(
         "name" to userName,
         "score" to score,
-        "timestamp" to System.currentTimeMillis()
+        "timestamp" to System.currentTimeMillis(),
+        "photoUrl" to photoUrl,
+        "firebaseUid" to userId  // Store the Firebase UID explicitly
     )
     val scoreDocRef = db.collection("games/${gameId}/leaderboards")
         .document(leaderboardId)
@@ -107,6 +118,9 @@ fun submitScoreToFirestore(
 
 class SonicR : BaseGame {
 
+    var gameId: String = ""
+
+    constructor( gameCode : String ) {
     var gameId: String = ""
 
     constructor( gameCode : String ) {
@@ -166,7 +180,8 @@ class SonicR : BaseGame {
             val data = hashMapOf(
                 "name" to name,
                 "score" to score,
-                "timestamp" to timestamp
+                "timestamp" to timestamp,
+                "photoUrl" to "https://cdn.discordapp.com/embed/avatars/${i % 5}.png" // ダミーのアバターURL
             )
             scoresRef.document(userId).set(data)
         }
@@ -174,6 +189,11 @@ class SonicR : BaseGame {
 
     override fun onBackUpUpdated(before: ByteArray, after: ByteArray) {
 
+        if( gameId == "" ) return
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser ?: return
+        val beforeRecord = SonicRBackup(before)
+        val afterRecord = SonicRBackup(after)
         if( gameId == "" ) return
         val auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser ?: return
@@ -187,8 +207,13 @@ class SonicR : BaseGame {
                 val account = GoogleSignIn.getLastSignedInAccount(context)
                 val gid = leaderBoards?.get(i)?.id
                 if (gid != null) {
+                    // Use the display name if available, but ensure we're using the Firebase UID for the document ID
                     val userName = currentUser.displayName ?: "Anonymous"
-                    submitScoreToFirestore(gameId,gid, score, userName)
+
+                    // Log the user information for debugging
+                    Log.d("SonicR", "Submitting score for user: ${currentUser.uid}, display name: $userName")
+
+                    submitScoreToFirestore(gameId, gid, score, userName)
                     val bundle = Bundle()
                     bundle.putLong(FirebaseAnalytics.Param.SCORE, score)
                     bundle.putString("leaderboard_id", leaderBoards?.get(i)?.id)

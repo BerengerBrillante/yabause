@@ -197,6 +197,32 @@
     <string name="already_have_been">Si vous avez déjà fait un don, veuillez contacter smiyaxdev@gmail.com</string>
     <string name="close">Close</string>
 
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Logo Discord</string>
+    <string name="link_discord_account">Lier un compte Discord</string>
+    <string name="discord_link_prompt_title">Lier votre compte Discord</string>
+    <string name="discord_link_prompt_message">Souhaitez-vous lier votre compte Discord ? Cela mettra à jour votre profil avec votre nom d\'utilisateur et votre avatar Discord.</string>
+    <string name="discord_account_linked">Compte Discord lié avec succès !</string>
+    <string name="discord_account_link_failed">Échec de la liaison du compte Discord</string>
+    <string name="discord_link_error">Erreur de liaison Discord</string>
+    <string name="discord_link_cancelled">Liaison Discord annulée</string>
+    <string name="discord_already_linked">Compte Discord déjà lié</string>
+    <string name="discord_unlink_account">Délier le compte Discord</string>
+    <string name="discord_unlink_confirm">Êtes-vous sûr de vouloir délier votre compte Discord ?</string>
+    <string name="discord_account_unlinked">Compte Discord délié</string>
+    <string name="discord_link_title">Lier votre compte Discord</string>
+    <string name="discord_link_description">Liez votre compte Discord pour utiliser votre nom d\'utilisateur et votre avatar Discord dans cette application.</string>
+    <string name="skip_for_now">Ignorer pour l\'instant</string>
+    <string name="menu_link_discord">Lier un compte Discord</string>
+    <string name="first_login_discord_prompt">Souhaitez-vous lier votre compte Discord ?</string>
+    <string name="discord_link_prompt_yes">Oui, lier le compte</string>
+    <string name="discord_link_prompt_no">Non, merci</string>
+    <string name="discord_oauth_redirect_title">Authentification Discord</string>
+    <string name="discord_oauth_processing">Traitement de la liaison du compte Discord...</string>
+    <string name="account_category">Compte</string>
+    <string name="summary_for_discord_login">Synchronisez votre nom d\'utilisateur et votre avatar avec ceux de Discord.</string>
+    <string name="summary_for_login_to_other">Vous pouvez vous connecter à la version Windows de Yaba Ssanshiro avec le code PIN affiché.</string>
+
     <string name="welcome">
         <![CDATA[
         # Bienvenue! \n\n

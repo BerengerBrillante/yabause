@@ -272,4 +272,30 @@
     <string name="report_notice">
         &lt;h2&gt;发表您的评论！&lt;/h2&gt; &lt;br&gt; 注意：您的评论内容、用户名和个人资料图标将公开显示。发布前请查看&lt;a href="https://www.yabasanshiro.com/privacy"&gt;隐私政策&lt;/a&gt;。
     </string>
+
+    <!-- Discord Integration Strings -->
+    <string name="discord_logo">Discord 标志</string>
+    <string name="link_discord_account">关联 Discord 账号</string>
+    <string name="discord_link_prompt_title">关联您的 Discord 账号</string>
+    <string name="discord_link_prompt_message">您想关联您的 Discord 账号吗？这将使用您的 Discord 用户名和头像更新您的个人资料。</string>
+    <string name="discord_account_linked">Discord 账号成功关联！</string>
+    <string name="discord_account_link_failed">关联 Discord 账号失败</string>
+    <string name="discord_link_error">Discord 关联错误</string>
+    <string name="discord_link_cancelled">Discord 关联已取消</string>
+    <string name="discord_already_linked">Discord 账号已经关联</string>
+    <string name="discord_unlink_account">解除 Discord 账号关联</string>
+    <string name="discord_unlink_confirm">您确定要解除 Discord 账号关联吗？</string>
+    <string name="discord_account_unlinked">Discord 账号已解除关联</string>
+    <string name="discord_link_title">关联您的 Discord 账号</string>
+    <string name="discord_link_description">关联您的 Discord 账号以在此应用中使用您的 Discord 用户名和头像。</string>
+    <string name="skip_for_now">暂时跳过</string>
+    <string name="menu_link_discord">关联 Discord 账号</string>
+    <string name="first_login_discord_prompt">您想关联您的 Discord 账号吗？</string>
+    <string name="discord_link_prompt_yes">是的，关联账号</string>
+    <string name="discord_link_prompt_no">不，谢谢</string>
+    <string name="discord_oauth_redirect_title">Discord 认证</string>
+    <string name="discord_oauth_processing">正在处理 Discord 账号关联...</string>
+    <string name="account_category">账号</string>
+    <string name="summary_for_discord_login">将您的用户名和头像图片与 Discord 同步。</string>
+    <string name="summary_for_login_to_other">您可以使用显示的 PIN 码登录 Yaba Ssanshiro 的 Windows 版本。</string>
 </resources>
