@@ -16,5 +16,8 @@ yabause/src/android/.settings/*
 yabause/src/android/app/.settings/*
 build*/
 yabause/src/ios/uoyabause/secrets.plist
+yabause/src/ios/uoyabause/uoyabause/GoogleService-Info.plist
+yabause/src/ios/uoyabause/uoyabause/GoogleService-Info-main.plist
+yabause/src/ios/uoyabause/uoyabause/GoogleService-Info-lite.plist
 **/Pods/*
 

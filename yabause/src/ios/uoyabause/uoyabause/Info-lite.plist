@@ -20,8 +20,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>APPL</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(CF_BUNDLE_URL_SCHEME_LITE)</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
-	<string>48</string>
+	<string>51</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-2526043010907640~1516750003</string>
 	<key>GCSupportedGameControllers</key>
@@ -86,5 +97,7 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>GIDClientID</key>
+	<string>$(GID_CLIENT_ID_LITE)</string>
 </dict>
 </plist>
