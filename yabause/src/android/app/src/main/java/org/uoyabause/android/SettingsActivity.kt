@@ -3,6 +3,7 @@ package org.uoyabause.android
 import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.Dialog
+import android.util.Log
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,10 +15,12 @@ import android.os.Bundle
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.text.InputType
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.CheckBoxPreference
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
@@ -26,6 +29,13 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.ArrayList
 import org.devmiyax.yabasanshiro.BuildConfig
 import org.devmiyax.yabasanshiro.R
@@ -107,6 +117,164 @@ class SettingsActivity : AppCompatActivity() {
                 //val presenter = GameSelectPresenter(this@SettingsFragment, null)
                 ShowPinInFragment.newInstance().show(parentFragmentManager, "pin_dialog")
                 true
+            }
+
+            // Set up delete account preference
+            val deleteAccountPref = findPreference("pref_delete_account") as Preference?
+            deleteAccountPref?.isEnabled = FirebaseAuth.getInstance().currentUser != null
+            deleteAccountPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                showDeleteAccountConfirmation()
+                true
+            }
+        }
+
+        /**
+         * Show confirmation dialog for account deletion
+         */
+        private fun showDeleteAccountConfirmation() {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            if (currentUser == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "You must be signed in to delete your account",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_account_confirmation_title)
+                .setMessage(R.string.delete_account_confirmation_message)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    deleteUserAccount()
+                }
+                .setNegativeButton(R.string.no, null)
+                .show()
+        }
+
+        /**
+         * Delete user account and all associated data
+         */
+        private fun deleteUserAccount() {
+            val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+            val userId = currentUser.uid
+
+            lifecycleScope.launch {
+                try {
+                    val db = FirebaseFirestore.getInstance()
+
+                    // 1. Delete user data from Realtime Database
+                    deleteUserDataFromDatabase(userId)
+
+                    // 2. Delete user data from Firestore: users collection
+                    // Note: delete() does not throw an error if the document doesn't exist.
+                    val userDocRef = db.collection("users").document(userId)
+                    userDocRef.delete().await()
+                    Log.d("SettingsActivity", "Attempted Firestore document deletion: users/$userId") // Log attempt
+
+                    // 3. Delete user data from Firestore: discord_links collection
+                    // Note: delete() does not throw an error if the document doesn't exist.
+                    val discordLinkDocRef = db.collection("discord_links").document(userId)
+                    discordLinkDocRef.delete().await()
+                    Log.d("SettingsActivity", "Attempted Firestore document deletion: discord_links/$userId") // Log attempt
+
+                    // 4. Delete user files from Storage
+                    deleteUserFilesFromStorage(userId)
+
+                    // 5. Delete the user account
+                    currentUser.delete().await()
+
+                    // 6. Sign out
+                    AuthUI.getInstance().signOut(requireContext())
+
+                    // 7. Show success message
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.account_deleted,
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // 8. Update UI
+                    findPreference<Preference>("pref_delete_account")?.isEnabled = false
+
+                } catch (e: Exception) {
+                    Log.e("SettingsActivity", "Error deleting user account", e)
+                    // Show error message
+                    Toast.makeText(
+                        requireContext(),
+                        "${getString(R.string.account_deletion_failed)}: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
+
+        private suspend fun deleteUserDataFromDatabase(userId: String) {
+            // Realtimedatabaseにある "/user-posts/{userId}" にある全データを削除
+            val baseurl = "/user-posts/$userId" // Use string template for clarity
+            val database = FirebaseDatabase.getInstance()
+            val userPostsRef = database.getReference(baseurl)
+
+            try {
+                userPostsRef.removeValue().await() // Use await() for suspend function
+                // Optionally log success or perform other actions
+                Log.d("SettingsActivity", "Successfully deleted data for user: $userId at path $baseurl")
+            } catch (e: Exception) {
+                // Handle potential errors during deletion
+                Log.e("SettingsActivity", "Error deleting data for user: $userId at path $baseurl", e)
+                // Rethrow or handle the error as appropriate for the application context
+                // Consider showing an error message to the user
+                throw e // Re-throw the exception if the caller needs to handle it
+            }
+        }
+
+        /**
+         * Delete user files from Firebase Storage
+         */
+        private suspend fun deleteUserFilesFromStorage(userId: String) {
+            val storage = FirebaseStorage.getInstance()
+
+            try {
+                // List all files in the user's directory
+                val listResult = storage.reference.child(userId).listAll().await()
+
+                // Delete each item
+                for (item in listResult.items) {
+                    item.delete().await()
+                }
+
+                // Recursively delete each prefix (subdirectory)
+                for (prefix in listResult.prefixes) {
+                    deleteStorageDirectory(prefix.path)
+                }
+            } catch (e: Exception) {
+                // Log error but continue
+                Log.e("SettingsActivity", "Error deleting storage files: ${e.message}")
+            }
+        }
+
+        /**
+         * Recursively delete a directory in Firebase Storage
+         */
+        private suspend fun deleteStorageDirectory(path: String) {
+            val storage = FirebaseStorage.getInstance()
+
+            try {
+                val listResult = storage.reference.child(path).listAll().await()
+
+                // Delete each item
+                for (item in listResult.items) {
+                    item.delete().await()
+                }
+
+                // Recursively delete each prefix
+                for (prefix in listResult.prefixes) {
+                    deleteStorageDirectory(prefix.path)
+                }
+            } catch (e: Exception) {
+                // Log error but continue
+                Log.e("SettingsActivity", "Error deleting storage directory: ${e.message}")
             }
         }
 

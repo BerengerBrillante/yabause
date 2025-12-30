@@ -240,4 +240,12 @@
     <string name="account_category">Conta</string>
     <string name="summary_for_discord_login">Sincronize seu nome de usuário e imagem de avatar com os do Discord.</string>
     <string name="summary_for_login_to_other">Você pode fazer login na versão Windows do Yaba Ssanshiro com o PIN exibido.</string>
+
+    <string name="delete_account">Excluir Conta</string>
+    <string name="delete_account_summary">Exclua sua conta e todos os dados associados</string>
+    <string name="delete_account_confirmation_title">Excluir Conta</string>
+    <string name="delete_account_confirmation_message">Tem certeza de que deseja excluir sua conta? Isso excluirá permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.</string>
+    <string name="account_deleted">Conta excluída com sucesso</string>
+    <string name="account_deletion_failed">Falha ao excluir conta</string>
+    <string name="discord_link_not_available_on_tv">Este recurso não está disponível na Android TV. Por favor, use seu celular ou tablet.</string>
 </resources>

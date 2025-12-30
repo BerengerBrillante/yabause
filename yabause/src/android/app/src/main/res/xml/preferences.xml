@@ -293,7 +293,13 @@
             android:key="pref_login_to_other"
             android:title="@string/sign_in_to_other_devices"
             android:summary="@string/summary_for_login_to_other"
-            android:icon="@drawable/ic_baseline_person_24px" />
+            android:icon="@android:drawable/ic_menu_share" />
+
+        <Preference
+            android:key="pref_delete_account"
+            android:title="@string/delete_account"
+            android:summary="@string/delete_account_summary"
+            android:icon="@android:drawable/ic_menu_delete" />
     </PreferenceCategory>
 
     <PreferenceCategory android:key="information" android:title="@string/information">

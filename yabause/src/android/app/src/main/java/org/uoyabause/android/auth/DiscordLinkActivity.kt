@@ -1,5 +1,8 @@
 package org.uoyabause.android.auth
 
+import android.app.UiModeManager
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -82,6 +85,11 @@ class DiscordLinkActivity : AppCompatActivity(), DiscordLinkPromptDialog.Discord
      */
     private fun setupClickListeners() {
         btnLinkDiscord.setOnClickListener {
+            if (isAndroidTv(this)) {
+                // Show message on Android TV
+                Toast.makeText(this, getString(R.string.discord_link_not_available_on_tv), Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             firebaseAuthManager.startDiscordLinking(this)
             tvStatusMessage.text = getString(R.string.discord_link_prompt_message)
         }
@@ -198,6 +206,11 @@ class DiscordLinkActivity : AppCompatActivity(), DiscordLinkPromptDialog.Discord
      * Called when the user accepts to link their Discord account
      */
     override fun onDiscordLinkAccepted() {
+        if (isAndroidTv(this)) {
+            // Show message on Android TV and do nothing else
+            Toast.makeText(this, getString(R.string.discord_link_not_available_on_tv), Toast.LENGTH_LONG).show()
+            return
+        }
         firebaseAuthManager.startDiscordLinking(this)
     }
 
@@ -206,5 +219,13 @@ class DiscordLinkActivity : AppCompatActivity(), DiscordLinkPromptDialog.Discord
      */
     override fun onDiscordLinkDeclined() {
         tvStatusMessage.text = getString(R.string.discord_link_cancelled)
+    }
+
+    /**
+     * Checks if the current device is an Android TV.
+     */
+    private fun isAndroidTv(context: Context): Boolean {
+        val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 }

@@ -387,4 +387,11 @@
     <string name="discord_oauth_processing">Discordアカウント連携を処理中...</string>
     <string name="summary_for_discord_login">ユーザー名とアバター画像をDiscordのものと同期します。</string>
     <string name="summary_for_login_to_other">表示されるPINを使用して、Yaba SsanshiroのWindows版にログインできます。</string>
+    <string name="delete_account">アカウントを削除</string>
+    <string name="delete_account_summary">アカウントと関連するすべてのデータを削除します</string>
+    <string name="delete_account_confirmation_title">アカウント削除</string>
+    <string name="delete_account_confirmation_message">本当にアカウントを削除しますか？これによりアカウントと関連するすべてのデータが完全に削除されます。この操作は元に戻せません。</string>
+    <string name="account_deleted">アカウントが正常に削除されました</string>
+    <string name="account_deletion_failed">アカウントの削除に失敗しました</string>
+    <string name="discord_link_not_available_on_tv">この機能はAndroid TVでは利用できません。スマートフォンまたはタブレットで操作してください。</string>
 </resources>

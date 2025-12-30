@@ -298,4 +298,12 @@
     <string name="account_category">账号</string>
     <string name="summary_for_discord_login">将您的用户名和头像图片与 Discord 同步。</string>
     <string name="summary_for_login_to_other">您可以使用显示的 PIN 码登录 Yaba Ssanshiro 的 Windows 版本。</string>
+
+    <string name="delete_account">删除账户</string>
+    <string name="delete_account_summary">删除您的账户及所有相关数据</string>
+    <string name="delete_account_confirmation_title">删除账户</string>
+    <string name="delete_account_confirmation_message">您确定要删除您的账户吗？这将永久删除您的账户及所有相关数据。此操作无法撤销。</string>
+    <string name="account_deleted">账户已成功删除</string>
+    <string name="account_deletion_failed">删除账户失败</string>
+    <string name="discord_link_not_available_on_tv">此功能在 Android TV 上不可用。请使用您的手机或平板电脑。</string>
 </resources>

@@ -477,4 +477,19 @@
     <string name="account_category">Account</string>
     <string name="summary_for_discord_login">Sync your username and avatar image with your Discord one.</string>
     <string name="summary_for_login_to_other">You can log in to the Windows version of Yaba Ssanshiro with the pin displayed.</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_summary">Delete your account and all associated data</string>
+    <string name="delete_account_confirmation_title">Delete Account</string>
+    <string name="delete_account_confirmation_message">Are you sure you want to delete your account? This will permanently delete your account and all associated data. This action cannot be undone.</string>
+    <string name="account_deleted">Account successfully deleted</string>
+    <string name="account_deletion_failed">Failed to delete account</string>
+    <string name="discord_link_not_available_on_tv">This feature is not available on Android TV. Please use your phone or tablet.</string>
+    
+    <!-- Discord Webhook Settings -->
+    <string name="discord_webhook_enabled">Enable Discord Webhook Notifications</string>
+    <string name="discord_webhook_url">Discord Webhook URL</string>
+    <string name="discord_webhook_url_summary">Enter the Discord webhook URL to post new records</string>
+    <string name="discord_webhook_notification_title">New Record Posted</string>
+    <string name="discord_webhook_notification_message">Your new record has been posted to Discord</string>
+    <string name="discord_webhook_error">Failed to post to Discord</string>
 </resources>

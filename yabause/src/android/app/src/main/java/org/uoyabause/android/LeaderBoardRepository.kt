@@ -27,7 +27,7 @@ class LeaderBoardRepository {
         val score: Long,
         val timestamp: Long,
         val rank: Int,
-        val diff: Long = 0, // トップスコアとの差分
+        val diff: Long = 0, // トップスコアとの差分（自分のスコア - トップスコア）
         val photoUrl: String? = null // ユーザーのアバター画像URL
     )
 
@@ -211,7 +211,7 @@ class LeaderBoardRepository {
                 if (!userScoreDoc.exists()) {
                     Log.d(TAG, "User score document not found")
                     // ユーザーのスコアが見つからない場合は最初のページを返す
-                    return@withContext loadPageByNumber(leaderboardId, 0, totalCount)
+                    return@withContext loadPageByNumber(leaderboardId, 0, totalCount, topScore)
                 }
 
                 // ユーザーのスコアを取得
@@ -266,13 +266,16 @@ class LeaderBoardRepository {
                 beforeResult.documents.reversed().forEachIndexed { index, doc ->
                     val rank = userRank - (beforeResult.documents.size - index)
                     if (rank > 0) { // 順位が0以下にならないようにする
+                        val score = doc.getLong("score") ?: 0L
+                        // トップスコアとの差分を計算
+                        val diff = calculateDiff(score, topScore)
                         combinedScores.add(
                             ScoreEntry(
                                 userId = doc.id,
                                 name = doc.getString("name") ?: "Unknown",
-                                score = doc.getLong("score") ?: 0L,
+                                score = score,
                                 timestamp = doc.getLong("timestamp") ?: 0L,
-                                diff = (doc.getLong("score") ?: 0L) - topScore,
+                                diff = diff,
                                 rank = rank,
                                 photoUrl = doc.getString("photoUrl")
                             )
@@ -282,13 +285,16 @@ class LeaderBoardRepository {
 
                 // 後半分のスコアを追加
                 afterResult.documents.forEachIndexed { index, doc ->
+                    val score = doc.getLong("score") ?: 0L
+                    // トップスコアとの差分を計算
+                    val diff = calculateDiff(score, topScore)
                     combinedScores.add(
                         ScoreEntry(
                             userId = doc.id,
                             name = doc.getString("name") ?: "Unknown",
-                            score = doc.getLong("score") ?: 0L,
+                            score = score,
                             timestamp = doc.getLong("timestamp") ?: 0L,
-                            diff = (doc.getLong("score") ?: 0L) - topScore,
+                            diff = diff,
                             rank = userRank + index,
                             photoUrl = doc.getString("photoUrl")
                         )
@@ -329,7 +335,7 @@ class LeaderBoardRepository {
                 )
             } else {
                 // ページ番号が指定された場合はそのページを取得
-                return@withContext loadPageByNumber(leaderboardId, pageNumber, totalCount)
+                return@withContext loadPageByNumber(leaderboardId, pageNumber, totalCount, topScore)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error loading page", e)
@@ -570,8 +576,8 @@ class LeaderBoardRepository {
         // ページデータをマッピング
         val scores = pageResult.documents.mapIndexed { index, doc ->
             val score = doc.getLong("score") ?: 0L
-            // トップスコアとの差分を計算（トップスコアが0の場合は差分も0）
-            val diff = if (topScore > 0 && score > 0) score - topScore else 0L
+            // トップスコアとの差分を計算
+            val diff = calculateDiff(score, topScore)
 
             ScoreEntry(
                 userId = doc.id,
@@ -636,7 +642,8 @@ class LeaderBoardRepository {
             // ページデータをマッピング
             val scores = result.documents.mapIndexed { index, doc ->
                 val score = doc.getLong("score")?: 0L
-                val diff = if (topScore > 0 && score > 0) score - topScore else 0L
+                // トップスコアとの差分を計算
+                val diff = calculateDiff(score, topScore)
                 ScoreEntry(
                     userId = doc.id,
                     name = doc.getString("name") ?: "Unknown",
@@ -745,11 +752,12 @@ class LeaderBoardRepository {
             // ページデータをマッピング
             val scores = result.documents.mapIndexed { index, doc ->
                 val score = doc.getLong("score")?: 0L
-                val diff = if (topScore > 0 && score > 0) score - topScore else 0L
+                // トップスコアとの差分を計算
+                val diff = calculateDiff(score, topScore)
                 ScoreEntry(
                     userId = doc.id,
                     name = doc.getString("name") ?: "Unknown",
-                    score = doc.getLong("score") ?: 0L,
+                    score = score,
                     timestamp = doc.getLong("timestamp") ?: 0L,
                     rank = startRank + index,
                     diff = diff,
@@ -785,6 +793,15 @@ class LeaderBoardRepository {
         val sec = (msec % 60000) / 1000
         val ms = msec % 1000
         return String.format("%d:%02d.%03d", min, sec, ms)
+    }
+
+    // 差分時間のフォーマット関数（"+"記号付き）
+    fun formatDiffTime(msec: Long): String {
+        if (msec <= 0) return "0:00.000"
+        val min = msec / 60000
+        val sec = (msec % 60000) / 1000
+        val ms = msec % 1000
+        return String.format("+%d:%02d.%03d", min, sec, ms)
     }
 
     // 指定されたリーダーボードの総スコア数を取得
@@ -823,7 +840,8 @@ class LeaderBoardRepository {
 
             Log.d(TAG, "Getting top score for leaderboardId: $leaderboardId")
 
-            // スコアコレクションを取得（スコアの降順で1件だけ取得）
+            // スコアコレクションを取得（スコアの昇順で1件だけ取得）
+            // 注意: スコアは小さい方が良いスコア（タイムが短い）なので、ASCENDINGで最初の1件がトップスコア
             val query = db.collection("games").document(gameId)
                 .collection("leaderboards").document(leaderboardId)
                 .collection("scores")
@@ -837,7 +855,7 @@ class LeaderBoardRepository {
                 return@withContext 0L
             }
 
-            // トップスコアを取得
+            // トップスコア（最小値）を取得
             val topScore = result.documents.firstOrNull()?.getLong("score") ?: 0L
             Log.d(TAG, "Top score for leaderboardId: $leaderboardId is $topScore")
 
@@ -846,5 +864,12 @@ class LeaderBoardRepository {
             Log.e(TAG, "Error getting top score", e)
             return@withContext 0L
         }
+    }
+
+    // スコアの差分を計算するヘルパーメソッド
+    fun calculateDiff(score: Long, topScore: Long): Long {
+        // スコアはタイムなので、小さい方が良いスコア
+        // 差分は「自分のスコア - トップスコア」で計算（正の値になる）
+        return if (topScore > 0 && score > 0) score - topScore else 0L
     }
 }

@@ -440,5 +440,13 @@
     <string name="report_notice">
         &lt;h2&gt;Опубликуйте свой отзыв!&lt;/h2&gt; &lt;br&gt; Примечание: Содержание вашего отзыва, имя пользователя и значок профиля будут общедоступны. Перед публикацией ознакомьтесь с &lt;a href="https://www.yabasanshiro.com/privacy"&gt;политикой конфиденциальности&lt;/a&gt;.
     </string>
+
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_account_summary">Удалить ваш аккаунт и все связанные с ним данные</string>
+    <string name="delete_account_confirmation_title">Удалить аккаунт</string>
+    <string name="delete_account_confirmation_message">Вы уверены, что хотите удалить свой аккаунт? Это приведет к необратимому удалению вашего аккаунта и всех связанных с ним данных. Это действие нельзя отменить.</string>
+    <string name="account_deleted">Аккаунт успешно удален</string>
+    <string name="account_deletion_failed">Не удалось удалить аккаунт</string>
+    <string name="discord_link_not_available_on_tv">Эта функция недоступна на Android TV. Пожалуйста, используйте свой телефон или планшет.</string>
 </resources>
 	

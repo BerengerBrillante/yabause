@@ -296,7 +296,7 @@ class LeaderBoardFragment : Fragment() {
                 rankTextView.text = score.rank.toString()
                 nameTextView.text = score.name
                 scoreTextView.text = viewModel.repository.formatTime(score.score)
-                diffView.text = viewModel.repository.formatTime(score.diff)
+                diffView.text = viewModel.repository.formatDiffTime(score.diff)
 
                 // ユーザーアバターを表示
                 if (score.photoUrl != null) {
