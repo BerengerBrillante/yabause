@@ -5,6 +5,10 @@ target 'YabaSnashiro' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
   pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Database'
+  pod 'Firebase/Storage'
+  pod 'GoogleSignIn'
   pod 'FirebaseCrashlytics'
   pod 'Kingfisher', '~> 7.0' 
 
@@ -13,6 +17,10 @@ target 'YabaSnashiro' do
   target 'YabaSnashiro-Lite' do
     inherit! :search_paths
     pod 'Firebase/Core'
+    pod 'Firebase/Auth'
+    pod 'Firebase/Storage'
+    pod 'Firebase/Database'
+    pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
     pod 'Kingfisher', '~> 7.0'  
     pod 'Google-Mobile-Ads-SDK'
@@ -21,6 +29,10 @@ target 'YabaSnashiro' do
   target 'YabaSnashiroTests' do
     inherit! :search_paths
     pod 'Firebase/Core'
+    pod 'Firebase/Auth'
+    pod 'Firebase/Storage'
+    pod 'Firebase/Database'
+    pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
     pod 'Kingfisher', '~> 7.0'  
   end
@@ -28,6 +40,10 @@ target 'YabaSnashiro' do
   target 'YabaSnashiroUITests' do
     inherit! :search_paths
     pod 'Firebase/Core'
+    pod 'Firebase/Storage'
+    pod 'Firebase/Auth'
+    pod 'Firebase/Database'
+    pod 'GoogleSignIn'
     pod 'FirebaseCrashlytics'
     pod 'Kingfisher', '~> 7.0'  
   end

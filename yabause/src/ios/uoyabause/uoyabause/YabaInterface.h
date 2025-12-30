@@ -63,5 +63,5 @@ int YSDeleteBackupFile( int index );
 NSString* YSGetBackupFile( int index );
 int YSPutFile( NSString* jsonstr  );
 int YSCopy( int target, int file  );
-
-
+void YSUpdateCheat(NSArray* stringArray);
+NSString* YSGetCurrentGameCode();

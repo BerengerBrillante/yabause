@@ -1,8 +1,10 @@
 import UIKit
 import FirebaseCore
+import GoogleSignIn
 #if FREE_VERSION
 import GoogleMobileAds
 #endif
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -41,12 +43,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-    // 他のアプリからファイルを開くためのメソッド
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    // Google SignInのURLハンドリング
+    func application(_ app: UIApplication,
+                    open url: URL,
+                    options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        if GIDSignIn.sharedInstance.handle(url) {
+            return true
+        }
+        
+        // 他のアプリからファイルを開く処理
         openMainScreenController(withFileAt: url)
         return true
     }
-    
 
     // MainScreenControllerを起動してファイルを処理するためのカスタムメソッド
     func openMainScreenController(withFileAt url: URL) {

@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import UniformTypeIdentifiers
+import FirebaseAuth
 
 class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
     
@@ -16,7 +17,7 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
     var blurEffectView: UIVisualEffectView!
     var selected_file_path: String = ""
     @IBOutlet weak var settingButton: UIButton!
-
+    private var authButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,10 +42,57 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
         self.navigationItem.title = "Yaba Sanshiro 2 Lite"
         #endif
         
-       settingButton.accessibilityIdentifier = "settingButton"
+        settingButton.accessibilityIdentifier = "settingButton"
         
+        // Auth buttonの追加
+        setupAuthButton()
+        
+        // Auth状態の監視を開始
+        observeAuthState()
+    }
+    
+    private func setupAuthButton() {
+        authButton = UIBarButtonItem(title: "Sign in", style: .plain, target: self, action: #selector(authButtonTapped))
+        navigationItem.rightBarButtonItems = [navigationItem.rightBarButtonItem, authButton].compactMap { $0 }
+        updateAuthButtonState()
+    }
+    
+    private func observeAuthState() {
+        Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
+            self?.updateAuthButtonState()
+        }
+    }
+    
+    private func updateAuthButtonState() {
+        if Auth.auth().currentUser != nil {
+            authButton.title = "Sign out"
+        } else {
+            authButton.title = "Sign in"
+        }
     }
 
+    @objc private func authButtonTapped() {
+        if Auth.auth().currentUser != nil {
+            // サインアウト処理
+            do {
+                try Auth.auth().signOut()
+                let alert = UIAlertController(
+                    title: "ログアウト成功",
+                    message: "ログアウトしました",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+            } catch {
+                print("Error signing out: \(error.localizedDescription)")
+            }
+        } else {
+            // サインイン画面を表示
+            let loginVC = LoginViewController()
+            let navController = UINavigationController(rootViewController: loginVC)
+            present(navController, animated: true)
+        }
+    }
    
     @IBAction func onAddFile(_ sender: Any) {
         
@@ -161,10 +209,5 @@ class MainScreenController :UIViewController, UIDocumentPickerDelegate  {
         }
         
         fileURL.stopAccessingSecurityScopedResource()
-        
-                
     }
-    
-    
-    
 }

@@ -62,6 +62,18 @@
 		94F215442C4CC9BC00C213F8 /* GameMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F215422C4CC9BC00C213F8 /* GameMainViewController.swift */; };
 		94FAD18A2C5F015800E31F1F /* MetalANGLE.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; };
 		CBF917C3CCABDBB63DCB43DF /* Pods_YabaSnashiro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8BA1D770E151F00A6BA938B /* Pods_YabaSnashiro.framework */; };
+		D926983E2D5747E50010093B /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D926983D2D5747E50010093B /* LoginViewController.swift */; };
+		D926983F2D5747E50010093B /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D926983D2D5747E50010093B /* LoginViewController.swift */; };
+		D92698482D5F91860010093B /* TabCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698452D5F91860010093B /* TabCheatViewController.swift */; };
+		D92698492D5F91860010093B /* YabauseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698462D5F91860010093B /* YabauseManager.swift */; };
+		D926984A2D5F91860010093B /* LocalCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698442D5F91860010093B /* LocalCheatViewController.swift */; };
+		D926984B2D5F91860010093B /* CloudCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698432D5F91860010093B /* CloudCheatViewController.swift */; };
+		D926984C2D5F91860010093B /* TabCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698452D5F91860010093B /* TabCheatViewController.swift */; };
+		D926984D2D5F91860010093B /* YabauseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698462D5F91860010093B /* YabauseManager.swift */; };
+		D926984E2D5F91860010093B /* LocalCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698442D5F91860010093B /* LocalCheatViewController.swift */; };
+		D926984F2D5F91860010093B /* CloudCheatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698432D5F91860010093B /* CloudCheatViewController.swift */; };
+		D92698512D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698502D601A6D0010093B /* CloudCheatTableViewCell.swift */; };
+		D92698522D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92698502D601A6D0010093B /* CloudCheatTableViewCell.swift */; };
 		D930AD3E2C71874D000A7E4D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D930AD3D2C71874D000A7E4D /* Localizable.xcstrings */; };
 		D930AD3F2C71874D000A7E4D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D930AD3D2C71874D000A7E4D /* Localizable.xcstrings */; };
 		D97B415B2C8CFC2E0070A81D /* YabaInterface.mm in Sources */ = {isa = PBXBuildFile; fileRef = D97B415A2C8CFC2E0070A81D /* YabaInterface.mm */; };
@@ -89,6 +101,8 @@
 		D9EE8ED82C5F436100E47A22 /* MetalANGLE.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; };
 		D9EE8ED92C5F436100E47A22 /* MetalANGLE.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 94FAD1882C5F015800E31F1F /* MetalANGLE.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D9EE8EE12C5F464E00E47A22 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EE8EE02C5F464E00E47A22 /* SnapshotHelper.swift */; };
+		D9F8DF882D605EA1006EA972 /* LocalCheatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F8DF872D605EA1006EA972 /* LocalCheatTableViewCell.swift */; };
+		D9F8DF892D605EA1006EA972 /* LocalCheatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F8DF872D605EA1006EA972 /* LocalCheatTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -237,6 +251,12 @@
 		C8BA1D770E151F00A6BA938B /* Pods_YabaSnashiro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YabaSnashiro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCB1CB6709D254B83DC2B910 /* Pods-uoyabause.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uoyabause.debug.xcconfig"; path = "Pods/Target Support Files/Pods-uoyabause/Pods-uoyabause.debug.xcconfig"; sourceTree = "<group>"; };
 		CD439AACD73A3F0ECAC8B612 /* Pods-YabaSnashiroUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YabaSnashiroUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YabaSnashiroUITests/Pods-YabaSnashiroUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		D926983D2D5747E50010093B /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		D92698432D5F91860010093B /* CloudCheatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudCheatViewController.swift; sourceTree = "<group>"; };
+		D92698442D5F91860010093B /* LocalCheatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCheatViewController.swift; sourceTree = "<group>"; };
+		D92698452D5F91860010093B /* TabCheatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabCheatViewController.swift; sourceTree = "<group>"; };
+		D92698462D5F91860010093B /* YabauseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YabauseManager.swift; sourceTree = "<group>"; };
+		D92698502D601A6D0010093B /* CloudCheatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudCheatTableViewCell.swift; sourceTree = "<group>"; };
 		D930AD3D2C71874D000A7E4D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		D930AD482C738D74000A7E4D /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Main.xcstrings; sourceTree = "<group>"; };
 		D930AD492C738D92000A7E4D /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/LaunchScreen.xcstrings; sourceTree = "<group>"; };
@@ -256,6 +276,7 @@
 		D9EE8EDB2C5F43F000E47A22 /* YabaSnashiroUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YabaSnashiroUITests-Bridging-Header.h"; sourceTree = "<group>"; };
 		D9EE8EDC2C5F43F100E47A22 /* MainScreenTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreenTest.swift; sourceTree = "<group>"; };
 		D9EE8EE02C5F464E00E47A22 /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SnapshotHelper.swift; path = fastlane/SnapshotHelper.swift; sourceTree = SOURCE_ROOT; };
+		D9F8DF872D605EA1006EA972 /* LocalCheatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCheatTableViewCell.swift; sourceTree = "<group>"; };
 		E441550DF2B7E73FC083A81F /* Pods-uoyabauseUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uoyabauseUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-uoyabauseUITests/Pods-uoyabauseUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		F059606C7ACC5A2D6E902DCC /* Pods-YabaSnashiro.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YabaSnashiro.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YabaSnashiro/Pods-YabaSnashiro.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -357,6 +378,8 @@
 		644232A41C6580000050611E /* uoyabause */ = {
 			isa = PBXGroup;
 			children = (
+				D92698472D5F91860010093B /* Cheat */,
+				D926983D2D5747E50010093B /* LoginViewController.swift */,
 				D97B415D2C8D071F0070A81D /* BackupManager */,
 				644232A31C6580000050611E /* Products */,
 				644232B21C6580000050611E /* Main.storyboard */,
@@ -431,6 +454,19 @@
 				098977F096BD86869379DB6A /* Pods_YabaSnashiro_Lite.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D92698472D5F91860010093B /* Cheat */ = {
+			isa = PBXGroup;
+			children = (
+				D9F8DF872D605EA1006EA972 /* LocalCheatTableViewCell.swift */,
+				D92698502D601A6D0010093B /* CloudCheatTableViewCell.swift */,
+				D92698432D5F91860010093B /* CloudCheatViewController.swift */,
+				D92698442D5F91860010093B /* LocalCheatViewController.swift */,
+				D92698452D5F91860010093B /* TabCheatViewController.swift */,
+				D92698462D5F91860010093B /* YabauseManager.swift */,
+			);
+			path = Cheat;
 			sourceTree = "<group>";
 		};
 		D97B415D2C8D071F0070A81D /* BackupManager */ = {
@@ -702,34 +738,58 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiro/Pods-YabaSnashiro-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreExtension/FirebaseCoreExtension.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseDatabase/FirebaseDatabase.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseStorage/FirebaseStorage.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/RecaptchaInterop/RecaptchaInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreExtension.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseDatabase.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseStorage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMAppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleSignIn.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RecaptchaInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -766,34 +826,58 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiroTests/Pods-YabaSnashiroTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreExtension/FirebaseCoreExtension.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseDatabase/FirebaseDatabase.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseStorage/FirebaseStorage.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/RecaptchaInterop/RecaptchaInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreExtension.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseDatabase.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseStorage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMAppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleSignIn.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RecaptchaInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -898,34 +982,58 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiroUITests/Pods-YabaSnashiroUITests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreExtension/FirebaseCoreExtension.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseDatabase/FirebaseDatabase.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseStorage/FirebaseStorage.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/RecaptchaInterop/RecaptchaInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreExtension.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseDatabase.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseStorage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMAppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleSignIn.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RecaptchaInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -958,34 +1066,58 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-YabaSnashiro-Lite/Pods-YabaSnashiro-Lite-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseAuthInterop/FirebaseAuthInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreExtension/FirebaseCoreExtension.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseDatabase/FirebaseDatabase.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
 				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseSharedSwift/FirebaseSharedSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseStorage/FirebaseStorage.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/RecaptchaInterop/RecaptchaInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAppCheckInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuthInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreExtension.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseDatabase.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSharedSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseStorage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMAppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleSignIn.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RecaptchaInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1000,6 +1132,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9F8DF892D605EA1006EA972 /* LocalCheatTableViewCell.swift in Sources */,
+				D926984C2D5F91860010093B /* TabCheatViewController.swift in Sources */,
+				D926984D2D5F91860010093B /* YabauseManager.swift in Sources */,
+				D926984E2D5F91860010093B /* LocalCheatViewController.swift in Sources */,
+				D926984F2D5F91860010093B /* CloudCheatViewController.swift in Sources */,
 				94F215322C4BA91600C213F8 /* SaturnKey.swift in Sources */,
 				94F2152C2C4BA6FF00C213F8 /* MenuViewController.swift in Sources */,
 				D98F41DA2C6DA7620003E4C8 /* DraggableCircleView.swift in Sources */,
@@ -1013,7 +1150,9 @@
 				94F215392C4BCE0500C213F8 /* PadButton.swift in Sources */,
 				94CB9D8F2581C6BE00C8E3EC /* iOSCoreAudio.m in Sources */,
 				94F2152F2C4BA89B00C213F8 /* KeyMapper.swift in Sources */,
+				D926983E2D5747E50010093B /* LoginViewController.swift in Sources */,
 				9490862A2C439ECD0061671A /* GameInfo.swift in Sources */,
+				D92698512D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */,
 				D97B415B2C8CFC2E0070A81D /* YabaInterface.mm in Sources */,
 				D98F41D72C6B92C40003E4C8 /* UIDevice.swift in Sources */,
 			);
@@ -1040,6 +1179,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9F8DF882D605EA1006EA972 /* LocalCheatTableViewCell.swift in Sources */,
+				D92698482D5F91860010093B /* TabCheatViewController.swift in Sources */,
+				D92698492D5F91860010093B /* YabauseManager.swift in Sources */,
+				D926984A2D5F91860010093B /* LocalCheatViewController.swift in Sources */,
+				D926984B2D5F91860010093B /* CloudCheatViewController.swift in Sources */,
 				D9D009912C693F0300B93C58 /* AppDelegate.swift in Sources */,
 				94F215332C4BA91600C213F8 /* SaturnKey.swift in Sources */,
 				D98F41DB2C6DA7620003E4C8 /* DraggableCircleView.swift in Sources */,
@@ -1053,7 +1197,9 @@
 				94F2153A2C4BCE0500C213F8 /* PadButton.swift in Sources */,
 				941B72EF2BE733D70078C190 /* iOSCoreAudio.m in Sources */,
 				94F215302C4BA89B00C213F8 /* KeyMapper.swift in Sources */,
+				D926983F2D5747E50010093B /* LoginViewController.swift in Sources */,
 				9490862B2C439ECD0061671A /* GameInfo.swift in Sources */,
+				D92698522D601A6D0010093B /* CloudCheatTableViewCell.swift in Sources */,
 				D97B415C2C8CFC2E0070A81D /* YabaInterface.mm in Sources */,
 				D98F41D82C6B92C40003E4C8 /* UIDevice.swift in Sources */,
 			);

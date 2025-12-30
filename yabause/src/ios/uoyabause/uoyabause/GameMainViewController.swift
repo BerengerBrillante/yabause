@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 
 
 
@@ -85,8 +86,8 @@ extension GameMainViewController: GameViewControllerDelegate {
             
             // open it
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
-                
-                self.gameVC?.view.frame.origin.x = 240 //a(self.gameVC?.view.frame.size.width ?? 100) - 100
+
+                self.gameVC?.view.frame.origin.x = self.menuVC.optimalWidth
                 
             }completion:{ [weak self] done in
                 if done {
@@ -106,9 +107,7 @@ extension GameMainViewController: GameViewControllerDelegate {
             }completion:{ [weak self] done in
                 if done {
                     self?.menuState = .closed
-                    DispatchQueue.main.async {
-                        completion?()
-                    }
+                    completion?()
                 }
             }
         }
@@ -176,6 +175,32 @@ extension GameMainViewController: MenuViewControllerDelegate {
             case .backupManager:
                 self?.gameVC?.presentBackupFileListViewController()
                 doNotPause = true
+                break
+            case .cheat:
+                // ログイン状態を確認
+                if let user = Auth.auth().currentUser {
+                    // ログイン済みの場合、チート画面を表示
+                    self?.gameVC?.presentCheatViewController()
+                    doNotPause = true
+                } else {
+                    // 未ログインの場合、ログイン画面を表示
+                    let loginVC = LoginViewController()
+                    let navController = UINavigationController(rootViewController: loginVC)
+                    navController.modalPresentationStyle = .pageSheet
+                    loginVC.modalPresentationStyle = .fullScreen
+                    loginVC.completionHandler = { [weak self] success in
+                        if success {
+                            // ログイン成功後にチート画面を表示
+                            self?.gameVC?.presentCheatViewController()
+
+                        }else{
+                            self?.gameVC?.isPaused = false
+                        }
+                    }
+                    self?.present(navController, animated: true, completion: nil)
+                    doNotPause = true
+                    
+                }
                 break
             }
 

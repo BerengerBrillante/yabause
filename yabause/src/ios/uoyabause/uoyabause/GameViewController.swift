@@ -131,7 +131,7 @@ class GameViewController: MGLKViewController,MGLKViewControllerDelegate,Draggabl
         scurrentGamePath = UnsafeMutablePointer<Int8>.allocate(capacity: bufferSize)
         strncpy(scurrentGamePath, cString, bufferSize)
         currentGamePath = UnsafePointer<CChar>(scurrentGamePath)
-        
+        YabauseManager.shared.updateCheatCode(nil)
         view.isMultipleTouchEnabled = true
         command = 0
          
@@ -1132,6 +1132,7 @@ class GameViewController: MGLKViewController,MGLKViewControllerDelegate,Draggabl
                     scurrentGamePath = UnsafeMutablePointer<Int8>.allocate(capacity: bufferSize)
                     strncpy(scurrentGamePath, cString, bufferSize)
                     currentGamePath = UnsafePointer<CChar>(scurrentGamePath)
+                    YabauseManager.shared.updateCheatCode(nil)
                     self.command = MSG_CLOSE_TRAY
                 }
                 
@@ -1155,7 +1156,16 @@ class GameViewController: MGLKViewController,MGLKViewControllerDelegate,Draggabl
         let navController = UINavigationController(rootViewController: bfVC)
         navController.modalPresentationStyle = .pageSheet
         present(navController, animated: true, completion: nil)
-
     }
-    
+
+    func presentCheatViewController() {
+        let tabCheatVC = TabCheatViewController.newInstance(gameId: YSGetCurrentGameCode(), currentCheatCodes: nil)
+        tabCheatVC.completionHandler = {
+            self.isPaused = false
+        }
+        let navController = UINavigationController(rootViewController: tabCheatVC)
+        navController.modalPresentationStyle = .pageSheet
+        present(navController, animated: true, completion: nil)
+    }
+
 }
