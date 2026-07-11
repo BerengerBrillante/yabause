@@ -1,32 +1,51 @@
-name: Build Android APK
+name: Build Android Signed APK/AAB
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Déclenchement manuel
   push:
-    branches: [ main ]
+    branches: [ main, master ]
+    paths:
+      - 'yabause/src/android/**'
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive  # Important si y a des submodules
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x ./yabause/src/android/gradlew
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Signed Release APK + AAB
+        working-directory: ./yabause/src/android
+        env:
+          KEY_FILE_NAME: ${{ secrets.KEYSTORE_FILE_NAME }}  # nom du .jks (ex: mykeystore.jks)
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease bundleRelease
 
-      - name: Upload APK artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yabause-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: yabasanshiro-release-apk
+          path: yabause/src/android/app/build/outputs/apk/release/*.apk
+
+      - name: Upload AAB Artifact (pour Play Store)
+        uses: actions/upload-artifact@v4
+        with:
+          name: yabasanshiro-release-aab
+          path: yabause/src/android/app/build/outputs/bundle/release/*.aab
