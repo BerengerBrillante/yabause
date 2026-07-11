@@ -5,14 +5,14 @@ on:
     branches: [ "master", "main" ]
   pull_request:
     branches: [ "master", "main" ]
-  workflow_dispatch: # Permet de lancer le build manuellement depuis l'onglet Actions
+  workflow_dispatch:
 
 jobs:
   build-and-sign:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Récupération du code source (avec les sous-modules C/C++)
+    # 1. Récupération du code source
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -25,21 +25,26 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. Décodage du Keystore binaire à partir du Secret Base64
+    # 3. Décodage du Keystore binaire
     - name: Decode Keystore File
       env:
         ENCODED_STRING: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       run: |
         echo "$ENCODED_STRING" | base64 --decode > release.jks
 
-    # 4. Compilation du projet dans le bon dossier
+    # 4. Correctif automatique des liens HTTP non sécurisés
+    - name: Fix Insecure Maven Repository URLs
+      run: |
+        find yabause/src/android/ -name "*.gradle" -type f -exec sed -i 's|http://fan-adn.github.io|https://fan-adn.github.io|g' {} +
+
+    # 5. Compilation du projet
     - name: Build Release Artifact
       run: |
         cd yabause/src/android
         chmod +x gradlew
         ./gradlew assembleRelease
 
-    # 5. Signature de l'application avec tes secrets
+    # 6. Signature de l'application
     - name: Sign Android Release
       uses: r0adkll/sign-android-release@v1
       id: sign_app
@@ -50,7 +55,7 @@ jobs:
         keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
-    # 6. Exportation du fichier final signé (l'artefact téléchargeable)
+    # 7. Exportation du fichier final signé
     - name: Upload Signed Artifact
       uses: actions/upload-artifact@v4
       with:
