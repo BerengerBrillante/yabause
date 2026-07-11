@@ -37,31 +37,36 @@ jobs:
       run: |
         find yabause/src/android/ -name "*.gradle" -type f -exec sed -i 's|http://fan-adn.github.io|https://fan-adn.github.io|g' {} +
 
-    # 5. Nettoyage de la réplique en double dans le fichier russe
-    - name: Fix Duplicate String in Russian Localization
+    # 5. Nettoyage global de TOUS les doublons dans le fichier russe
+    - name: Fix All Duplicate Strings in Russian Localization
       shell: python
       run: |
         import os
+        import re
+        
         file_path = "yabause/src/android/app/src/main/res/values-ru/strings.xml"
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
             
             new_lines = []
-            found = False
+            seen_names = set()
+            deleted_count = 0
+            
             for line in lines:
-                if 'name="attachment_summary_off"' in line:
-                    if not found:
-                        new_lines.append(line)
-                        found = True  # On garde la première occurrence
-                    else:
-                        continue      # On ignore la deuxième occurrence (doublon)
-                else:
-                    new_lines.append(line)
+                # Détecte l'identifiant de la ressource string
+                match = re.search(r'<string\s+name="([^"]+)"', line)
+                if match:
+                    string_name = match.group(1)
+                    if string_name in seen_names:
+                        deleted_count += 1
+                        continue # On ignore la ligne si l'identifiant a déjà été vu
+                    seen_names.add(string_name)
+                new_lines.append(line)
             
             with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(new_lines)
-            print("Doublon nettoyé avec succès !")
+            print(f"Nettoyage réussi : {deleted_count} chaînes en double supprimées.")
 
     # 6. Compilation du projet
     - name: Build Release Artifact
